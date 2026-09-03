@@ -33,6 +33,15 @@ return [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
+    ],    
+
+    'careerjet' => [
+        'api_key' => env('CAREERJET_API_KEY'),
+        'locale' => env('CAREERJET_LOCALE', 'en_IN'),
+        'base_url' => env(
+            'CAREERJET_BASE_URL',
+            'https://search.api.careerjet.net'
+        ),
     ],
 
 ];

@@ -2,56 +2,40 @@
 
 @section('title', 'Find Your Next Job - JobBoard')
 
-
 @section('content')
 
-<!-- =========================================
+{{-- =========================================================
      HERO
-========================================= -->
+========================================================= --}}
 
 <section class="home-hero">
-
     <div class="container">
-
         <div class="row justify-content-center">
-
             <div class="col-xl-9 text-center">
 
                 <span class="hero-label">
                     FIND YOUR NEXT OPPORTUNITY
                 </span>
 
-
                 <h1 class="hero-title">
-
                     Find a job that
                     <span>fits your life.</span>
-
                 </h1>
 
-
                 <p class="hero-description">
-
                     Discover thousands of jobs from companies hiring
                     talented people like you.
-
                 </p>
 
-
-                <!-- Search -->
-
                 <form
-                    action="{{ url('/search') }}"
+                    action="{{ route('jobs.index') }}"
                     method="GET"
                     class="hero-search"
                 >
-
                     <div class="row g-2">
 
                         <div class="col-lg-5">
-
                             <div class="search-input">
-
                                 <i class="bi bi-search"></i>
 
                                 <input
@@ -59,17 +43,13 @@
                                     name="keyword"
                                     class="form-control"
                                     placeholder="Job title, keyword or company"
+                                    value="{{ request('keyword') }}"
                                 >
-
                             </div>
-
                         </div>
 
-
                         <div class="col-lg-4">
-
                             <div class="search-input">
-
                                 <i class="bi bi-geo-alt"></i>
 
                                 <input
@@ -77,71 +57,52 @@
                                     name="location"
                                     class="form-control"
                                     placeholder="City, state or remote"
+                                    value="{{ request('location', $city ?? '') }}"
                                 >
-
                             </div>
-
                         </div>
 
-
                         <div class="col-lg-3">
-
                             <button
                                 type="submit"
                                 class="btn btn-primary search-btn w-100"
                             >
                                 Search Jobs
                             </button>
-
                         </div>
 
                     </div>
-
                 </form>
 
-
-                <!-- Popular Searches -->
-
                 <div class="popular-searches">
+                    <span>Popular:</span>
 
-                    <span>
-                        Popular:
-                    </span>
-
-
-                    <a href="{{ url('/search') }}">
+                    <a href="{{ route('jobs.index', ['keyword' => 'Software Engineer']) }}">
                         Software Engineer
                     </a>
 
-
-                    <a href="{{ url('/search') }}">
+                    <a href="{{ route('jobs.index', ['keyword' => 'Marketing']) }}">
                         Marketing
                     </a>
 
-
-                    <a href="{{ url('/search') }}">
+                    <a href="{{ route('jobs.index', ['keyword' => 'Data Analyst']) }}">
                         Data Analyst
                     </a>
 
-
-                    <a href="{{ url('/search') }}">
+                    <a href="{{ route('jobs.index', ['keyword' => 'Remote']) }}">
                         Remote Jobs
                     </a>
-
                 </div>
 
             </div>
-
         </div>
-
     </div>
-
 </section>
 
 
-<!-- =========================================
-     FEATURED JOBS
-========================================= -->
+{{-- =========================================================
+     FEATURED / LOCATION JOBS
+========================================================= --}}
 
 <section class="section-padding bg-light-subtle">
 
@@ -150,33 +111,29 @@
         <div class="section-heading-row">
 
             <div>
-
                 <span class="section-label">
                     FRESH OPPORTUNITIES
                 </span>
 
-
                 <h2>
-                    Featured jobs
+                    Jobs hiring{{ !empty($city) ? ' in ' . $city : '' }}
                 </h2>
 
-
                 <p>
-                    Explore some of the latest opportunities.
+                    @if(!empty($city))
+                        Latest opportunities hiring in {{ $city }}.
+                    @else
+                        Explore some of the latest opportunities across India.
+                    @endif
                 </p>
-
             </div>
 
-
             <a
-                href="{{ url('/search') }}"
+                href="{{ route('jobs.index') }}"
                 class="view-all-link"
             >
-
                 View all jobs
-
                 <i class="bi bi-arrow-right"></i>
-
             </a>
 
         </div>
@@ -184,254 +141,138 @@
 
         <div class="row g-4">
 
+            @forelse($jobs as $job)
 
-            <!-- JOB 1 -->
+                <div class="col-lg-4 col-md-6">
 
-            <div class="col-md-6 col-xl-4">
+                    <div class="job-card h-100">
 
-                <div class="job-card">
+                        <div class="job-card-body">
 
-                    <div class="job-card-top">
+                            {{-- Job Title --}}
+                            <h3 class="job-title">
+                                {{ $job['title'] ?? 'Job Opportunity' }}
+                            </h3>
 
-                        <div class="company-logo logo-purple">
-                            N
+
+                            {{-- Company --}}
+                            @if(!empty($job['company']))
+
+                                <div class="job-company">
+                                    <i class="bi bi-building"></i>
+
+                                    {{ $job['company'] }}
+                                </div>
+
+                            @endif
+
+
+                            {{-- Location --}}
+                            @if(!empty($job['locations']))
+
+                                <div class="job-location">
+                                    <i class="bi bi-geo-alt"></i>
+
+                                    {{ $job['locations'] }}
+                                </div>
+
+                            @endif
+
+
+                            {{-- Salary --}}
+                            @if(!empty($job['salary']))
+
+                                <div class="job-salary">
+                                    <i class="bi bi-cash"></i>
+
+                                    {{ $job['salary'] }}
+                                </div>
+
+                            @endif
+
+
+                            {{-- Contract Type --}}
+                            @if(!empty($job['contract_type']))
+
+                                <div class="job-contract">
+                                    <i class="bi bi-briefcase"></i>
+
+                                    {{ $job['contract_type'] }}
+                                </div>
+
+                            @endif
+
+
+                            {{-- Description --}}
+                            @if(!empty($job['description']))
+
+                                <p class="job-description">
+
+                                    {{ \Illuminate\Support\Str::limit(
+                                        strip_tags($job['description']),
+                                        120
+                                    ) }}
+
+                                </p>
+
+                            @endif
+
+
+                            {{-- Date --}}
+                            @if(!empty($job['date']))
+
+                                <div class="job-date">
+                                    <i class="bi bi-clock"></i>
+
+                                    {{ $job['date'] }}
+                                </div>
+
+                            @endif
+
+
+                            {{-- View Job --}}
+                            @if(!empty($job['url']))
+
+                                <a
+                                    href="{{ $job['url'] }}"
+                                    target="_blank"
+                                    rel="nofollow sponsored noopener"
+                                    class="btn btn-primary btn-sm"
+                                >
+                                    View Job
+
+                                    <i class="bi bi-arrow-up-right"></i>
+                                </a>
+
+                            @endif
+
                         </div>
-
-
-                        <span class="job-badge">
-                            Featured
-                        </span>
-
-                    </div>
-
-
-                    <h3 class="job-title">
-
-                        <a href="{{ url('/job-details') }}">
-                            Senior Software Engineer
-                        </a>
-
-                    </h3>
-
-
-                    <div class="company-name">
-                        Nova Technologies
-                    </div>
-
-
-                    <div class="job-meta">
-
-                        <span>
-                            <i class="bi bi-geo-alt"></i>
-                            Hyderabad, India
-                        </span>
-
-                        <span>
-                            <i class="bi bi-briefcase"></i>
-                            Full-time
-                        </span>
-
-                    </div>
-
-
-                    <div class="job-tags">
-
-                        <span>
-                            ₹18–28 LPA
-                        </span>
-
-                        <span>
-                            Hybrid
-                        </span>
-
-                    </div>
-
-
-                    <div class="job-card-footer">
-
-                        <small>
-                            Posted 2 days ago
-                        </small>
-
-
-                        <button
-                            type="button"
-                            class="save-job"
-                        >
-                            <i class="bi bi-bookmark"></i>
-                        </button>
 
                     </div>
 
                 </div>
 
-            </div>
+            @empty
 
+                <div class="col-12">
 
-            <!-- JOB 2 -->
+                    <div class="alert alert-light text-center">
 
-            <div class="col-md-6 col-xl-4">
+                        @if(!empty($city))
 
-                <div class="job-card">
+                            No jobs found in {{ $city }}.
 
-                    <div class="job-card-top">
+                        @else
 
-                        <div class="company-logo logo-orange">
-                            A
-                        </div>
+                            No jobs are currently available.
 
-
-                        <span class="job-badge">
-                            New
-                        </span>
-
-                    </div>
-
-
-                    <h3 class="job-title">
-
-                        <a href="{{ url('/job-details') }}">
-                            Product Designer
-                        </a>
-
-                    </h3>
-
-
-                    <div class="company-name">
-                        Atlas Labs
-                    </div>
-
-
-                    <div class="job-meta">
-
-                        <span>
-                            <i class="bi bi-geo-alt"></i>
-                            Bengaluru, India
-                        </span>
-
-                        <span>
-                            <i class="bi bi-briefcase"></i>
-                            Full-time
-                        </span>
-
-                    </div>
-
-
-                    <div class="job-tags">
-
-                        <span>
-                            ₹12–20 LPA
-                        </span>
-
-                        <span>
-                            Remote
-                        </span>
-
-                    </div>
-
-
-                    <div class="job-card-footer">
-
-                        <small>
-                            Posted 1 day ago
-                        </small>
-
-
-                        <button
-                            type="button"
-                            class="save-job"
-                        >
-                            <i class="bi bi-bookmark"></i>
-                        </button>
+                        @endif
 
                     </div>
 
                 </div>
 
-            </div>
-
-
-            <!-- JOB 3 -->
-
-            <div class="col-md-6 col-xl-4">
-
-                <div class="job-card">
-
-                    <div class="job-card-top">
-
-                        <div class="company-logo logo-green">
-                            C
-                        </div>
-
-
-                        <span class="job-badge">
-                            Hot
-                        </span>
-
-                    </div>
-
-
-                    <h3 class="job-title">
-
-                        <a href="{{ url('/job-details') }}">
-                            Data Analyst
-                        </a>
-
-                    </h3>
-
-
-                    <div class="company-name">
-                        CloudPeak
-                    </div>
-
-
-                    <div class="job-meta">
-
-                        <span>
-                            <i class="bi bi-geo-alt"></i>
-                            Pune, India
-                        </span>
-
-                        <span>
-                            <i class="bi bi-briefcase"></i>
-                            Full-time
-                        </span>
-
-                    </div>
-
-
-                    <div class="job-tags">
-
-                        <span>
-                            ₹9–15 LPA
-                        </span>
-
-                        <span>
-                            Hybrid
-                        </span>
-
-                    </div>
-
-
-                    <div class="job-card-footer">
-
-                        <small>
-                            Posted 3 days ago
-                        </small>
-
-
-                        <button
-                            type="button"
-                            class="save-job"
-                        >
-                            <i class="bi bi-bookmark"></i>
-                        </button>
-
-                    </div>
-
-                </div>
-
-            </div>
+            @endforelse
 
         </div>
 
@@ -440,9 +281,9 @@
 </section>
 
 
-<!-- =========================================
-     COMPANIES
-========================================= -->
+{{-- =========================================================
+     TOP COMPANIES
+========================================================= --}}
 
 <section
     class="section-padding"
@@ -457,14 +298,13 @@
                 TOP EMPLOYERS
             </span>
 
-
             <h2>
                 Companies hiring now
             </h2>
 
-
             <p>
-                Find your next opportunity at companies you'll love.
+                Find your next opportunity at companies hiring
+                across {{ !empty($city) ? $city : 'India' }}.
             </p>
 
         </div>
@@ -472,89 +312,51 @@
 
         <div class="row g-4">
 
+            @forelse($companies as $company)
 
-            <div class="col-6 col-md-3">
+                <div class="col-lg-3 col-md-6">
 
-                <div class="company-card">
+                    <div class="company-card h-100">
 
-                    <div class="company-logo logo-blue">
-                        T
+                        <div class="company-icon">
+                            <i class="bi bi-building"></i>
+                        </div>
+
+                        <h3 class="company-name">
+                            {{ $company['name'] }}
+                        </h3>
+
+                        <p class="company-jobs">
+                            {{ $company['jobs'] }}
+                            {{ $company['jobs'] == 1 ? 'job' : 'jobs' }}
+                        </p>
+
+                        <a
+                            href="{{ route('jobs.index', [
+                                'keyword' => $company['name'],
+                                'location' => $city ?? ''
+                            ]) }}"
+                            class="company-link"
+                        >
+                            View jobs
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+
                     </div>
-
-                    <h4>
-                        TechNova
-                    </h4>
-
-                    <p>
-                        42 open roles
-                    </p>
 
                 </div>
 
-            </div>
+            @empty
 
+                <div class="col-12">
 
-            <div class="col-6 col-md-3">
-
-                <div class="company-card">
-
-                    <div class="company-logo logo-orange">
-                        A
+                    <div class="alert alert-light text-center">
+                        No companies found.
                     </div>
-
-                    <h4>
-                        Atlas Labs
-                    </h4>
-
-                    <p>
-                        18 open roles
-                    </p>
 
                 </div>
 
-            </div>
-
-
-            <div class="col-6 col-md-3">
-
-                <div class="company-card">
-
-                    <div class="company-logo logo-green">
-                        C
-                    </div>
-
-                    <h4>
-                        CloudPeak
-                    </h4>
-
-                    <p>
-                        27 open roles
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <div class="col-6 col-md-3">
-
-                <div class="company-card">
-
-                    <div class="company-logo logo-purple">
-                        N
-                    </div>
-
-                    <h4>
-                        Nova Technologies
-                    </h4>
-
-                    <p>
-                        31 open roles
-                    </p>
-
-                </div>
-
-            </div>
+            @endforelse
 
         </div>
 
@@ -563,9 +365,9 @@
 </section>
 
 
-<!-- =========================================
+{{-- =========================================================
      CTA
-========================================= -->
+========================================================= --}}
 
 <section class="main-cta">
 
@@ -575,14 +377,12 @@
             Ready for your next opportunity?
         </h2>
 
-
         <p>
             Start exploring jobs and take the next step in your career.
         </p>
 
-
         <a
-            href="{{ url('/search') }}"
+            href="{{ route('jobs.index') }}"
             class="btn btn-light btn-lg px-4"
         >
             Explore Jobs
@@ -591,5 +391,114 @@
     </div>
 
 </section>
+
+
+{{-- =========================================================
+     HOMEPAGE STYLES
+========================================================= --}}
+
+<style>
+
+.job-card {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    overflow: hidden;
+}
+
+.job-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.job-card-body {
+    padding: 24px;
+}
+
+.job-title {
+    font-size: 19px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-bottom: 16px;
+}
+
+.job-company,
+.job-location,
+.job-salary,
+.job-contract,
+.job-date {
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.job-company i,
+.job-location i,
+.job-salary i,
+.job-contract i,
+.job-date i {
+    margin-right: 6px;
+}
+
+.job-description {
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 16px 0;
+    color: #6c757d;
+}
+
+.job-date {
+    color: #888;
+    margin-bottom: 16px;
+}
+
+.company-card {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 25px;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.company-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.company-icon {
+    width: 55px;
+    height: 55px;
+    margin: 0 auto 16px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f1f3f5;
+    font-size: 24px;
+}
+
+.company-name {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.company-jobs {
+    color: #6c757d;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.company-link {
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.company-link i {
+    margin-left: 4px;
+}
+
+</style>
 
 @endsection

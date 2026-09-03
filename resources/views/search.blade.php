@@ -2,7 +2,6 @@
 
 @section('title', 'Search Jobs - JobBoard')
 
-
 @section('content')
 
 <!-- =========================================
@@ -11,71 +10,73 @@
 
 <section class="search-page-header">
 
-    <div class="container">
+```
+<div class="container">
 
-        <form
-            action="{{ url('/search') }}"
-            method="GET"
-        >
+    <form
+        action="{{ route('jobs.index') }}"
+        method="GET"
+    >
 
-            <div class="row g-2">
+        <div class="row g-2">
 
-                <div class="col-lg-5">
+            <div class="col-lg-5">
 
-                    <div class="search-input search-input-light">
+                <div class="search-input search-input-light">
 
-                        <i class="bi bi-search"></i>
+                    <i class="bi bi-search"></i>
 
-                        <input
-                            type="text"
-                            name="keyword"
-                            class="form-control"
-                            placeholder="Job title, keyword or company"
-                            value="Software Engineer"
-                        >
-
-                    </div>
-
-                </div>
-
-
-                <div class="col-lg-4">
-
-                    <div class="search-input search-input-light">
-
-                        <i class="bi bi-geo-alt"></i>
-
-                        <input
-                            type="text"
-                            name="location"
-                            class="form-control"
-                            placeholder="City, state or remote"
-                        >
-
-                    </div>
-
-                </div>
-
-
-                <div class="col-lg-3">
-
-                    <button
-                        type="submit"
-                        class="btn btn-primary search-btn w-100"
+                    <input
+                        type="text"
+                        name="keyword"
+                        class="form-control"
+                        placeholder="Job title, keyword or company"
+                        value="{{ $keyword ?? request('keyword') }}"
                     >
-                        Search Jobs
-                    </button>
 
                 </div>
 
             </div>
 
-        </form>
 
-    </div>
+            <div class="col-lg-4">
+
+                <div class="search-input search-input-light">
+
+                    <i class="bi bi-geo-alt"></i>
+
+                    <input
+                        type="text"
+                        name="location"
+                        class="form-control"
+                        placeholder="City, state or remote"
+                        value="{{ $location ?? request('location') }}"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="col-lg-3">
+
+                <button
+                    type="submit"
+                    class="btn btn-primary search-btn w-100"
+                >
+                    Search Jobs
+                </button>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+```
 
 </section>
-
 
 <!-- =========================================
      RESULTS
@@ -83,283 +84,61 @@
 
 <main class="container search-results-area">
 
-    <div class="row g-4">
+```
+<div class="row g-4">
 
 
-        <!-- FILTERS -->
+    <!-- =====================================
+         FILTERS
+    ====================================== -->
 
-        <aside class="col-lg-3">
+    <aside class="col-lg-3">
 
-            <div class="filter-box">
+        <div class="filter-box">
 
-                <div class="filter-header">
+            <div class="filter-header">
 
-                    <h5>
-                        Filter jobs
-                    </h5>
+                <h5>
+                    Filter jobs
+                </h5>
 
-
-                    <a href="#">
-                        Clear
-                    </a>
-
-                </div>
-
-
-                <hr>
-
-
-                <!-- DATE -->
-
-                <div class="filter-section">
-
-                    <label class="filter-title">
-                        Date posted
-                    </label>
-
-
-                    <select class="form-select">
-
-                        <option>
-                            Any time
-                        </option>
-
-                        <option>
-                            Past 24 hours
-                        </option>
-
-                        <option>
-                            Past week
-                        </option>
-
-                        <option>
-                            Past month
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <!-- JOB TYPE -->
-
-                <div class="filter-section">
-
-                    <label class="filter-title">
-                        Job type
-                    </label>
-
-
-                    <div class="form-check">
-
-                        <input
-                            class="form-check-input"
-                            type="checkbox"
-                            id="fulltime"
-                        >
-
-                        <label
-                            class="form-check-label"
-                            for="fulltime"
-                        >
-                            Full-time
-                        </label>
-
-                    </div>
-
-
-                    <div class="form-check">
-
-                        <input
-                            class="form-check-input"
-                            type="checkbox"
-                            id="parttime"
-                        >
-
-                        <label
-                            class="form-check-label"
-                            for="parttime"
-                        >
-                            Part-time
-                        </label>
-
-                    </div>
-
-
-                    <div class="form-check">
-
-                        <input
-                            class="form-check-input"
-                            type="checkbox"
-                            id="contract"
-                        >
-
-                        <label
-                            class="form-check-label"
-                            for="contract"
-                        >
-                            Contract
-                        </label>
-
-                    </div>
-
-                </div>
-
-
-                <!-- WORK MODE -->
-
-                <div class="filter-section">
-
-                    <label class="filter-title">
-                        Work mode
-                    </label>
-
-
-                    <div class="form-check">
-
-                        <input
-                            class="form-check-input"
-                            type="checkbox"
-                            id="remote"
-                        >
-
-                        <label
-                            class="form-check-label"
-                            for="remote"
-                        >
-                            Remote
-                        </label>
-
-                    </div>
-
-
-                    <div class="form-check">
-
-                        <input
-                            class="form-check-input"
-                            type="checkbox"
-                            id="hybrid"
-                        >
-
-                        <label
-                            class="form-check-label"
-                            for="hybrid"
-                        >
-                            Hybrid
-                        </label>
-
-                    </div>
-
-
-                    <div class="form-check">
-
-                        <input
-                            class="form-check-input"
-                            type="checkbox"
-                            id="onsite"
-                        >
-
-                        <label
-                            class="form-check-label"
-                            for="onsite"
-                        >
-                            On-site
-                        </label>
-
-                    </div>
-
-                </div>
-
-
-                <!-- EXPERIENCE -->
-
-                <div class="filter-section">
-
-                    <label class="filter-title">
-                        Experience
-                    </label>
-
-
-                    <div class="form-check">
-
-                        <input
-                            class="form-check-input"
-                            type="checkbox"
-                        >
-
-                        <label class="form-check-label">
-                            Entry level
-                        </label>
-
-                    </div>
-
-
-                    <div class="form-check">
-
-                        <input
-                            class="form-check-input"
-                            type="checkbox"
-                        >
-
-                        <label class="form-check-label">
-                            Mid level
-                        </label>
-
-                    </div>
-
-
-                    <div class="form-check">
-
-                        <input
-                            class="form-check-input"
-                            type="checkbox"
-                        >
-
-                        <label class="form-check-label">
-                            Senior level
-                        </label>
-
-                    </div>
-
-                </div>
+                <a href="{{ route('jobs.index') }}">
+                    Clear
+                </a>
 
             </div>
 
-        </aside>
+
+            <hr>
 
 
-        <!-- JOB RESULTS -->
+            <!-- DATE -->
 
-        <section class="col-lg-9">
+            <div class="filter-section">
 
-            <div class="results-heading">
+                <label class="filter-title">
+                    Date posted
+                </label>
 
-                <div>
-
-                    <h2>
-                        Software Engineer jobs
-                    </h2>
-
-
-                    <p>
-                        1,284 opportunities found
-                    </p>
-
-                </div>
-
-
-                <select class="form-select sort-select">
+                <select
+                    class="form-select"
+                    disabled
+                >
 
                     <option>
-                        Most relevant
+                        Any time
                     </option>
 
                     <option>
-                        Newest
+                        Past 24 hours
                     </option>
 
                     <option>
-                        Salary: High to Low
+                        Past week
+                    </option>
+
+                    <option>
+                        Past month
                     </option>
 
                 </select>
@@ -367,494 +146,726 @@
             </div>
 
 
-            <!-- JOB 1 -->
+            <!-- JOB TYPE -->
 
-            <article class="search-job-card">
+            <div class="filter-section">
 
-                <div class="company-logo logo-purple">
-                    N
+                <label class="filter-title">
+                    Job type
+                </label>
+
+
+                <div class="form-check">
+
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        disabled
+                    >
+
+                    <label class="form-check-label">
+                        Full-time
+                    </label>
+
                 </div>
 
 
-                <div class="search-job-content">
+                <div class="form-check">
 
-                    <div class="d-flex justify-content-between">
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        disabled
+                    >
 
-                        <div>
+                    <label class="form-check-label">
+                        Part-time
+                    </label>
 
-                            <h3>
-
-                                <a href="{{ url('/job-details') }}">
-                                    Senior Software Engineer
-                                </a>
-
-                            </h3>
+                </div>
 
 
-                            <div class="company-name">
-                                Nova Technologies
+                <div class="form-check">
+
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        disabled
+                    >
+
+                    <label class="form-check-label">
+                        Contract
+                    </label>
+
+                </div>
+
+            </div>
+
+
+            <!-- WORK MODE -->
+
+            <div class="filter-section">
+
+                <label class="filter-title">
+                    Work mode
+                </label>
+
+
+                <div class="form-check">
+
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        disabled
+                    >
+
+                    <label class="form-check-label">
+                        Remote
+                    </label>
+
+                </div>
+
+
+                <div class="form-check">
+
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        disabled
+                    >
+
+                    <label class="form-check-label">
+                        Hybrid
+                    </label>
+
+                </div>
+
+
+                <div class="form-check">
+
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        disabled
+                    >
+
+                    <label class="form-check-label">
+                        On-site
+                    </label>
+
+                </div>
+
+            </div>
+
+
+            <!-- EXPERIENCE -->
+
+            <div class="filter-section">
+
+                <label class="filter-title">
+                    Experience
+                </label>
+
+
+                <div class="form-check">
+
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        disabled
+                    >
+
+                    <label class="form-check-label">
+                        Entry level
+                    </label>
+
+                </div>
+
+
+                <div class="form-check">
+
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        disabled
+                    >
+
+                    <label class="form-check-label">
+                        Mid level
+                    </label>
+
+                </div>
+
+
+                <div class="form-check">
+
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        disabled
+                    >
+
+                    <label class="form-check-label">
+                        Senior level
+                    </label>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =====================================
+         JOB RESULTS
+    ====================================== -->
+
+    <section class="col-lg-9">
+
+
+        <!-- RESULTS HEADER -->
+
+        <div class="results-heading">
+
+            <div>
+
+                <h2>
+
+                    @if(!empty($keyword))
+
+                        {{ $keyword }} jobs
+
+                    @elseif(!empty($location))
+
+                        Jobs in {{ $location }}
+
+                    @else
+
+                        Jobs in India
+
+                    @endif
+
+                </h2>
+
+
+                <p>
+
+                    @if(isset($hits))
+
+                        {{ number_format($hits) }}
+
+                        {{ $hits == 1 ? 'opportunity' : 'opportunities' }}
+                        found
+
+                    @else
+
+                        Jobs found
+
+                    @endif
+
+                </p>
+
+            </div>
+
+
+            <form
+                action="{{ route('jobs.index') }}"
+                method="GET"
+            >
+
+                @if(!empty($keyword))
+
+                    <input
+                        type="hidden"
+                        name="keyword"
+                        value="{{ $keyword }}"
+                    >
+
+                @endif
+
+
+                @if(!empty($location))
+
+                    <input
+                        type="hidden"
+                        name="location"
+                        value="{{ $location }}"
+                    >
+
+                @endif
+
+
+                <select
+                    name="sort"
+                    class="form-select sort-select"
+                    onchange="this.form.submit()"
+                >
+
+                    <option
+                        value="relevance"
+                        {{ request('sort', 'relevance') === 'relevance' ? 'selected' : '' }}
+                    >
+                        Most relevant
+                    </option>
+
+                    <option
+                        value="date"
+                        {{ request('sort') === 'date' ? 'selected' : '' }}
+                    >
+                        Newest
+                    </option>
+
+                </select>
+
+            </form>
+
+        </div>
+
+
+        <!-- =====================================
+             JOB LIST
+        ====================================== -->
+
+        @if(!empty($jobs))
+
+            @foreach($jobs as $job)
+
+                @php
+
+                    $title = $job['title'] ?? 'Untitled Job';
+
+                    $company = $job['company'] ?? 'Company not specified';
+
+                    $locations = $job['locations'] ?? 'India';
+
+                    $description = $job['description'] ?? '';
+
+                    $salary = $job['salary'] ?? '';
+
+                    $url = $job['url'] ?? '#';
+
+                    $date = $job['date'] ?? '';
+
+                    $initial = mb_strtoupper(
+                        mb_substr(
+                            trim($company),
+                            0,
+                            1
+                        )
+                    );
+
+                @endphp
+
+
+                <article class="search-job-card">
+
+
+                    <!-- COMPANY LOGO -->
+
+                    <div class="company-logo logo-purple">
+
+                        {{ $initial ?: 'C' }}
+
+                    </div>
+
+
+                    <!-- JOB CONTENT -->
+
+                    <div class="search-job-content">
+
+
+                        <div class="d-flex justify-content-between">
+
+                            <div>
+
+                                <h3>
+
+                                    @if($url && $url !== '#')
+
+                                        <a
+                                            href="{{ $url }}"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            {{ $title }}
+                                        </a>
+
+                                    @else
+
+                                        {{ $title }}
+
+                                    @endif
+
+                                </h3>
+
+
+                                <div class="company-name">
+
+                                    {{ $company }}
+
+                                </div>
+
                             </div>
+
+
+                            <button
+                                type="button"
+                                class="save-job"
+                                aria-label="Save job"
+                            >
+
+                                <i class="bi bi-bookmark"></i>
+
+                            </button>
 
                         </div>
 
 
-                        <button
-                            type="button"
-                            class="save-job"
-                        >
-                            <i class="bi bi-bookmark"></i>
-                        </button>
+                        <!-- JOB META -->
 
-                    </div>
+                        <div class="job-meta">
 
+                            @if(!empty($locations))
 
-                    <div class="job-meta">
+                                <span>
 
-                        <span>
-                            <i class="bi bi-geo-alt"></i>
-                            Hyderabad, India
-                        </span>
+                                    <i class="bi bi-geo-alt"></i>
 
-                        <span>
-                            <i class="bi bi-briefcase"></i>
-                            Full-time
-                        </span>
+                                    {{ $locations }}
 
-                    </div>
+                                </span>
+
+                            @endif
 
 
-                    <div class="job-tags">
+                            @if(!empty($job['contract_type']))
 
-                        <span>
-                            ₹18–28 LPA
-                        </span>
+                                <span>
 
-                        <span>
-                            Hybrid
-                        </span>
+                                    <i class="bi bi-briefcase"></i>
 
-                    </div>
+                                    {{ $job['contract_type'] }}
 
+                                </span>
 
-                    <p class="job-summary">
-
-                        Build scalable applications and work with a talented
-                        engineering team to deliver products used by millions.
-
-                    </p>
-
-
-                    <small class="posted-date">
-                        Posted 2 days ago
-                    </small>
-
-                </div>
-
-            </article>
-
-
-            <!-- JOB 2 -->
-
-            <article class="search-job-card">
-
-                <div class="company-logo logo-blue">
-                    T
-                </div>
-
-
-                <div class="search-job-content">
-
-                    <div class="d-flex justify-content-between">
-
-                        <div>
-
-                            <h3>
-
-                                <a href="{{ url('/job-details') }}">
-                                    Backend Engineer — PHP / Laravel
-                                </a>
-
-                            </h3>
-
-
-                            <div class="company-name">
-                                TechNova
-                            </div>
+                            @endif
 
                         </div>
 
 
-                        <button
-                            type="button"
-                            class="save-job"
-                        >
-                            <i class="bi bi-bookmark"></i>
-                        </button>
+                        <!-- JOB TAGS -->
 
-                    </div>
+                        @if(!empty($salary))
 
+                            <div class="job-tags">
 
-                    <div class="job-meta">
+                                <span>
+                                    {{ $salary }}
+                                </span>
 
-                        <span>
-                            <i class="bi bi-geo-alt"></i>
-                            Remote, India
-                        </span>
-
-                        <span>
-                            <i class="bi bi-briefcase"></i>
-                            Full-time
-                        </span>
-
-                    </div>
-
-
-                    <div class="job-tags">
-
-                        <span>
-                            ₹14–24 LPA
-                        </span>
-
-                        <span>
-                            Remote
-                        </span>
-
-                    </div>
-
-
-                    <p class="job-summary">
-
-                        Join our backend engineering team and build
-                        high-performance APIs and services.
-
-                    </p>
-
-
-                    <small class="posted-date">
-                        Posted 1 day ago
-                    </small>
-
-                </div>
-
-            </article>
-
-
-            <!-- JOB 3 -->
-
-            <article class="search-job-card">
-
-                <div class="company-logo logo-orange">
-                    A
-                </div>
-
-
-                <div class="search-job-content">
-
-                    <div class="d-flex justify-content-between">
-
-                        <div>
-
-                            <h3>
-
-                                <a href="{{ url('/job-details') }}">
-                                    Software Engineer II
-                                </a>
-
-                            </h3>
-
-
-                            <div class="company-name">
-                                Atlas Labs
                             </div>
 
-                        </div>
+                        @endif
 
 
-                        <button
-                            type="button"
-                            class="save-job"
-                        >
-                            <i class="bi bi-bookmark"></i>
-                        </button>
+                        <!-- DESCRIPTION -->
+
+                        @if(!empty($description))
+
+                            <p class="job-summary">
+
+                                {{ \Illuminate\Support\Str::limit(
+                                    strip_tags($description),
+                                    280
+                                ) }}
+
+                            </p>
+
+                        @endif
+
+
+                        <!-- DATE -->
+
+                        @if(!empty($date))
+
+                            <small class="posted-date">
+
+                                {{ $date }}
+
+                            </small>
+
+                        @endif
+
 
                     </div>
 
+                </article>
 
-                    <div class="job-meta">
-
-                        <span>
-                            <i class="bi bi-geo-alt"></i>
-                            Bengaluru, India
-                        </span>
-
-                        <span>
-                            <i class="bi bi-briefcase"></i>
-                            Full-time
-                        </span>
-
-                    </div>
+            @endforeach
 
 
-                    <div class="job-tags">
-
-                        <span>
-                            ₹16–25 LPA
-                        </span>
-
-                        <span>
-                            On-site
-                        </span>
-
-                    </div>
+        @else
 
 
-                    <p class="job-summary">
+            <!-- =================================
+                 NO RESULTS
+            ================================== -->
 
-                        Help us create reliable products while working
-                        closely with product and design teams.
+            <div class="text-center py-5">
 
-                    </p>
+                <div class="mb-3">
 
-
-                    <small class="posted-date">
-                        Posted 3 days ago
-                    </small>
+                    <i
+                        class="bi bi-search"
+                        style="font-size: 48px;"
+                    ></i>
 
                 </div>
 
-            </article>
 
+                <h3>
+                    No jobs found
+                </h3>
 
-            <!-- JOB 4 -->
 
-            <article class="search-job-card">
+                <p class="text-muted">
 
-                <div class="company-logo logo-green">
-                    C
-                </div>
+                    @if(!empty($keyword) || !empty($location))
 
+                        We couldn't find jobs matching your search.
 
-                <div class="search-job-content">
+                        Try a different keyword or location.
 
-                    <div class="d-flex justify-content-between">
+                    @else
 
-                        <div>
+                        No cached jobs are currently available.
 
-                            <h3>
+                        Please try again later.
 
-                                <a href="{{ url('/job-details') }}">
-                                    Full Stack Developer
-                                </a>
+                    @endif
 
-                            </h3>
+                </p>
 
 
-                            <div class="company-name">
-                                CloudPeak
-                            </div>
+                @if(!empty($keyword) || !empty($location))
 
-                        </div>
+                    <a
+                        href="{{ route('jobs.index') }}"
+                        class="btn btn-primary"
+                    >
+                        View All Jobs
+                    </a>
 
+                @endif
 
-                        <button
-                            type="button"
-                            class="save-job"
-                        >
-                            <i class="bi bi-bookmark"></i>
-                        </button>
+            </div>
 
-                    </div>
+        @endif
 
 
-                    <div class="job-meta">
+        <!-- =====================================
+             PAGINATION
+        ====================================== -->
 
-                        <span>
-                            <i class="bi bi-geo-alt"></i>
-                            Pune, India
-                        </span>
+        @if(($pages ?? 0) > 1)
 
-                        <span>
-                            <i class="bi bi-briefcase"></i>
-                            Full-time
-                        </span>
-
-                    </div>
-
-
-                    <div class="job-tags">
-
-                        <span>
-                            ₹12–20 LPA
-                        </span>
-
-                        <span>
-                            Hybrid
-                        </span>
-
-                    </div>
-
-
-                    <p class="job-summary">
-
-                        Work across frontend and backend systems and
-                        contribute to a fast-growing product.
-
-                    </p>
-
-
-                    <small class="posted-date">
-                        Posted 4 days ago
-                    </small>
-
-                </div>
-
-            </article>
-
-
-            <!-- JOB 5 -->
-
-            <article class="search-job-card">
-
-                <div class="company-logo logo-purple">
-                    N
-                </div>
-
-
-                <div class="search-job-content">
-
-                    <div class="d-flex justify-content-between">
-
-                        <div>
-
-                            <h3>
-
-                                <a href="{{ url('/job-details') }}">
-                                    Frontend Engineer — React
-                                </a>
-
-                            </h3>
-
-
-                            <div class="company-name">
-                                Nova Technologies
-                            </div>
-
-                        </div>
-
-
-                        <button
-                            type="button"
-                            class="save-job"
-                        >
-                            <i class="bi bi-bookmark"></i>
-                        </button>
-
-                    </div>
-
-
-                    <div class="job-meta">
-
-                        <span>
-                            <i class="bi bi-geo-alt"></i>
-                            Chennai, India
-                        </span>
-
-                        <span>
-                            <i class="bi bi-briefcase"></i>
-                            Full-time
-                        </span>
-
-                    </div>
-
-
-                    <div class="job-tags">
-
-                        <span>
-                            ₹10–18 LPA
-                        </span>
-
-                        <span>
-                            Remote
-                        </span>
-
-                    </div>
-
-
-                    <p class="job-summary">
-
-                        Build modern, responsive interfaces for a rapidly
-                        growing technology platform.
-
-                    </p>
-
-
-                    <small class="posted-date">
-                        Posted 5 days ago
-                    </small>
-
-                </div>
-
-            </article>
-
-
-            <!-- PAGINATION -->
-
-            <nav class="mt-4">
+            <nav
+                class="mt-4"
+                aria-label="Job pagination"
+            >
 
                 <ul class="pagination">
 
-                    <li class="page-item disabled">
 
-                        <a class="page-link">
-                            Previous
-                        </a>
+                    <!-- PREVIOUS -->
 
-                    </li>
+                    @if(($currentPage ?? 1) > 1)
 
+                        <li class="page-item">
 
-                    <li class="page-item active">
+                            <a
+                                class="page-link"
+                                href="{{ route('jobs.index', array_merge(
+                                    request()->query(),
+                                    ['page' => $currentPage - 1]
+                                )) }}"
+                            >
+                                Previous
+                            </a>
 
-                        <a class="page-link">
-                            1
-                        </a>
+                        </li>
 
-                    </li>
+                    @else
 
+                        <li class="page-item disabled">
 
-                    <li class="page-item">
-                        <a class="page-link">
-                            2
-                        </a>
-                    </li>
+                            <span class="page-link">
+                                Previous
+                            </span>
 
+                        </li>
 
-                    <li class="page-item">
-                        <a class="page-link">
-                            3
-                        </a>
-                    </li>
-
-
-                    <li class="page-item">
-                        <a class="page-link">
-                            4
-                        </a>
-                    </li>
+                    @endif
 
 
-                    <li class="page-item">
-                        <a class="page-link">
-                            Next
-                        </a>
-                    </li>
+                    <!-- PAGE NUMBERS -->
+
+                    @php
+
+                        $current = $currentPage ?? 1;
+
+                        $total = $pages ?? 1;
+
+                        $start = max(
+                            1,
+                            $current - 2
+                        );
+
+                        $end = min(
+                            $total,
+                            $current + 2
+                        );
+
+                    @endphp
+
+
+                    @if($start > 1)
+
+                        <li class="page-item">
+
+                            <a
+                                class="page-link"
+                                href="{{ route('jobs.index', array_merge(
+                                    request()->query(),
+                                    ['page' => 1]
+                                )) }}"
+                            >
+                                1
+                            </a>
+
+                        </li>
+
+
+                        @if($start > 2)
+
+                            <li class="page-item disabled">
+
+                                <span class="page-link">
+                                    ...
+                                </span>
+
+                            </li>
+
+                        @endif
+
+                    @endif
+
+
+                    @for($pageNumber = $start; $pageNumber <= $end; $pageNumber++)
+
+                        <li
+                            class="page-item {{ $pageNumber == $current ? 'active' : '' }}"
+                        >
+
+                            @if($pageNumber == $current)
+
+                                <span class="page-link">
+                                    {{ $pageNumber }}
+                                </span>
+
+                            @else
+
+                                <a
+                                    class="page-link"
+                                    href="{{ route('jobs.index', array_merge(
+                                        request()->query(),
+                                        ['page' => $pageNumber]
+                                    )) }}"
+                                >
+                                    {{ $pageNumber }}
+                                </a>
+
+                            @endif
+
+                        </li>
+
+                    @endfor
+
+
+                    @if($end < $total)
+
+                        @if($end < $total - 1)
+
+                            <li class="page-item disabled">
+
+                                <span class="page-link">
+                                    ...
+                                </span>
+
+                            </li>
+
+                        @endif
+
+
+                        <li class="page-item">
+
+                            <a
+                                class="page-link"
+                                href="{{ route('jobs.index', array_merge(
+                                    request()->query(),
+                                    ['page' => $total]
+                                )) }}"
+                            >
+                                {{ $total }}
+                            </a>
+
+                        </li>
+
+                    @endif
+
+
+                    <!-- NEXT -->
+
+                    @if($current < $total)
+
+                        <li class="page-item">
+
+                            <a
+                                class="page-link"
+                                href="{{ route('jobs.index', array_merge(
+                                    request()->query(),
+                                    ['page' => $current + 1]
+                                )) }}"
+                            >
+                                Next
+                            </a>
+
+                        </li>
+
+                    @else
+
+                        <li class="page-item disabled">
+
+                            <span class="page-link">
+                                Next
+                            </span>
+
+                        </li>
+
+                    @endif
 
                 </ul>
 
             </nav>
 
-        </section>
+        @endif
 
-    </div>
+    </section>
+
+</div>
+```
 
 </main>
 
