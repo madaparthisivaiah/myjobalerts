@@ -40,7 +40,7 @@
      NAVBAR
 ========================================= -->
 
-<nav class="navbar navbar-expand-lg navbar-dark main-navbar welcome-navbar">
+<nav class="navbar navbar-expand-lg navbar-dark main-navbar">
 
     <div class="container">
 
