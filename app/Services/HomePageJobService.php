@@ -6,9 +6,7 @@ class HomePageJobService
 {
     protected IndiaJobsCacheService $indiaJobsCache;
 
-    public function __construct(
-        IndiaJobsCacheService $indiaJobsCache
-    ) {
+    public function __construct(IndiaJobsCacheService $indiaJobsCache) {
         $this->indiaJobsCache = $indiaJobsCache;
     }
 

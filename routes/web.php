@@ -4,11 +4,12 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LocationController; 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/jobs', [JobController::class, 'index'])->name('jobs.index');
 
-
+Route::get('/jobs-by-states', [LocationController::class, 'index'])->name('locations.index');
 
 
 

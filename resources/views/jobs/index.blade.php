@@ -329,6 +329,12 @@
                     >
                         Search Jobs
                     </button>
+                    <button
+                        type="reset"
+                        class="btn btn-outline-primary search-btn w-100"
+                    >
+                        Clear Search
+                    </button>
 
                 </div>
 

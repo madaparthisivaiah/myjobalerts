@@ -18,6 +18,8 @@ class HomeController extends Controller
     public function index(Request $request)
     {
         $city = (string) $request->input('city', '');
+        $states = array_keys(config('india_locations'));
+        //dd($states);
 
         $data = $this->homePageJobService->getHomePageData(
             city: $city,
@@ -29,6 +31,7 @@ class HomeController extends Controller
             'jobs' => $data['jobs'],
             'companies' => $data['companies'],
             'city' => $data['city'],
+            'states' => $states,
         ]);
     }
 }

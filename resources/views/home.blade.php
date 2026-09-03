@@ -101,184 +101,59 @@
 
 
 {{-- =========================================================
-     FEATURED / LOCATION JOBS
+INDIA STATES
 ========================================================= --}}
 
 <section class="section-padding bg-light-subtle">
+<div class="container">
 
-    <div class="container">
+    <div class="text-center section-heading">
 
-        <div class="section-heading-row">
+        <span class="section-label">
+            JOBS BY LOCATION
+        </span>
 
-            <div>
-                <span class="section-label">
-                    FRESH OPPORTUNITIES
-                </span>
+        <h2>
+            Find Jobs by State in India
+        </h2>
 
-                <h2>
-                    Jobs hiring{{ !empty($city) ? ' in ' . $city : '' }}
-                </h2>
-
-                <p>
-                    @if(!empty($city))
-                        Latest opportunities hiring in {{ $city }}.
-                    @else
-                        Explore some of the latest opportunities across India.
-                    @endif
-                </p>
-            </div>
-
-            <a
-                href="{{ route('jobs.index') }}"
-                class="view-all-link"
-            >
-                View all jobs
-                <i class="bi bi-arrow-right"></i>
-            </a>
-
-        </div>
-
-
-        <div class="row g-4">
-
-            @forelse($jobs as $job)
-
-                <div class="col-lg-4 col-md-6">
-
-                    <div class="job-card h-100">
-
-                        <div class="job-card-body">
-
-                            {{-- Job Title --}}
-                            <h3 class="job-title">
-                                {{ $job['title'] ?? 'Job Opportunity' }}
-                            </h3>
-
-
-                            {{-- Company --}}
-                            @if(!empty($job['company']))
-
-                                <div class="job-company">
-                                    <i class="bi bi-building"></i>
-
-                                    {{ $job['company'] }}
-                                </div>
-
-                            @endif
-
-
-                            {{-- Location --}}
-                            @if(!empty($job['locations']))
-
-                                <div class="job-location">
-                                    <i class="bi bi-geo-alt"></i>
-
-                                    {{ $job['locations'] }}
-                                </div>
-
-                            @endif
-
-
-                            {{-- Salary --}}
-                            @if(!empty($job['salary']))
-
-                                <div class="job-salary">
-                                    <i class="bi bi-cash"></i>
-
-                                    {{ $job['salary'] }}
-                                </div>
-
-                            @endif
-
-
-                            {{-- Contract Type --}}
-                            @if(!empty($job['contract_type']))
-
-                                <div class="job-contract">
-                                    <i class="bi bi-briefcase"></i>
-
-                                    {{ $job['contract_type'] }}
-                                </div>
-
-                            @endif
-
-
-                            {{-- Description --}}
-                            @if(!empty($job['description']))
-
-                                <p class="job-description">
-
-                                    {{ \Illuminate\Support\Str::limit(
-                                        strip_tags($job['description']),
-                                        120
-                                    ) }}
-
-                                </p>
-
-                            @endif
-
-
-                            {{-- Date --}}
-                            @if(!empty($job['date']))
-
-                                <div class="job-date">
-                                    <i class="bi bi-clock"></i>
-
-                                    {{ $job['date'] }}
-                                </div>
-
-                            @endif
-
-
-                            {{-- View Job --}}
-                            @if(!empty($job['url']))
-
-                                <a
-                                    href="{{ $job['url'] }}"
-                                    target="_blank"
-                                    rel="nofollow sponsored noopener"
-                                    class="btn btn-primary btn-sm"
-                                >
-                                    View Job
-
-                                    <i class="bi bi-arrow-up-right"></i>
-                                </a>
-
-                            @endif
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            @empty
-
-                <div class="col-12">
-
-                    <div class="alert alert-light text-center">
-
-                        @if(!empty($city))
-
-                            No jobs found in {{ $city }}.
-
-                        @else
-
-                            No jobs are currently available.
-
-                        @endif
-
-                    </div>
-
-                </div>
-
-            @endforelse
-
-        </div>
+        <p>
+            Explore job opportunities across different states in India.
+        </p>
 
     </div>
 
+    <div class="row g-4">
+
+        @foreach($states as $state)
+        <div class="col-lg-3 col-md-4 col-sm-6">
+            <a
+                href="{{ url('/india-jobs/' . \Illuminate\Support\Str::slug($state)) }}"
+                class="state-card"
+            >
+                <div class="state-icon">
+                    <i class="bi bi-geo-alt"></i>
+                </div>
+
+                <div class="state-content">
+                    <h3 class="state-name">
+                        {{ $state }}
+                    </h3>
+
+                    <span class="state-link">
+                        View jobs
+                        <i class="bi bi-arrow-right"></i>
+                    </span>
+                </div>
+            </a>
+        </div>
+    @endforeach
+
+    </div>
+
+</div>
 </section>
+
 
 
 {{-- =========================================================
