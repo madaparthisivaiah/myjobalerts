@@ -19,7 +19,7 @@ class RefreshIndiaJobs extends Command
     ): int {
         $this->info('Starting India jobs cache refresh...');
 
-        $pageSize = 100;
+        $pageSize = 200;
 
         try {
             /*

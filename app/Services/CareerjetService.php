@@ -34,7 +34,7 @@ class CareerjetService
 
             'page' => $params['page'] ?? 1,
 
-            'page_size' => $params['page_size'] ?? 20,
+            'page_size' => $params['page_size'] ?? 200,
 
             'sort' => $params['sort'] ?? 'relevance',
 
