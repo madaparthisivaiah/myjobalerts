@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\IndiaJobsSearchService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class JobController extends Controller
 {
@@ -17,9 +18,24 @@ class JobController extends Controller
 
     public function index(Request $request)
     {
-        $keyword = trim(
+        $keywords = trim(
             (string) $request->input('keyword', '')
         );
+
+        // Remove common filler/stopwords often appended to job searches
+        $stopWords = ['jobs', 'job', 'near', 'me', 'vacancy', 'vacancies', 'openings', 'opening', 'hiring'];
+
+        $words = preg_split('/\s+/', strtolower($keywords), -1, PREG_SPLIT_NO_EMPTY);
+
+        $words = array_filter($words, function ($word) use ($stopWords) {
+            return !in_array($word, $stopWords, true);
+        });
+
+        // Singularize remaining words using Laravel's Str helper
+        $words = array_map(fn($word) => Str::singular($word), $words);
+
+        $keyword = trim(implode(' ', $words));
+
 
         $location = trim(
             (string) $request->input('location', '')
@@ -63,7 +79,7 @@ class JobController extends Controller
             'from' => $result['from'],
             'to' => $result['to'],
 
-            'keyword' => $keyword,
+            'keyword' => $keywords,
             'location' => $location,
             'sort' => $sort,
 
