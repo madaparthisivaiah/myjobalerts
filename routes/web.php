@@ -10,6 +10,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/jobs', [JobController::class, 'index'])->name('jobs.index');
 
 Route::get('/jobs-by-states', [LocationController::class, 'index'])->name('locations.index');
+Route::get('/india-jobs/{state}', [JobController::class, 'jobsbystate'])->name('jobs.by-state');
 
 
 

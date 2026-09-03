@@ -71,4 +71,54 @@ class JobController extends Controller
             'cachedJobs' => $result['cachedJobs'],
         ]);
     }
+
+    public function jobsbystate($state, Request $request)
+    {
+        
+        $location = str_replace('-', ' ', trim($state));     
+
+        $page = max(
+            (int) $request->input('page', 1),
+            1
+        );
+
+        $perPage = 20;
+
+        $sort = $request->input(
+            'sort',
+            'relevance'
+        );
+
+        if (!in_array($sort, ['relevance', 'date'], true)) {
+            $sort = 'relevance';
+        }
+
+        $result = $this->indiaJobsSearch->search(
+            location: $location,
+            page: $page,
+            perPage: $perPage,
+            sort: $sort
+        );
+
+        return view('jobs.index', [
+            'jobs' => $result['jobs'],
+
+            // Keep "hits" for the existing Blade.
+            'hits' => $result['total'],
+
+            'total' => $result['total'],
+            'pages' => $result['lastPage'],
+
+            'currentPage' => $result['currentPage'],
+
+            'from' => $result['from'],
+            'to' => $result['to'],
+
+            'location' => $location,
+            'sort' => $sort,
+
+            'cachedPages' => $result['cachedPages'],
+            'cachedJobs' => $result['cachedJobs'],
+        ]);
+    }
 }
