@@ -19,7 +19,7 @@ class RefreshIndiaJobs extends Command
     ): int {
         $this->info('Starting India jobs cache refresh...');
 
-        $pageSize = 200;
+        $pageSize = 20;
 
         try {
             /*
@@ -54,9 +54,6 @@ class RefreshIndiaJobs extends Command
 
             /*
              * Check --pages option.
-             *
-             * Example:
-             * --pages=2
              */
             $requestedPages = (int) $this->option('pages');
 
@@ -84,13 +81,16 @@ class RefreshIndiaJobs extends Command
             $totalJobs = 0;
 
             /*
-             * Fetch pages.
+             * Fetch pages one by one.
+             *
+             * Every page is stored in cache immediately.
+             * The website can therefore use the cached pages
+             * while this command is still running.
              */
             for ($page = 1; $page <= $pagesToFetch; $page++) {
 
                 /*
-                 * We already fetched page 1 above.
-                 * No need to call Careerjet again for page 1.
+                 * Page 1 was already fetched above.
                  */
                 if ($page === 1) {
                     $jobs = $result['jobs'] ?? [];
@@ -118,7 +118,7 @@ class RefreshIndiaJobs extends Command
                 }
 
                 /*
-                 * Store this page in cache.
+                 * Store this page immediately.
                  */
                 $indiaJobsCache->storePage(
                     $page,
@@ -129,16 +129,32 @@ class RefreshIndiaJobs extends Command
 
                 $totalJobs += $jobCount;
 
+                /*
+                 * IMPORTANT:
+                 * Update cache metadata immediately after
+                 * storing every page.
+                 */
+                $indiaJobsCache->storeMeta([
+                    'hits' => $totalHits,
+                    'pages' => $totalPages,
+                    'cached_pages' => $page,
+                    'page_size' => $pageSize,
+                    'cached_jobs' => $totalJobs,
+                    'complete' => $page >= $pagesToFetch
+                        && $pagesToFetch >= $totalPages,
+                    'updated_at' => now()->toDateTimeString(),
+                ]);
+
                 $this->info(
                     "Page {$page}/{$pagesToFetch} cached ({$jobCount} jobs)"
                 );
             }
 
-            /*
-             * Store cache metadata.
-             */
             $isComplete = $pagesToFetch >= $totalPages;
 
+            /*
+             * Final metadata update.
+             */
             $indiaJobsCache->storeMeta([
                 'hits' => $totalHits,
                 'pages' => $totalPages,
@@ -151,12 +167,25 @@ class RefreshIndiaJobs extends Command
 
             $this->newLine();
 
-            $this->info('India jobs cache refresh completed.');
+            $this->info(
+                'India jobs cache refresh completed.'
+            );
 
-            $this->info("Careerjet jobs: {$totalHits}");
-            $this->info("Careerjet pages: {$totalPages}");
-            $this->info("Pages cached: {$pagesToFetch}");
-            $this->info("Jobs cached: {$totalJobs}");
+            $this->info(
+                "Careerjet jobs: {$totalHits}"
+            );
+
+            $this->info(
+                "Careerjet pages: {$totalPages}"
+            );
+
+            $this->info(
+                "Pages cached: {$pagesToFetch}"
+            );
+
+            $this->info(
+                "Jobs cached: {$totalJobs}"
+            );
 
             if (!$isComplete) {
                 $this->warn(
