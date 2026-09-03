@@ -21,6 +21,7 @@ class JobController extends Controller
         $keywords = trim(
             (string) $request->input('keyword', '')
         );
+      
 
         // Remove common filler/stopwords often appended to job searches
         $stopWords = ['jobs', 'job', 'near', 'me', 'vacancy', 'vacancies', 'openings', 'opening', 'hiring'];
@@ -29,10 +30,7 @@ class JobController extends Controller
 
         $words = array_filter($words, function ($word) use ($stopWords) {
             return !in_array($word, $stopWords, true);
-        });
-
-        // Singularize remaining words using Laravel's Str helper
-        $words = array_map(fn($word) => Str::singular($word), $words);
+        }); 
 
         $keyword = trim(implode(' ', $words));
 
