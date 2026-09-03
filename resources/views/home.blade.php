@@ -136,7 +136,7 @@ INDIA STATES
                 </div>
 
                 <div class="state-content">
-                    <h3 class="state-name">
+                    <h3 class="company-name">
                         {{ $state }}
                     </h3>
 

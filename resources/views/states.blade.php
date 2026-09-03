@@ -36,7 +36,7 @@
 
                         <div class="state-content">
 
-                            <h2 class="state-name">
+                            <h2 class="company-name">
                                 {{ $state }}
                             </h2>
 
