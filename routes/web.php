@@ -14,6 +14,14 @@ Route::get('/about-us', function () {
     return view('aboutus');
 });
 
+Route::view('/privacy-policy', 'privacy-policy')
+    ->name('privacy-policy');
+
+Route::view('/terms-and-conditions', 'terms-and-conditions')
+    ->name('terms-and-conditions');
+
+Route::view('/cookie-policy', 'cookie-policy')
+    ->name('cookie-policy');
 
 
 // Route::get('/', function () {

@@ -1864,3 +1864,9 @@ textarea {
                 padding: 40px 25px;
             }
         }
+
+        .static-pages {
+            background: linear-gradient(135deg, #0f172a, #1e3a8a);
+            color: #fff;
+            text-align: center;
+        }

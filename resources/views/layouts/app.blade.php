@@ -158,15 +158,18 @@
 
             <div class="col-md-6 text-md-end">
 
-                <a href="#">
-                    Privacy
+                <a href="{{ url('/privacy-policy') }}">
+                    Privacy Policy
                 </a>
 
-                <a href="#">
-                    Terms
+                <a href="{{ url('/terms-and-conditions') }}">
+                    Terms And Conditions
+                </a>
+                <a href="{{ url('/cookie-policy') }}">
+                    Cookie Policy
                 </a>
 
-                <a href="#">
+                <a href="{{ url('/contact') }}">
                     Contact
                 </a>
 
