@@ -142,6 +142,16 @@ class JobController extends Controller
         $keyword = preg_replace('/\s+jobs\s*$/i', '', $keyword);
         $keyword = trim($keyword);
 
+        /*
+        * Convert URL slug/company slug back to the actual company name
+        * used by CareerJet.
+        */
+        $companyMap = [
+            'lowes' => "Lowe's",
+        ];
+
+        $keyword = $companyMap[strtolower($keyword)] ?? $keyword;
+
         $page = max(
             (int) $request->input('page', 1),
             1
