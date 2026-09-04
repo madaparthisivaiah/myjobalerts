@@ -155,9 +155,8 @@ class HomePageJobService
      * Get companies with the highest number
      * of jobs for a city or India.
      */
-    protected function getTopCompanies(
-        string $city = '',
-        int $limit = 4
+    public function getTopCompanies(
+        string $city = ''
     ): array {
         $companies = [];
 
@@ -212,14 +211,7 @@ class HomePageJobService
 
         $result = [];
 
-        foreach (
-            array_slice(
-                $companies,
-                0,
-                $limit,
-                true
-            ) as $company => $count
-        ) {
+        foreach ($companies as $company => $count) {
             $result[] = [
                 'name' => $company,
                 'jobs' => $count,
@@ -252,5 +244,262 @@ class HomePageJobService
             $locations,
             $city
         );
+    }
+
+    /**
+     * Get all companies from cached jobs.
+     *
+     * Optional city filter.
+     * No limit.
+     */
+    public function getCompanies(string $city = ''): array
+    {
+        $city = trim($city);
+
+        $companies = [];
+
+        $meta = $this->indiaJobsCache->getMeta();
+
+        $cachedPages = (int) (
+            $meta['cached_pages'] ?? 0
+        );
+
+        if ($cachedPages <= 0) {
+            return [];
+        }
+
+        for (
+            $page = 1;
+            $page <= $cachedPages;
+            $page++
+        ) {
+            $pageJobs = $this->indiaJobsCache->getPage($page);
+
+            if (empty($pageJobs)) {
+                continue;
+            }
+
+            foreach ($pageJobs as $job) {
+
+                if (
+                    $city !== ''
+                    && !$this->matchesCity($job, $city)
+                ) {
+                    continue;
+                }
+
+                $company = trim(
+                    (string) ($job['company'] ?? '')
+                );
+
+                if ($company === '') {
+                    continue;
+                }
+
+                if (!isset($companies[$company])) {
+                    $companies[$company] = 0;
+                }
+
+                $companies[$company]++;
+            }
+        }
+
+        arsort($companies);
+
+        $result = [];
+
+        foreach ($companies as $company => $count) {
+            $result[] = [
+                'name' => $company,
+                'jobs' => $count,
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get all unique locations from cached jobs.
+     *
+     * No limit.
+     */
+    public function getLocations(): array
+    {
+        $locations = [];
+
+        $meta = $this->indiaJobsCache->getMeta();        
+
+        $cachedPages = (int) (
+            $meta['cached_pages'] ?? 0
+        );
+
+        if ($cachedPages <= 0) {
+            return [];
+        }
+
+        for (
+            $page = 1;
+            $page <= $cachedPages;
+            $page++
+        ) {
+            $pageJobs = $this->indiaJobsCache->getPage($page);
+            dd($pageJobs);
+
+            if (empty($pageJobs)) {
+                continue;
+            }
+
+            foreach ($pageJobs as $job) {
+
+                $location = trim(
+                    (string) ($job['locations'] ?? '')
+                );
+
+                if ($location === '') {
+                    continue;
+                }
+
+                $key = mb_strtolower($location);
+
+                if (!isset($locations[$key])) {
+                    $locations[$key] = $location;
+                }
+            }
+        }
+
+        natcasesort($locations);
+
+        return array_values($locations);
+    }
+
+    /**
+     * Get all unique location values from cached jobs.
+     *
+     * Values are separated by comma.
+     * No limit.
+     */
+    public function alllocations(): array
+    {
+        $cities = [];
+        $states = [];
+
+        $meta = $this->indiaJobsCache->getMeta();
+
+        $cachedPages = (int) (
+            $meta['cached_pages'] ?? 0
+        );
+
+        if ($cachedPages <= 0) {
+            return [
+                [],
+                [],
+            ];
+        }
+
+        for (
+            $page = 1;
+            $page <= $cachedPages;
+            $page++
+        ) {
+            $pageJobs = $this->indiaJobsCache->getPage($page);
+
+            if (empty($pageJobs)) {
+                continue;
+            }
+
+            foreach ($pageJobs as $job) {
+
+                $jobLocation = trim(
+                    (string) ($job['locations'] ?? '')
+                );
+
+                if ($jobLocation === '') {
+                    continue;
+                }
+
+                /*
+                * Handle multiple locations.
+                *
+                * Example:
+                * Aundh, Maharashtra - Pune, Maharashtra
+                *
+                * becomes:
+                * Aundh, Maharashtra
+                * Pune, Maharashtra
+                */
+                $locationGroups = preg_split(
+                    '/\s+-\s+/',
+                    $jobLocation
+                );
+
+                foreach ($locationGroups as $locationGroup) {
+
+                    $parts = array_map(
+                        'trim',
+                        explode(',', $locationGroup)
+                    );
+
+                    $city = $parts[0] ?? '';
+                    $state = $parts[1] ?? '';
+
+                    /*
+                    * Count city.
+                    */
+                    if ($city !== '') {
+
+                        $cityKey = mb_strtolower($city);
+
+                        if (!isset($cities[$cityKey])) {
+                            $cities[$cityKey] = [
+                                'name' => $city,
+                                'jobs' => 0,
+                            ];
+                        }
+
+                        $cities[$cityKey]['jobs']++;
+                    }
+
+                    /*
+                    * Count state.
+                    */
+                    if ($state !== '') {
+
+                        $stateKey = mb_strtolower($state);
+
+                        if (!isset($states[$stateKey])) {
+                            $states[$stateKey] = [
+                                'name' => $state,
+                                'jobs' => 0,
+                            ];
+                        }
+
+                        $states[$stateKey]['jobs']++;
+                    }
+                }
+            }
+        }
+
+        /*
+        * Sort by job count, highest first.
+        */
+        uasort($cities, function ($a, $b) {
+            return $b['jobs'] <=> $a['jobs'];
+        });
+
+        uasort($states, function ($a, $b) {
+            return $b['jobs'] <=> $a['jobs'];
+        });
+
+        /*
+        * Reset indexes to:
+        * 0, 1, 2, 3...
+        */
+        $cities = array_values($cities);
+        $states = array_values($states);
+
+        return [
+            $cities,
+            $states,
+        ];
     }
 }

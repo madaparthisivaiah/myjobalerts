@@ -17,20 +17,17 @@ class HomeController extends Controller
 
     public function index(Request $request)
     {
-        $city = (string) $request->input('city', '');
-        $states = array_keys(config('india_locations'));
-        //dd($states);
+        $alldata = $this->homePageJobService->alllocations();
+        $cities = $alldata[0];
+        $states = $alldata[1];
 
-        $data = $this->homePageJobService->getHomePageData(
-            city: $city,
-            jobLimit: 6,
-            companyLimit: 4
-        );
+        //dd($alldata);
 
-        return view('home', [
-            'jobs' => $data['jobs'],
-            'companies' => $data['companies'],
-            'city' => $data['city'],
+        $companies = $this->homePageJobService->getTopCompanies();    
+
+        return view('home', [   
+            'companies' => $companies,
+            'cities' => $cities,
             'states' => $states,
         ]);
     }

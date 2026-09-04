@@ -8,9 +8,8 @@ use App\Http\Controllers\LocationController;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/jobs', [JobController::class, 'index'])->name('jobs.index');
-
-Route::get('/jobs-by-states', [LocationController::class, 'index'])->name('locations.index');
-Route::get('/india-jobs/{state}', [JobController::class, 'jobsbystate'])->name('jobs.by-state');
+Route::get('/jobs/{state}', [JobController::class, 'jobsbystate'])->name('jobs.by-state');
+Route::get('/company/{company}', [JobController::class, 'jobsbycompany'])->name('jobs.by-company');
 
 
 
@@ -23,37 +22,37 @@ Route::get('/india-jobs/{state}', [JobController::class, 'jobsbystate'])->name('
 // });
 
 
-// Route::get('/test-careerjet', function () {
+Route::get('/test-careerjet', function () {
 
-//     $response = Http::withBasicAuth(
-//         config('services.careerjet.api_key'),
-//         ''
-//     )
-//     ->withHeaders([
-//         'Referer' => 'http://127.0.0.1:8000/',
-//         'User-Agent' => request()->userAgent() ?: 'MyJobAlerts/1.0',
-//         'Accept' => 'application/json',
-//     ])
-//     ->get(config('services.careerjet.url'), [
-//         'locale_code' => 'en_IN',
-//         'keywords' => 'software developer',
-//         'location' => 'Hyderabad',
-//         'page' => 1,
-//         'page_size' => 10,
-//         'sort' => 'date',
-//         'fragment_size' => 5000,
+    $response = Http::withBasicAuth(
+        config('services.careerjet.api_key'),
+        ''
+    )
+    ->withHeaders([
+        'Referer' => 'http://127.0.0.1:8000/',
+        'User-Agent' => request()->userAgent() ?: 'MyJobAlerts/1.0',
+        'Accept' => 'application/json',
+    ])
+    ->get(config('services.careerjet.base_url'), [
+        'locale_code' => 'en_IN',
+        'keywords' => 'software developer',
+        'location' => 'Hyderabad',
+        'page' => 1,
+        'page_size' => 10,
+        'sort' => 'date',
+        'fragment_size' => 5000,
 
-//         // Required by CareerJet
-//         'user_ip' => request()->ip(),
-//         'user_agent' => request()->userAgent() ?: 'MyJobAlerts/1.0',
-//     ]);
+        // Required by CareerJet
+        'user_ip' => request()->ip(),
+        'user_agent' => request()->userAgent() ?: 'MyJobAlerts/1.0',
+    ]);
 
-//     return response()->json([
-//         'http_status' => $response->status(),
-//         'success' => $response->successful(),
-//         'data' => $response->json(),
-//     ]);
-// });
+    return response()->json([
+        'http_status' => $response->status(),
+        'success' => $response->successful(),
+        'data' => $response->json(),
+    ]);
+});
 
 // Route::get('/company/{company}', function ($company) {
 

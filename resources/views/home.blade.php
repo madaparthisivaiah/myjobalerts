@@ -105,55 +105,100 @@ INDIA STATES
 ========================================================= --}}
 
 <section class="section-padding bg-light-subtle">
-<div class="container">
+    <div class="container">
 
-    <div class="text-center section-heading">
+        <div class="text-center section-heading">
 
-        <span class="section-label">
-            JOBS BY LOCATION
-        </span>
-
-        <h2>
-            Find Jobs by State in India
-        </h2>
-
-        <p>
-            Explore job opportunities across different states in India.
-        </p>
-
-    </div>
-
-    <div class="row g-4">
-
-        @foreach($states as $state)
-        <div class="col-lg-3 col-md-4 col-sm-6">
-            <a
-                href="{{ url('/india-jobs/' . \Illuminate\Support\Str::slug($state)) }}"
-                class="state-card"
-            >
-                <div class="state-icon">
-                    <i class="bi bi-geo-alt"></i>
-                </div>
-
-                <div class="state-content">
-                    <h3 class="company-name">
-                        {{ $state }}
-                    </h3>
-
-                    <span class="state-link">
-                        View jobs
-                        <i class="bi bi-arrow-right"></i>
-                    </span>
-                </div>
-            </a>
+            <span class="section-label">
+                JOBS BY STATE
+            </span>
+            <h2>
+                Find Jobs by Popular State in India
+            </h2>
+            <p>
+                Explore job opportunities across different states in India.
+            </p>
         </div>
-    @endforeach
+
+        <div class="row g-4">
+            @foreach($states as $key => $state)
+            @if(!empty($state['jobs']) && $state['jobs'] > 1000)
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a
+                    href="{{ url('/jobs/' . \Illuminate\Support\Str::slug($state['name'])) }}"
+                    class="state-card"
+                >
+                    <div class="state-icon">
+                        <i class="bi bi-geo-alt"></i>
+                    </div>
+
+                    <div class="state-content">
+                        <h3 class="company-name">
+                            {{ $state['name'] }}
+                        </h3>
+
+                        <span class="state-link">
+                            View jobs
+                            <i class="bi bi-arrow-right"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+            @endif
+        @endforeach
+
+        </div>
 
     </div>
-
-</div>
 </section>
 
+<section class="section-padding bg-light-subtle">
+    <div class="container">
+
+        <div class="text-center section-heading">
+
+            <span class="section-label">
+                JOBS BY CITY
+            </span>
+            <h2>
+                Find Jobs by Popular Cities in India
+            </h2>
+            <p>
+                Explore job opportunities across different cities in India.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            @foreach($cities as $key => $city)
+            @if(!empty($city['jobs']) && $city['jobs'] > 1000)
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a
+                    href="{{ url('/jobs/' . \Illuminate\Support\Str::slug($city['name'])) }}"
+                    class="state-card"
+                >
+                    <div class="state-icon">
+                        <i class="bi bi-geo-alt"></i>
+                    </div>
+
+                    <div class="state-content">
+                        <h3 class="company-name">
+                            {{ $city['name'] }}
+                        </h3>
+
+                        <span class="state-link">
+                            View jobs
+                            <i class="bi bi-arrow-right"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+            @endif
+        @endforeach
+
+        </div>
+
+    </div>
+</section>
 
 
 {{-- =========================================================
@@ -175,20 +220,14 @@ INDIA STATES
 
             <h2>
                 Companies hiring now
-            </h2>
-
-            <p>
-                Find your next opportunity at companies hiring
-                across {{ !empty($city) ? $city : 'India' }}.
-            </p>
+            </h2>         
 
         </div>
 
-
         <div class="row g-4">
 
-            @forelse($companies as $company)
-
+            @forelse($companies as $key => $company)
+               @if(!empty($company['jobs']) && $company['jobs'] > 2000)
                 <div class="col-lg-3 col-md-6">
 
                     <div class="company-card h-100">
@@ -206,13 +245,8 @@ INDIA STATES
                             {{ $company['jobs'] == 1 ? 'job' : 'jobs' }}
                         </p>
 
-                        <a
-                            href="{{ route('jobs.index', [
-                                'keyword' => $company['name'],
-                                'location' => $city ?? ''
-                            ]) }}"
-                            class="company-link"
-                        >
+                        <a href="{{ url('/company/' . \Illuminate\Support\Str::slug($company['name']) . '-jobs') }}"
+class="state-card">
                             View jobs
                             <i class="bi bi-arrow-right"></i>
                         </a>
@@ -220,6 +254,7 @@ INDIA STATES
                     </div>
 
                 </div>
+                @endif
 
             @empty
 

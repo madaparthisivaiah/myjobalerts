@@ -34,7 +34,6 @@ class JobController extends Controller
 
         $keyword = trim(implode(' ', $words));
 
-
         $location = trim(
             (string) $request->input('location', '')
         );
@@ -129,6 +128,58 @@ class JobController extends Controller
             'to' => $result['to'],
 
             'location' => $location,
+            'sort' => $sort,
+
+            'cachedPages' => $result['cachedPages'],
+            'cachedJobs' => $result['cachedJobs'],
+        ]);
+    }
+
+
+    public function jobsbycompany($company, Request $request)
+    {
+        $keyword = str_replace('-', ' ', trim($company));
+        $keyword = preg_replace('/\s+jobs\s*$/i', '', $keyword);
+        $keyword = trim($keyword);
+
+        $page = max(
+            (int) $request->input('page', 1),
+            1
+        );
+
+        $perPage = 20;
+
+        $sort = $request->input(
+            'sort',
+            'relevance'
+        );
+
+        if (!in_array($sort, ['relevance', 'date'], true)) {
+            $sort = 'relevance';
+        }
+
+        $result = $this->indiaJobsSearch->search(
+            keyword: $keyword,
+            page: $page,
+            perPage: $perPage,
+            sort: $sort
+        );
+
+        return view('jobs.index', [
+            'jobs' => $result['jobs'],
+
+            // Keep "hits" for the existing Blade.
+            'hits' => $result['total'],
+
+            'total' => $result['total'],
+            'pages' => $result['lastPage'],
+
+            'currentPage' => $result['currentPage'],
+
+            'from' => $result['from'],
+            'to' => $result['to'],
+
+            'company' => $company,
             'sort' => $sort,
 
             'cachedPages' => $result['cachedPages'],
