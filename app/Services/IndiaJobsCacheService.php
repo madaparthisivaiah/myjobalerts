@@ -10,7 +10,7 @@ class IndiaJobsCacheService
 
     protected string $metaCacheKey = 'careerjet.india.jobs.meta';
 
-    protected int $cacheTtl = 86400;
+    protected int $cacheTtl = 86400; // (24 hours = 1 day)
 
     public function storePage(
         int $page,

@@ -8,7 +8,8 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('careerjet:refresh-india-jobs')
-    ->everyThreeHours()
+    ->dailyAt('00:00')
+    ->timezone('Asia/Kolkata')
     ->runInBackground()
     ->withoutOverlapping()
     ->appendOutputTo(storage_path('logs/careerjet-refresh.log'));
