@@ -10,6 +10,9 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/jobs', [JobController::class, 'index'])->name('jobs.index');
 Route::get('/jobs/{state}', [JobController::class, 'jobsbystate'])->name('jobs.by-state');
 Route::get('/company/{company}', [JobController::class, 'jobsbycompany'])->name('jobs.by-company');
+Route::get('/about-us', function () {
+    return view('aboutus');
+});
 
 
 

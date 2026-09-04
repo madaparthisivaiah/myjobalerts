@@ -77,12 +77,22 @@
             <ul class="navbar-nav ms-auto align-items-lg-center">
 
                 <li class="nav-item">
-
                     <a
                         class="nav-link"
                         href="{{ url('/') }}"
                     >
-                        Find Jobs
+                        Home
+                    </a>
+
+                </li>
+
+                <li class="nav-item">
+
+                    <a
+                        class="nav-link"
+                        href="{{ url('/about-us') }}"
+                    >
+                        About Us
                     </a>
 
                 </li>
@@ -92,21 +102,9 @@
 
                     <a
                         class="nav-link"
-                        href="{{ url('/search') }}"
+                        href="{{ url('/jobs') }}"
                     >
                         Browse Jobs
-                    </a>
-
-                </li>
-
-
-                <li class="nav-item">
-
-                    <a
-                        class="nav-link"
-                        href="{{ url('/#companies') }}"
-                    >
-                        Companies
                     </a>
 
                 </li>
