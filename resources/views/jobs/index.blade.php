@@ -644,9 +644,9 @@
 
             @if(($pages ?? 0) > 1)
 
-            <nav class="mt-4" aria-label="Job pagination">
+            <nav class="mt-5 d-flex justify-content-center" aria-label="Job pagination">
 
-                <ul class="pagination">
+                <ul class="pagination pagination-sm gap-2">
 
 
                     <!-- PREVIOUS -->
@@ -655,16 +655,7 @@
 
                     <li class="page-item">
 
-                        <a class="page-link" href="{{ route(
-                                        'jobs.index',
-                                        array_merge(
-                                            request()->query(),
-                                            [
-                                                'page' =>
-                                                    $currentPage - 1
-                                            ]
-                                        )
-                                    ) }}">
+                        <a class="page-link rounded-pill border-0 shadow-sm px-3" href="{{ request()->fullUrlWithQuery(['page' => $currentPage - 1]) }}">
                             Previous
                         </a>
 
@@ -674,7 +665,7 @@
 
                     <li class="page-item disabled">
 
-                        <span class="page-link">
+                        <span class="page-link rounded-pill border-0 shadow-sm px-3">
                             Previous
                         </span>
 
@@ -712,13 +703,7 @@
 
                     <li class="page-item">
 
-                        <a class="page-link" href="{{ route(
-                                        'jobs.index',
-                                        array_merge(
-                                            request()->query(),
-                                            ['page' => 1]
-                                        )
-                                    ) }}">
+                        <a class="page-link rounded-pill border-0 shadow-sm px-3" href="{{ request()->fullUrlWithQuery(['page' => 1]) }}">
                             1
                         </a>
 
@@ -729,7 +714,7 @@
 
                     <li class="page-item disabled">
 
-                        <span class="page-link">
+                        <span class="page-link rounded-pill border-0 shadow-sm px-3">
                             ...
                         </span>
 
@@ -753,7 +738,7 @@
 
                         @if($pageNumber == $current)
 
-                        <span class="page-link">
+                        <span class="page-link rounded-pill border-0 shadow-sm px-3">
 
                             {{ $pageNumber }}
 
@@ -761,16 +746,7 @@
 
                         @else
 
-                        <a class="page-link" href="{{ route(
-                                            'jobs.index',
-                                            array_merge(
-                                                request()->query(),
-                                                [
-                                                    'page' =>
-                                                        $pageNumber
-                                                ]
-                                            )
-                                        ) }}">
+                        <a class="page-link rounded-pill border-0 shadow-sm px-3" href="{{ request()->fullUrlWithQuery(['page' => $pageNumber]) }}">
 
                             {{ $pageNumber }}
 
@@ -787,7 +763,7 @@
 
                         @if($end < $total) @if($end < $total - 1) <li class="page-item disabled">
 
-                            <span class="page-link">
+                            <span class="page-link rounded-pill border-0 shadow-sm px-3">
                                 ...
                             </span>
 
@@ -798,13 +774,7 @@
 
                             <li class="page-item">
 
-                                <a class="page-link" href="{{ route(
-                                        'jobs.index',
-                                        array_merge(
-                                            request()->query(),
-                                            ['page' => $total]
-                                        )
-                                    ) }}">
+                                <a class="page-link rounded-pill border-0 shadow-sm px-3" href="{{ request()->fullUrlWithQuery(['page' => $total]) }}">
 
                                     {{ $total }}
 
@@ -819,16 +789,7 @@
 
                             @if($current < $total) <li class="page-item">
 
-                                <a class="page-link" href="{{ route(
-                                        'jobs.index',
-                                        array_merge(
-                                            request()->query(),
-                                            [
-                                                'page' =>
-                                                    $current + 1
-                                            ]
-                                        )
-                                    ) }}">
+                                <a class="page-link rounded-pill border-0 shadow-sm px-3" href="{{ request()->fullUrlWithQuery(['page' => $current + 1]) }}">
                                     Next
                                 </a>
 
@@ -838,7 +799,7 @@
 
                                 <li class="page-item disabled">
 
-                                    <span class="page-link">
+                                    <span class="page-link rounded-pill border-0 shadow-sm px-3">
                                         Next
                                     </span>
 
