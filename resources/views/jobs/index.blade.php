@@ -483,111 +483,113 @@
 
                 <!-- JOB CARD -->
                 <div class="col-12 col-md-6">
-    <article class="search-job-card h-100">
+                    <article class="search-job-card h-100">
 
-        <!-- COMPANY ICON -->
-        <div class="company-logo logo-purple">
-            {{ $initial ?: 'C' }}
-        </div>
+                        <!-- COMPANY ICON -->
 
-        <div class="search-job-content">
+                        @if($logo = companyLogo($company))
+                        <div class="company-logo">
 
-            <!-- TITLE -->
-            <!-- TITLE -->
-<div>
-    <h3 class="mb-2">
-        @if($url && $url !== '#')
-            <a
-                href="{{ $url }}"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="text-primary text-decoration-none"
-            >
-                {{ $title }}
-            </a>
-        @else
-            {{ $title }}
-        @endif
-    </h3>
+                            <img src="{{ $logo }}" alt="{{ $company }} logo" class="img-fluid w-auto h-auto">
 
-    <!-- COMPANY -->
-    @if(!empty($company))
-        <div class="company-name text-dark">
-            <span class="text-primary me-1">🏢</span>
-            {{ $company }}
-        </div>
-    @endif
-</div>
+                        </div>
+                        @else
+                        <div class="company-logo logo-purple d-flex align-items-center justify-content-center">
+                            {{ $initial }}
 
-            <!-- JOB META -->
-            <div class="job-meta mt-3">
+                        </div>
+                        @endif
 
-                @if(!empty($locations))
-                    <span class="text-secondary">
-                        <span class="bi text-danger me-1">📍</span>
-                        {{ $locations }}
-                    </span>
-                @endif
+                        <div class="search-job-content">
 
-                @if(!empty($job['contract_type']))
-                    <span class="text-secondary">
-                        <span class="bi bi-briefcase-fill text-success me-1">💼</span>
-                        {{ $job['contract_type'] }}
-                    </span>
-                @endif               
+                            <!-- TITLE -->
+                            <!-- TITLE -->
+                            <div>
+                                <h3 class="mb-2">
+                                    @if($url && $url !== '#')
+                                    <a href="{{ $url }}" target="_blank" rel="noopener noreferrer"
+                                        class="text-primary text-decoration-none">
+                                        {{ $title }}
+                                    </a>
+                                    @else
+                                    {{ $title }}
+                                    @endif
+                                </h3>
 
-            </div>
+                                <!-- COMPANY -->
+                                @if(!empty($company))
+                                <div class="company-name text-dark">
+                                    <span class="text-primary me-1">🏢</span>
+                                    {{ $company }}
+                                </div>
+                                @endif
+                            </div>
 
-            <!-- SALARY -->
-            @if(!empty($salary))
-                <div class="job-tags mt-3">
-                    <span class="text-success">
-                        <i class="bi bi-currency-rupee me-1"></i>
-                        {{ $salary }}
-                    </span>
-                </div>
-            @endif
+                            <!-- JOB META -->
+                            <div class="job-meta mt-3">
 
-            <!-- DESCRIPTION -->
-            @if(!empty($description))
-                <p class="job-summary mt-3">
-                    {{ \Illuminate\Support\Str::limit(
+                                @if(!empty($locations))
+                                <span class="text-secondary">
+                                    <span class="bi text-danger me-1">📍</span>
+                                    {{ $locations }}
+                                </span>
+                                @endif
+
+                                @if(!empty($job['contract_type']))
+                                <span class="text-secondary">
+                                    <span class="bi bi-briefcase-fill text-success me-1">💼</span>
+                                    {{ $job['contract_type'] }}
+                                </span>
+                                @endif
+
+                            </div>
+
+                            <!-- SALARY -->
+                            @if(!empty($salary))
+                            <div class="job-tags mt-3">
+                                <span class="text-success">
+                                    <i class="bi bi-currency-rupee me-1"></i>
+                                    {{ $salary }}
+                                </span>
+                            </div>
+                            @endif
+
+                            <!-- DESCRIPTION -->
+                            @if(!empty($description))
+                            <p class="job-summary mt-3">
+                                {{ \Illuminate\Support\Str::limit(
                         strip_tags($description),
                         220
                     ) }}
-                </p>
-            @endif
-            <!-- DATE + APPLY -->
-<div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mt-3">
+                            </p>
+                            @endif
+                            <!-- DATE + APPLY -->
+                            <div
+                                class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mt-3">
 
-    <!-- DATE -->
-    @if(!empty($date))
-        <small class="posted-date">
-            <i class="bi bi-clock-fill text-warning me-1"></i>
-            {{ \Carbon\Carbon::parse($date)->diffForHumans() }}
-        </small>
-    @endif
+                                <!-- DATE -->
+                                @if(!empty($date))
+                                <small class="posted-date">
+                                    <i class="bi bi-clock-fill text-warning me-1"></i>
+                                    {{ \Carbon\Carbon::parse($date)->diffForHumans() }}
+                                </small>
+                                @endif
 
-    <!-- APPLY -->
-    @if($url && $url !== '#')
-        <a
-            href="{{ $url }}"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="btn btn-primary"
-        >
-            <i class="bi bi-send-fill me-1"></i>
-            Apply Now
-            <i class="bi bi-box-arrow-up-right ms-1"></i>
-        </a>
-    @endif
+                                <!-- APPLY -->
+                                @if($url && $url !== '#')
+                                <a href="{{ $url }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+                                    <i class="bi bi-send-fill me-1"></i>
+                                    Apply Now
+                                    <i class="bi bi-box-arrow-up-right ms-1"></i>
+                                </a>
+                                @endif
 
-</div>
+                            </div>
 
-        </div>
+                        </div>
 
-    </article>
-</div>
+                    </article>
+                </div>
 
                 @endforeach
                 @else
@@ -655,7 +657,8 @@
 
                     <li class="page-item">
 
-                        <a class="page-link rounded-pill border-0 shadow-sm px-3" href="{{ request()->fullUrlWithQuery(['page' => $currentPage - 1]) }}">
+                        <a class="page-link rounded-pill border-0 shadow-sm px-3"
+                            href="{{ request()->fullUrlWithQuery(['page' => $currentPage - 1]) }}">
                             Previous
                         </a>
 
@@ -703,7 +706,8 @@
 
                     <li class="page-item">
 
-                        <a class="page-link rounded-pill border-0 shadow-sm px-3" href="{{ request()->fullUrlWithQuery(['page' => 1]) }}">
+                        <a class="page-link rounded-pill border-0 shadow-sm px-3"
+                            href="{{ request()->fullUrlWithQuery(['page' => 1]) }}">
                             1
                         </a>
 
@@ -746,7 +750,8 @@
 
                         @else
 
-                        <a class="page-link rounded-pill border-0 shadow-sm px-3" href="{{ request()->fullUrlWithQuery(['page' => $pageNumber]) }}">
+                        <a class="page-link rounded-pill border-0 shadow-sm px-3"
+                            href="{{ request()->fullUrlWithQuery(['page' => $pageNumber]) }}">
 
                             {{ $pageNumber }}
 
@@ -774,7 +779,8 @@
 
                             <li class="page-item">
 
-                                <a class="page-link rounded-pill border-0 shadow-sm px-3" href="{{ request()->fullUrlWithQuery(['page' => $total]) }}">
+                                <a class="page-link rounded-pill border-0 shadow-sm px-3"
+                                    href="{{ request()->fullUrlWithQuery(['page' => $total]) }}">
 
                                     {{ $total }}
 
@@ -789,7 +795,8 @@
 
                             @if($current < $total) <li class="page-item">
 
-                                <a class="page-link rounded-pill border-0 shadow-sm px-3" href="{{ request()->fullUrlWithQuery(['page' => $current + 1]) }}">
+                                <a class="page-link rounded-pill border-0 shadow-sm px-3"
+                                    href="{{ request()->fullUrlWithQuery(['page' => $current + 1]) }}">
                                     Next
                                 </a>
 

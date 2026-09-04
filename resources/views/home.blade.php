@@ -27,24 +27,15 @@
                     talented people like you.
                 </p>
 
-                <form
-                    action="{{ route('jobs.index') }}"
-                    method="GET"
-                    class="hero-search"
-                >
+                <form action="{{ route('jobs.index') }}" method="GET" class="hero-search">
                     <div class="row g-2">
 
                         <div class="col-lg-5">
                             <div class="search-input">
                                 <i class="bi bi-search"></i>
 
-                                <input
-                                    type="text"
-                                    name="keyword"
-                                    class="form-control"
-                                    placeholder="Job title, keyword or company"
-                                    value="{{ request('keyword') }}"
-                                >
+                                <input type="text" name="keyword" class="form-control"
+                                    placeholder="Job title, keyword or company" value="{{ request('keyword') }}">
                             </div>
                         </div>
 
@@ -52,21 +43,13 @@
                             <div class="search-input">
                                 <i class="bi bi-geo-alt"></i>
 
-                                <input
-                                    type="text"
-                                    name="location"
-                                    class="form-control"
-                                    placeholder="City, state or remote"
-                                    value="{{ request('location', $city ?? '') }}"
-                                >
+                                <input type="text" name="location" class="form-control"
+                                    placeholder="City, state or remote" value="{{ request('location', $city ?? '') }}">
                             </div>
                         </div>
 
                         <div class="col-lg-3">
-                            <button
-                                type="submit"
-                                class="btn btn-primary search-btn w-100"
-                            >
+                            <button type="submit" class="btn btn-primary search-btn w-100">
                                 Search Jobs
                             </button>
                         </div>
@@ -105,99 +88,293 @@ INDIA STATES
 ========================================================= --}}
 
 <section class="section-padding bg-light-subtle">
+
     <div class="container">
 
-        <div class="text-center section-heading">
+        {{-- SECTION HEADER --}}
+        <div class="row align-items-end mb-4">
 
-            <span class="section-label">
-                JOBS BY STATE
-            </span>
-            <h2>
-                Find Jobs by Popular State in India
-            </h2>
-            <p>
-                Explore job opportunities across different states in India.
-            </p>
+            <div class="col-lg-8">
+
+                <span class="section-label">
+                    <i class="bi bi-geo-alt-fill me-1"></i>
+                    JOBS BY STATE
+                </span>
+
+                <h2 class="fw-bold mt-2 mb-2">
+                    Find Jobs by Popular State in India
+                </h2>
+
+                <p class="text-secondary mb-0">
+                    Explore job opportunities across different states in
+                    India.
+                </p>
+
+            </div>
+
+            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+
+                <a href="{{ url('/jobs') }}" class="btn btn-outline-primary">
+                    Explore All Jobs
+                    <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+
+            </div>
+
         </div>
 
-        <div class="row g-4">
+
+        {{-- STATE CARDS --}}
+        <div class="row g-3">
+
             @foreach($states as $key => $state)
-            @if(!empty($state['jobs']) && $state['jobs'] > 1000)
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <a
-                    href="{{ url('/jobs/' . \Illuminate\Support\Str::slug($state['name'])) }}"
-                    class="state-card"
-                >
-                    <div class="state-icon">
-                        <i class="bi bi-geo-alt"></i>
+
+                @if(!empty($state['jobs']) && $state['jobs'] > 1000)
+
+                    @php
+                        $stateName = $state['name'] ?? '';
+                        $stateJobs = (int) ($state['jobs'] ?? 0);
+
+                        $stateUrl = url(
+                            '/jobs/' . \Illuminate\Support\Str::slug($stateName)
+                        );
+
+                        $backgrounds = [
+                            'bg-primary-subtle',
+                            'bg-info-subtle',
+                            'bg-success-subtle',
+                            'bg-warning-subtle',
+                        ];
+
+                        $icons = [
+                            'text-primary',
+                            'text-info',
+                            'text-success',
+                            'text-warning',
+                        ];
+
+                        $bgClass = $backgrounds[$key % count($backgrounds)];
+                        $iconClass = $icons[$key % count($icons)];
+                    @endphp
+
+                    <div class="col-xl-3 col-lg-4 col-md-6">
+
+                        <a
+                            href="{{ $stateUrl }}"
+                            class="state-card h-100 d-flex align-items-center
+                                   text-decoration-none p-3
+                                   bg-white bg-opacity-75
+                                   border rounded-4 shadow-sm"
+                        >
+
+                            {{-- STATE ICON --}}
+                            <div class="{{ $bgClass }} rounded-4 p-2 flex-shrink-0">
+
+                                <i class="bi bi-geo-alt-fill {{ $iconClass }}"></i>
+
+                            </div>
+
+
+                            {{-- STATE INFO --}}
+                            <div class="ms-3 flex-grow-1">
+
+                                <h6 class="mb-1 fw-bold text-dark">
+                                    {{ $stateName }}
+                                </h6>
+
+                                <div class="d-flex align-items-center gap-1">
+
+                                    <span class="small text-secondary">
+                                        {{ number_format($stateJobs) }}
+                                        {{ $stateJobs == 1 ? 'job' : 'jobs' }}
+                                    </span>
+
+                                    <span class="text-secondary opacity-50">
+                                        •
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- ACTION --}}
+                            <div class="ms-2 flex-shrink-0">
+
+                                <span class="d-inline-flex align-items-center gap-1
+                                             text-primary fw-semibold small">
+
+                                    View
+
+                                    <span class="bg-primary-subtle rounded-circle
+                                                 d-inline-flex align-items-center
+                                                 justify-content-center">
+
+                                        <i class="bi bi-arrow-up-right"></i>
+
+                                    </span>
+
+                                </span>
+
+                            </div>
+
+                        </a>
+
                     </div>
 
-                    <div class="state-content">
-                        <h3 class="company-name">
-                            {{ $state['name'] }}
-                        </h3>
+                @endif
 
-                        <span class="state-link">
-                            View jobs
-                            <i class="bi bi-arrow-right"></i>
-                        </span>
-                    </div>
-                </a>
-            </div>
-            @endif
-        @endforeach
+            @endforeach
 
         </div>
 
     </div>
+
 </section>
 
 <section class="section-padding bg-light-subtle">
+
     <div class="container">
 
-        <div class="text-center section-heading">
+        {{-- SECTION HEADER --}}
+        <div class="row align-items-end mb-4">
 
-            <span class="section-label">
-                JOBS BY CITY
-            </span>
-            <h2>
-                Find Jobs by Popular Cities in India
-            </h2>
-            <p>
-                Explore job opportunities across different cities in India.
-            </p>
+            <div class="col-lg-8">
+
+                <span class="section-label">
+                    <i class="bi bi-geo-alt-fill me-1"></i>
+                    JOBS BY CITY
+                </span>
+
+                <h2 class="fw-bold mt-2 mb-2">
+                    Explore Jobs in Top Indian Cities
+                </h2>
+
+                <p class="text-secondary mb-0">
+                    Find the latest opportunities in India's most active
+                    job markets.
+                </p>
+
+            </div>
+
+            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+
+                <a href="{{ url('/jobs') }}" class="btn btn-outline-primary">
+                    Explore All Jobs
+                    <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+
+            </div>
+
         </div>
 
-        <div class="row g-4">
+
+        {{-- CITY CARDS --}}
+        <div class="row g-3">
+
             @foreach($cities as $key => $city)
-            @if(!empty($city['jobs']) && $city['jobs'] > 1000)
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <a
-                    href="{{ url('/jobs/' . \Illuminate\Support\Str::slug($city['name'])) }}"
-                    class="state-card"
-                >
-                    <div class="state-icon">
-                        <i class="bi bi-geo-alt"></i>
+
+                @if(!empty($city['jobs']) && $city['jobs'] > 1000)
+
+                    @php
+                        $cityName = $city['name'] ?? '';
+                        $cityJobs = (int) ($city['jobs'] ?? 0);
+
+                        $cityUrl = url(
+                            '/jobs/' . \Illuminate\Support\Str::slug($cityName)
+                        );
+
+                        $backgrounds = [
+                            'bg-primary-subtle',
+                            'bg-info-subtle',
+                            'bg-success-subtle',
+                            'bg-warning-subtle',
+                        ];
+
+                        $icons = [
+                            'text-primary',
+                            'text-info',
+                            'text-success',
+                            'text-warning',
+                        ];
+
+                        $bgClass = $backgrounds[$key % count($backgrounds)];
+                        $iconClass = $icons[$key % count($icons)];
+                    @endphp
+
+                    <div class="col-xl-3 col-lg-4 col-md-6">
+
+                        <a
+                            href="{{ $cityUrl }}"
+                            class="state-card h-100 d-flex align-items-center
+                                   text-decoration-none p-3
+                                   bg-white bg-opacity-75
+                                   border rounded-4 shadow-sm"
+                        >
+
+                            {{-- CITY ICON --}}
+                            <div class="{{ $bgClass }} rounded-4 p-2 flex-shrink-0">
+
+                                <i class="bi bi-geo-alt-fill {{ $iconClass }}"></i>
+
+                            </div>
+
+
+                            {{-- CITY INFO --}}
+                            <div class="ms-3 flex-grow-1">
+
+                                <h6 class="mb-1 fw-bold text-dark">
+                                    {{ $cityName }}
+                                </h6>
+
+                                <div class="d-flex align-items-center gap-1">
+
+                                    <span class="small text-secondary">
+                                        {{ number_format($cityJobs) }}
+                                        {{ $cityJobs == 1 ? 'job' : 'jobs' }}
+                                    </span>
+
+                                    <span class="text-secondary opacity-50">
+                                        •
+                                    </span>
+                                    
+                                </div>
+
+                            </div>
+
+
+                            {{-- ACTION --}}
+                            <div class="ms-2 flex-shrink-0">
+
+                                <span class="d-inline-flex align-items-center gap-1
+                                             text-primary fw-semibold small">
+
+                                    View
+
+                                    <span class="bg-primary-subtle rounded-circle
+                                                 d-inline-flex align-items-center
+                                                 justify-content-center">
+
+                                        <i class="bi bi-arrow-up-right"></i>
+
+                                    </span>
+
+                                </span>
+
+                            </div>
+
+                        </a>
+
                     </div>
 
-                    <div class="state-content">
-                        <h3 class="company-name">
-                            {{ $city['name'] }}
-                        </h3>
+                @endif
 
-                        <span class="state-link">
-                            View jobs
-                            <i class="bi bi-arrow-right"></i>
-                        </span>
-                    </div>
-                </a>
-            </div>
-            @endif
-        @endforeach
+            @endforeach
 
         </div>
 
     </div>
+
 </section>
 
 
@@ -205,10 +382,7 @@ INDIA STATES
      TOP COMPANIES
 ========================================================= --}}
 
-<section
-    class="section-padding"
-    id="companies"
->
+<section class="section-padding" id="companies">
 
     <div class="container">
 
@@ -220,55 +394,132 @@ INDIA STATES
 
             <h2>
                 Companies hiring now
-            </h2>         
+            </h2>
 
         </div>
 
         <div class="row g-4">
 
             @forelse($companies as $key => $company)
-               @if(!empty($company['jobs']) && $company['jobs'] > 2000)
-                <div class="col-lg-3 col-md-6">
 
-                    <div class="company-card h-100">
+            @if(!empty($company['jobs']) && $company['jobs'] > 2000)
 
-                        <div class="company-icon">
-                            <i class="bi bi-building"></i>
-                        </div>
+            @php
+            $companyName = $company['name'] ?? '';
+            $companyJobs = (int) ($company['jobs'] ?? 0);
+            $initial = strtoupper(substr(trim($companyName), 0, 1));
 
-                        <h3 class="company-name">
-                            {{ $company['name'] }}
-                        </h3>
+            $companyUrl = url(
+            '/company/' . \Illuminate\Support\Str::slug($companyName) . '-jobs'
+            );
 
-                        <p class="company-jobs">
-                            {{ $company['jobs'] }}
-                            {{ $company['jobs'] == 1 ? 'job' : 'jobs' }}
-                        </p>
+            $logo = companyLogo($companyName);
+            @endphp
 
-                        <a href="{{ url('/company/' . \Illuminate\Support\Str::slug($company['name']) . '-jobs') }}"
-class="state-card">
-                            View jobs
-                            <i class="bi bi-arrow-right"></i>
+            <div class="col-lg-3 col-md-6">
+
+                <div class="company-card h-100 d-flex flex-column">
+
+                    {{-- COMPANY LOGO --}}
+                    <div class="company-logo d-flex align-items-center justify-content-center mb-3">
+
+                        @if($logo)
+
+                        <img src="{{ $logo }}" alt="{{ $companyName }} logo" class="img-fluid w-auto h-auto"
+                            loading="lazy"
+                            onerror="this.style.display='none'; this.nextElementSibling.classList.remove('d-none');">
+
+                        <span class="fw-bold text-primary fs-4 d-none">
+                            {{ $initial ?: 'C' }}
+                        </span>
+
+                        @else
+
+                        <span class="fw-bold text-primary fs-4">
+                            {{ $initial ?: 'C' }}
+                        </span>
+
+                        @endif
+
+                    </div>
+
+
+                    {{-- COMPANY NAME --}}
+                    <h3 class="company-name mb-2">
+
+                        {{ $companyName }}
+
+                    </h3>
+
+
+                    {{-- JOB COUNT --}}
+                    <div class="company-jobs mb-4">
+
+                        <span class="badge rounded-pill text-bg-light px-3 py-2">
+
+                            <i class="bi bi-briefcase-fill me-1"></i>
+
+                            {{ number_format($companyJobs) }}
+
+                            {{ $companyJobs == 1 ? 'Job' : 'Jobs' }}
+
+                        </span>
+
+                    </div>
+
+
+                    {{-- VIEW JOBS --}}
+                    <div class="mt-auto">
+
+                        <a href="{{ $companyUrl }}"
+                            class="state-card d-flex align-items-center justify-content-between text-decoration-none px-3 py-2">
+
+                            <span class="fw-semibold">
+
+                                View Jobs
+
+                            </span>
+
+                            <span class="d-flex align-items-center gap-2">
+
+                                <span class="small text-secondary">
+                                    Explore
+                                </span>
+
+                                <i class="bi bi-arrow-right"></i>
+
+                            </span>
+
                         </a>
 
                     </div>
 
                 </div>
-                @endif
+
+            </div>
+
+            @endif
 
             @empty
 
-                <div class="col-12">
+            <div class="col-12">
 
-                    <div class="alert alert-light text-center">
+                <div class="alert alert-light border text-center rounded-4 py-4">
+
+                    <i class="bi bi-building fs-3 d-block mb-2 text-secondary"></i>
+
+                    <span class="text-secondary">
                         No companies found.
-                    </div>
+                    </span>
 
                 </div>
+
+            </div>
 
             @endforelse
 
         </div>
+
 
     </div>
 
@@ -291,10 +542,7 @@ class="state-card">
             Start exploring jobs and take the next step in your career.
         </p>
 
-        <a
-            href="{{ route('jobs.index') }}"
-            class="btn btn-light btn-lg px-4"
-        >
+        <a href="{{ route('jobs.index') }}" class="btn btn-light btn-lg px-4">
             Explore Jobs
         </a>
 
@@ -308,7 +556,6 @@ class="state-card">
 ========================================================= --}}
 
 <style>
-
 .job-card {
     background: #fff;
     border: 1px solid #e9ecef;
@@ -408,7 +655,6 @@ class="state-card">
 .company-link i {
     margin-left: 4px;
 }
-
 </style>
 
 @endsection
