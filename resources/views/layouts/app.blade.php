@@ -2,23 +2,14 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>
         @yield('title', 'MyJobAlerts - Find Your Dream Job')
     </title>
-
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <!-- Bootstrap 5 -->
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Bootstrap Icons -->
     <link
@@ -50,7 +41,7 @@
         >
 
             <span class="brand-icon">
-                <i class="bi bi-briefcase-fill"></i>
+                <img src="{{ asset('images/myjobalerts-logo.png') }}" alt="MyJobAlerts Logo" width="30" height="30">
             </span>
             MyJobAlerts
         </a>
