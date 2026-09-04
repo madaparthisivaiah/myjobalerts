@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LocationController; 
+use App\Http\Controllers\ContactController;
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/jobs', [JobController::class, 'index'])->name('jobs.index');
@@ -13,6 +15,8 @@ Route::get('/company/{company}', [JobController::class, 'jobsbycompany'])->name(
 Route::get('/about-us', function () {
     return view('aboutus');
 });
+Route::post('/contact-us', [ContactController::class, 'submit'])
+    ->name('contact.submit');
 
 Route::view('/privacy-policy', 'privacy-policy')
     ->name('privacy-policy');
@@ -23,6 +27,8 @@ Route::view('/terms-and-conditions', 'terms-and-conditions')
 Route::view('/cookie-policy', 'cookie-policy')
     ->name('cookie-policy');
 
+Route::view('/contact', 'contact')
+    ->name('contact');
 
 // Route::get('/', function () {
 //     return view('home');
