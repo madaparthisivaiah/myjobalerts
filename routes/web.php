@@ -46,28 +46,35 @@ Route::get('/test-careerjet', function () {
         ''
     )
     ->withHeaders([
-        'Referer' => 'http://127.0.0.1:8000/',
+        'Referer'    => 'http://127.0.0.1:8000/',
         'User-Agent' => request()->userAgent() ?: 'MyJobAlerts/1.0',
-        'Accept' => 'application/json',
+        'Accept'     => 'application/json',
     ])
     ->get(config('services.careerjet.base_url'), [
-        'locale_code' => 'en_IN',
-        'keywords' => 'software developer',
-        'location' => 'Hyderabad',
-        'page' => 1,
-        'page_size' => 10,
-        'sort' => 'date',
+        'locale_code'   => 'en_IN',
+        'keywords'      => 'software developer',
+        'location'      => 'Hyderabad',
+        'page'          => 1,
+        'page_size'     => 1,
+        'sort'          => 'date',
         'fragment_size' => 5000,
-
-        // Required by CareerJet
-        'user_ip' => request()->ip(),
-        'user_agent' => request()->userAgent() ?: 'MyJobAlerts/1.0',
+        'user_ip'       => request()->ip(),
+        'user_agent'    => request()->userAgent() ?: 'MyJobAlerts/1.0',
     ]);
 
     return response()->json([
         'http_status' => $response->status(),
-        'success' => $response->successful(),
-        'data' => $response->json(),
+        'success'     => $response->successful(),
+        'body'        => $response->json(),
+        'raw_body'    => $response->body(),
+    ]);
+});
+
+Route::get('/test-careerjet-key', function () {
+    return response()->json([
+        'key_exists' => !empty(config('services.careerjet.api_key')),
+        'key_length' => strlen(config('services.careerjet.api_key') ?? ''),
+        'base_url'   => config('services.careerjet.base_url'),
     ]);
 });
 

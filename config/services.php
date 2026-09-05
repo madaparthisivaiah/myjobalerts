@@ -40,7 +40,7 @@ return [
         'locale' => env('CAREERJET_LOCALE', 'en_IN'),
         'base_url' => env(
             'CAREERJET_BASE_URL',
-            'https://search.api.careerjet.net'
+            'https://search.api.careerjet.net/v4/query'
         ),
     ],
 
