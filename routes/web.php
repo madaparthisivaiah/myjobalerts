@@ -6,6 +6,7 @@ use App\Http\Controllers\JobController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LocationController; 
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\SitemapController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -28,6 +29,8 @@ Route::view('/disclaimer', 'disclaimer')->name('disclaimer');
 Route::view('/contact', 'contact')->name('contact');
 
 Route::view('/faqs', 'faqs')->name('faq');
+
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
 // Route::get('/', function () {
 //     return view('home');
