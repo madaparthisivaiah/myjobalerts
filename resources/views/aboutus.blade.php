@@ -1,7 +1,6 @@
 @extends('layouts.app')
-
-@section('title', 'CareerJet Jobs Coming Soon - JobBoard')
-
+@section('title', 'About Us | MyJobAlerts - Find Jobs Across India')
+@section('meta_description', 'Learn about MyJobAlerts, an India-focused job search platform helping job seekers discover the latest job opportunities by city, state, company and category.')
 @section('content')
 
 <!-- Hero -->

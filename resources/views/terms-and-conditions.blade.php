@@ -1,7 +1,6 @@
 @extends('layouts.app')
-
-@section('title', 'Terms and Conditions - MyJobAlerts.in')
-
+@section('title', 'Terms & Conditions | MyJobAlerts')
+@section('meta_description', 'Read the Terms and Conditions for using MyJobAlerts, including information about job listings, website usage and user responsibilities.')
 @section('content')
 
 <div class="bg-light border-bottom static-pages">

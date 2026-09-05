@@ -38,6 +38,32 @@ class JobController extends Controller
             (string) $request->input('location', '')
         );
 
+        /****Meta Tags****/
+        if ($keyword && $location) {
+
+            $metatitle = "{$keyword} Jobs in {$location} | Latest Vacancies - MyJobAlerts";
+
+            $metaDescription = "Find the latest {$keyword} jobs in {$location}. Explore current vacancies and discover opportunities from companies hiring in {$location}.";
+
+        } elseif ($keyword) {
+
+            $metatitle = "{$keyword} Jobs in India | Latest Job Vacancies - MyJobAlerts";
+
+            $metaDescription = "Find the latest {$keyword} jobs in India. Explore current job vacancies and discover opportunities from companies hiring now.";
+
+        } elseif ($location) {
+
+            $metatitle = "Jobs in {$location} | Latest Job Vacancies - MyJobAlerts";
+
+            $metaDescription = "Find the latest jobs in {$location}. Explore current job vacancies across companies, industries and job categories on MyJobAlerts.";
+
+        } else {
+
+            $metatitle = "Latest Jobs in India | Job Vacancies & Careers - MyJobAlerts";
+
+            $metaDescription = "Find the latest job opportunities in India. Search jobs by keyword, location, company and category on MyJobAlerts.";
+        }
+
         $page = max(
             (int) $request->input('page', 1),
             1
@@ -82,13 +108,35 @@ class JobController extends Controller
 
             'cachedPages' => $result['cachedPages'],
             'cachedJobs' => $result['cachedJobs'],
+
+            'metatitle' => $metatitle,
+            'metaDescription' => $metaDescription,
         ]);
     }
 
     public function jobsbystate($state, Request $request)
     {
+        $location = trim($state);
+        $locations = [
+            'hubli-dharwad' => 'Hubli-Dharwad',
+        ];
         
-        $location = str_replace('-', ' ', trim($state));     
+        $location = $locations[$location] ?? str_replace('-', ' ', $location);
+        
+        /****Meta Tags****/
+        if ($location) {
+
+            $metatitle = "Jobs in {$location} | Latest Job Vacancies - MyJobAlerts";
+
+            $metaDescription = "Find the latest jobs in {$location}. Explore current job vacancies across companies, industries and job categories on MyJobAlerts.";
+
+        } else {
+
+            $metatitle = "Latest Jobs in India | Job Vacancies & Careers - MyJobAlerts";
+
+            $metaDescription = "Find the latest job opportunities in India. Search jobs by keyword, location, company and category on MyJobAlerts.";
+        }
+
 
         $page = max(
             (int) $request->input('page', 1),
@@ -132,6 +180,8 @@ class JobController extends Controller
 
             'cachedPages' => $result['cachedPages'],
             'cachedJobs' => $result['cachedJobs'],
+            'metatitle' => $metatitle,
+            'metaDescription' => $metaDescription,
         ]);
     }
 
@@ -151,6 +201,20 @@ class JobController extends Controller
         ];
 
         $keyword = $companyMap[strtolower($keyword)] ?? $keyword;
+
+        /****Meta Tags****/
+        if ($keyword) {
+
+            $metatitle = "{$keyword} Jobs in India | Latest Job Vacancies - MyJobAlerts";
+
+            $metaDescription = "Find the latest {$keyword} jobs in India. Explore current job vacancies and discover opportunities from companies hiring now.";
+
+        }  else {
+
+            $metatitle = "Latest Jobs in India | Job Vacancies & Careers - MyJobAlerts";
+
+            $metaDescription = "Find the latest job opportunities in India. Search jobs by keyword, location, company and category on MyJobAlerts.";
+        }
 
         $page = max(
             (int) $request->input('page', 1),
@@ -194,6 +258,8 @@ class JobController extends Controller
 
             'cachedPages' => $result['cachedPages'],
             'cachedJobs' => $result['cachedJobs'],
+            'metatitle' => $metatitle,
+            'metaDescription' => $metaDescription,
         ]);
     }
 }

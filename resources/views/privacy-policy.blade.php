@@ -1,9 +1,7 @@
 @extends('layouts.app')
-
-@section('title', 'Privacy Policy - MyJobAlerts.in')
-
+@section('title', 'Privacy Policy | MyJobAlerts')
+@section('meta_description', 'Read the MyJobAlerts Privacy Policy to learn how we collect, use and protect information when you use our website and job search services.')
 @section('content')
-
 <div class="bg-light border-bottom static-pages">
     <div class="container py-5">
         <div class="text-center">

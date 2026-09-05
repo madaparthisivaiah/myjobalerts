@@ -15,20 +15,17 @@ Route::get('/company/{company}', [JobController::class, 'jobsbycompany'])->name(
 Route::get('/about-us', function () {
     return view('aboutus');
 });
-Route::post('/contact-us', [ContactController::class, 'submit'])
-    ->name('contact.submit');
+Route::post('/contact-us', [ContactController::class, 'submit'])->name('contact.submit');
 
-Route::view('/privacy-policy', 'privacy-policy')
-    ->name('privacy-policy');
+Route::view('/privacy-policy', 'privacy-policy')->name('privacy-policy');
 
-Route::view('/terms-and-conditions', 'terms-and-conditions')
-    ->name('terms-and-conditions');
+Route::view('/terms-and-conditions', 'terms-and-conditions')->name('terms-and-conditions');
 
-Route::view('/cookie-policy', 'cookie-policy')
-    ->name('cookie-policy');
+Route::view('/cookie-policy', 'cookie-policy')->name('cookie-policy');
 
-Route::view('/contact', 'contact')
-    ->name('contact');
+Route::view('/contact', 'contact')->name('contact');
+
+Route::view('/faqs', 'faqs')->name('faq');
 
 // Route::get('/', function () {
 //     return view('home');

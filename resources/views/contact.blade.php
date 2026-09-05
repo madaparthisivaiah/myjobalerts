@@ -1,9 +1,7 @@
 @extends('layouts.app')
-
-@section('title', 'Contact Us - MyJobAlerts.in')
-
+@section('title', 'Contact Us | MyJobAlerts')
+@section('meta_description', 'Contact MyJobAlerts for questions, feedback, suggestions or support related to our job search platform and job listings.')
 @section('content')
-
 {{-- HERO --}}
 <section class="bg-light border-bottom static-pages">
 

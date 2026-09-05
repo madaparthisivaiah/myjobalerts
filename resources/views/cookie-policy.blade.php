@@ -1,9 +1,7 @@
 @extends('layouts.app')
-
-@section('title', 'Cookie Policy - MyJobAlerts.in')
-
+@section('title', 'Cookie Policy | MyJobAlerts')
+@section('meta_description', 'Learn how MyJobAlerts uses cookies and similar technologies to improve website functionality, user experience and services.')
 @section('content')
-
 <div class="bg-light border-bottom static-pages">
 
     <div class="container py-5">
