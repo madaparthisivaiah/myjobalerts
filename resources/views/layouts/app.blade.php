@@ -23,6 +23,16 @@
 
     @yield('styles')
 
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "MyJobAlerts",
+        "url": "{{ url('/') }}",
+        "description": "Find the latest jobs in India by job title, company, city and state."
+    }
+    </script>
+
 </head>
 
 <body>
