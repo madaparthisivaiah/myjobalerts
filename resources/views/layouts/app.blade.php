@@ -13,39 +13,43 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Bootstrap Icons -->
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
-        rel="stylesheet"
-    >
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
     <!-- JobBoard CSS -->
-   <link href="{{ asset('css/jobboard.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/jobboard.css') }}" rel="stylesheet">
 
     @yield('styles')
+    @php
+        $jsonLd = json_encode([
+            "@context" => "https://schema.org",
+            "@type" => "WebSite",
+            "name" => "MyJobAlerts",
+            "url" => url('/'),
+            "description" => "Find the latest jobs in India by job title, company, city and state.",
+        ]);
+    @endphp
+
+    <script type="application/ld+json">
+    {!! $jsonLd !!}
+    </script>
 
 </head>
 
 <body>
 
-
 <!-- =========================================
      NAVBAR
 ========================================= -->
-
 <nav class="navbar navbar-expand-lg navbar-dark main-navbar">
-
     <div class="container">
 
-        <a
-            class="navbar-brand fw-bold"
-            href="{{ url('/') }}"
-        >
-
+        <a class="navbar-brand fw-bold" href="{{ url('/') }}">
             <span class="brand-icon">
                 <img src="{{ asset('images/myjobalerts-logo.png') }}" alt="MyJobAlerts Logo" width="30" height="30">
             </span>
             MyJobAlerts
         </a>
+
         <button
             class="navbar-toggler"
             type="button"
@@ -55,92 +59,51 @@
             aria-expanded="false"
             aria-label="Toggle navigation"
         >
-
             <span class="navbar-toggler-icon"></span>
-
         </button>
 
-
-        <div
-            class="collapse navbar-collapse"
-            id="mainNavbar"
-        >
-
+        <div class="collapse navbar-collapse" id="mainNavbar">
             <ul class="navbar-nav ms-auto align-items-lg-center">
 
                 <li class="nav-item">
-                    <a
-                        class="nav-link"
-                        href="{{ url('/') }}"
-                    >
-                        Home
-                    </a>
-
+                    <a class="nav-link" href="{{ url('/') }}">Home</a>
                 </li>
 
                 <li class="nav-item">
-
-                    <a
-                        class="nav-link"
-                        href="{{ url('/about-us') }}"
-                    >
-                        About Us
-                    </a>
-
+                    <a class="nav-link" href="{{ url('/about-us') }}">About Us</a>
                 </li>
-
 
                 <li class="nav-item">
-
-                    <a
-                        class="nav-link"
-                        href="{{ url('/jobs') }}"
-                    >
-                        Browse Jobs
-                    </a>
-
+                    <a class="nav-link" href="{{ url('/jobs') }}">Browse Jobs</a>
                 </li>
-
 
                 <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
-
-                    <a
-                        href="#"
-                        class="btn btn-light post-job-btn"
-                    >
-                        Post a Job
-                    </a>
-
+                    <a href="#" class="btn btn-light post-job-btn">Post a Job</a>
                 </li>
 
             </ul>
-
         </div>
 
     </div>
-
 </nav>
-
 
 <!-- =========================================
      PAGE CONTENT
 ========================================= -->
-
 @yield('content')
 
 <!-- =========================================
      MODERN FOOTER
 ========================================= -->
- 
 <footer class="site-footer">
     <div class="container">
- 
+
         {{-- =====================================
              FOOTER MAIN
         ====================================== --}}
         <div class="footer-main">
             <div class="row gy-4">
- 
+
                 {{-- =================================
                      BRAND
                 ================================== --}}
@@ -151,15 +114,14 @@
                         </span>
                         <span>MyJobAlerts</span>
                     </a>
- 
+
                     <p class="footer-description">
                         Discover the latest job opportunities across India.
                         Search jobs by title, company, city and state and
                         take the next step in your career.
                     </p>
- 
                 </div>
- 
+
                 {{-- =================================
                      QUICK LINKS
                 ================================== --}}
@@ -175,7 +137,7 @@
                         </ul>
                     </div>
                 </div>
- 
+
                 {{-- =================================
                      LEGAL
                 ================================== --}}
@@ -191,10 +153,10 @@
                         </ul>
                     </div>
                 </div>
- 
+
             </div>
-        </div>        
- 
+        </div>
+
         {{-- =====================================
              FOOTER BOTTOM
         ====================================== --}}
@@ -204,18 +166,12 @@
                 <span class="footer-rights">All rights reserved.</span>
             </div>
         </div>
- 
+
     </div>
 </footer>
 
 <!-- Bootstrap JS -->
-
-<script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-></script>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 @yield('scripts')
-
 </body>
-
 </html>
