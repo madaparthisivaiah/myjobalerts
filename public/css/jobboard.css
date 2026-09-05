@@ -1871,4 +1871,237 @@ textarea {
             text-align: center;
         }
 
-        /* ========================================= CITY CARD HOVER EFFECT ========================================= */ .state-card { position: relative; overflow: hidden; transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease; } /* Soft glass highlight */ .state-card::before { content: ""; position: absolute; top: 0; left: -120%; width: 70%; height: 100%; background: linear-gradient( 90deg, transparent, rgba(255, 255, 255, 0.55), transparent ); transform: skewX(-20deg); transition: left 0.55s ease; pointer-events: none; } /* Card movement */ .state-card:hover { transform: translateY(-5px); border-color: rgba(13, 110, 253, 0.18) !important; box-shadow: 0 12px 28px rgba(15, 23, 42, 0.10), 0 2px 6px rgba(13, 110, 253, 0.06) !important; } /* Glass shine */ .state-card:hover::before { left: 140%; } /* ========================================= LOCATION ICON ========================================= */ .state-card > div:first-child { transition: transform 0.25s ease, box-shadow 0.25s ease; } .state-card:hover > div:first-child { transform: translateY(-2px) scale(1.08); box-shadow: 0 6px 14px rgba(13, 110, 253, 0.12); } /* ========================================= CITY NAME ========================================= */ .state-card h6 { transition: color 0.2s ease, transform 0.2s ease; } .state-card:hover h6 { color: #0d6efd !important; transform: translateX(2px); } /* ========================================= VIEW ACTION ========================================= */ .state-card .text-primary { transition: color 0.2s ease, transform 0.2s ease; } .state-card:hover .text-primary { transform: translateX(3px); } /* ========================================= ARROW ========================================= */ .state-card .rounded-circle { transition: transform 0.25s ease, background-color 0.25s ease; } .state-card:hover .rounded-circle { transform: translate(2px, -2px) scale(1.08); background-color: rgba(13, 110, 253, 0.14) !important; }    
+        /* ========================================= CITY CARD HOVER EFFECT ========================================= */ .state-card { position: relative; overflow: hidden; transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease; } /* Soft glass highlight */ .state-card::before { content: ""; position: absolute; top: 0; left: -120%; width: 70%; height: 100%; background: linear-gradient( 90deg, transparent, rgba(255, 255, 255, 0.55), transparent ); transform: skewX(-20deg); transition: left 0.55s ease; pointer-events: none; } /* Card movement */ .state-card:hover { transform: translateY(-5px); border-color: rgba(13, 110, 253, 0.18) !important; box-shadow: 0 12px 28px rgba(15, 23, 42, 0.10), 0 2px 6px rgba(13, 110, 253, 0.06) !important; } /* Glass shine */ .state-card:hover::before { left: 140%; } /* ========================================= LOCATION ICON ========================================= */ .state-card > div:first-child { transition: transform 0.25s ease, box-shadow 0.25s ease; } .state-card:hover > div:first-child { transform: translateY(-2px) scale(1.08); box-shadow: 0 6px 14px rgba(13, 110, 253, 0.12); } /* ========================================= CITY NAME ========================================= */ .state-card h6 { transition: color 0.2s ease, transform 0.2s ease; } .state-card:hover h6 { color: #0d6efd !important; transform: translateX(2px); } /* ========================================= VIEW ACTION ========================================= */ .state-card .text-primary { transition: color 0.2s ease, transform 0.2s ease; } .state-card:hover .text-primary { transform: translateX(3px); } /* ========================================= ARROW ========================================= */ .state-card .rounded-circle { transition: transform 0.25s ease, background-color 0.25s ease; } .state-card:hover .rounded-circle { transform: translate(2px, -2px) scale(1.08); background-color: rgba(13, 110, 253, 0.14) !important; } 
+        
+         /* =====================================================
+       FOOTER
+    ===================================================== */
+    .site-footer {
+        background: linear-gradient(180deg, #111827 0%, #0f172a 100%);
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+    }
+ 
+    /* subtle top glow */
+    .site-footer::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);
+    }
+ 
+    /* =====================================================
+       MAIN FOOTER
+    ===================================================== */
+    .footer-main {
+        padding: 15px 0 15px;
+        position: relative;
+        z-index: 1;
+    }
+ 
+    /* =====================================================
+       BRAND
+    ===================================================== */
+    .footer-brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 11px;
+        color: #fff;
+        font-size: 21px;
+        font-weight: 700;
+        letter-spacing: -.3px;
+    }
+ 
+    .footer-brand:hover {
+        color: #fff;
+    }
+ 
+    .footer-brand-icon {
+        width: 43px;
+        height: 43px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: rgba(255,255,255,.09);
+        border: 1px solid rgba(255,255,255,.10);
+        transition: transform .25s ease, background .25s ease;
+    }
+ 
+    .footer-brand:hover .footer-brand-icon {
+        transform: translateY(-2px);
+        background: rgba(255,255,255,.14);
+    }
+ 
+    .footer-brand-icon img {
+        width: 34px;
+        height: 34px;
+        object-fit: contain;
+    }
+ 
+    /* =====================================================
+       DESCRIPTION
+    ===================================================== */
+    .footer-description {
+        max-width: 430px;
+        margin: 19px 0 22px;
+        color: #9ca3af;
+        font-size: 13px;
+        line-height: 1.8;
+    }
+ 
+    /* =====================================================
+       SOCIAL
+    ===================================================== */
+    .footer-socials {
+        display: flex;
+        gap: 9px;
+    }
+ 
+    .footer-social {
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: rgba(255,255,255,.06);
+        border: 1px solid rgba(255,255,255,.08);
+        color: #9ca3af;
+        text-decoration: none;
+        font-size: 14px;
+        transition: transform .2s ease, background .2s ease, color .2s ease, border-color .2s ease;
+    }
+ 
+    .footer-social:hover {
+        transform: translateY(-3px);
+        background: var(--bs-primary);
+        border-color: var(--bs-primary);
+        color: #fff;
+    }
+ 
+    /* =====================================================
+       FOOTER COLUMNS
+    ===================================================== */
+    .footer-column h6 {
+        margin: 4px 0 18px;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: .2px;
+    }
+ 
+    .footer-column ul {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+    }
+ 
+    .footer-column li {
+        margin-bottom: 11px;
+    }
+ 
+    .footer-column a {
+        display: inline-flex;
+        align-items: center;
+        color: #9ca3af;
+        text-decoration: none;
+        font-size: 12.5px;
+        transition: color .2s ease, transform .2s ease;
+    }
+ 
+    .footer-column a::before {
+        content: "";
+        width: 0;
+        height: 1px;
+        margin-right: 0;
+        background: var(--bs-primary);
+        transition: width .2s ease, margin-right .2s ease;
+    }
+ 
+    .footer-column a:hover {
+        color: #fff;
+        transform: translateX(2px);
+    }
+ 
+    .footer-column a:hover::before {
+        width: 8px;
+        margin-right: 6px;
+    }
+    
+ 
+    /* =====================================================
+       BOTTOM
+    ===================================================== */
+    .footer-bottom {
+        min-height: 67px;
+        padding: 18px 0;
+        border-top: 1px solid rgba(255,255,255,.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+    }
+ 
+    .footer-copyright {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        color: #9ca3af;
+        font-size: 11.5px;
+    }
+ 
+    .footer-rights {
+        color: #6b7280;
+    }
+ 
+    /* =====================================================
+       MOBILE
+    ===================================================== */
+    @media (max-width: 767.98px) {
+ 
+        .footer-main {
+            padding: 48px 0 35px;
+        }
+ 
+        .footer-description {
+            margin-top: 16px;
+            font-size: 12.5px;
+        }
+ 
+        .footer-column {
+            margin-top: 5px;
+        }
+ 
+        .footer-column h6 {
+            margin-bottom: 13px;
+        }
+ 
+        .footer-column li {
+            margin-bottom: 9px;
+        }
+ 
+        .footer-cta {
+            padding: 19px;
+            margin-bottom: 25px;
+        }
+ 
+        .footer-cta-content {
+            align-items: flex-start;
+        }
+ 
+        .footer-jobs-btn {
+            margin-top: 5px;
+        }
+ 
+        .footer-bottom {
+            flex-direction: column;
+            align-items: center;
+            padding: 17px 0;
+        }
+ 
+    }

@@ -23,6 +23,8 @@ Route::view('/terms-and-conditions', 'terms-and-conditions')->name('terms-and-co
 
 Route::view('/cookie-policy', 'cookie-policy')->name('cookie-policy');
 
+Route::view('/disclaimer', 'disclaimer')->name('disclaimer');
+
 Route::view('/contact', 'contact')->name('contact');
 
 Route::view('/faqs', 'faqs')->name('faq');

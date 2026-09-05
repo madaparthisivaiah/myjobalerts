@@ -128,69 +128,85 @@
 
 @yield('content')
 
-
 <!-- =========================================
-     FOOTER
+     MODERN FOOTER
 ========================================= -->
-
+ 
 <footer class="site-footer">
-
     <div class="container">
-
-        <div class="row gy-4">
-
-            <div class="col-md-6">
-
-                <div class="footer-brand">
-
-                    <span class="brand-icon">
-                        <i class="bi bi-briefcase-fill"></i>
-                    </span>
-                    MyJobAlerts
+ 
+        {{-- =====================================
+             FOOTER MAIN
+        ====================================== --}}
+        <div class="footer-main">
+            <div class="row gy-4">
+ 
+                {{-- =================================
+                     BRAND
+                ================================== --}}
+                <div class="col-lg-6 col-md-6">
+                    <a href="{{ url('/') }}" class="footer-brand text-decoration-none">
+                        <span class="footer-brand-icon">
+                            <img src="{{ asset('images/myjobalerts-logo.png') }}" alt="MyJobAlerts Logo" width="34" height="34">
+                        </span>
+                        <span>MyJobAlerts</span>
+                    </a>
+ 
+                    <p class="footer-description">
+                        Discover the latest job opportunities across India.
+                        Search jobs by title, company, city and state and
+                        take the next step in your career.
+                    </p>
+ 
                 </div>
-
-                <p>
-                    Find better opportunities and build your next career move.
-                </p>
-
+ 
+                {{-- =================================
+                     QUICK LINKS
+                ================================== --}}
+                <div class="col-lg-3 col-md-6">
+                    <div class="footer-column">
+                        <h6>Explore</h6>
+                        <ul>
+                            <li><a href="{{ url('/') }}">Home</a></li>
+                            <li><a href="{{ url('/jobs') }}">Browse Jobs</a></li>
+                            <li><a href="{{ url('/about-us') }}">About Us</a></li>
+                            <li><a href="{{ url('/contact') }}">Contact</a></li>
+                            <li><a href="{{ url('/faqs') }}">FAQs</a></li>
+                        </ul>
+                    </div>
+                </div>
+ 
+                {{-- =================================
+                     LEGAL
+                ================================== --}}
+                <div class="col-lg-3 col-md-6">
+                    <div class="footer-column">
+                        <h6>Information</h6>
+                        <ul>
+                            <li><a href="{{ url('/privacy-policy') }}">Privacy Policy</a></li>
+                            <li><a href="{{ url('/terms-and-conditions') }}">Terms & Conditions</a></li>
+                            <li><a href="{{ url('/cookie-policy') }}">Cookie Policy</a></li>
+                            <li><a href="{{ url('/disclaimer') }}">Disclaimer</a></li>
+                            <li><a href="{{ url('/contact') }}">Support</a></li>
+                        </ul>
+                    </div>
+                </div>
+ 
             </div>
-
-
-            <div class="col-md-6 text-md-end">
-
-                <a href="{{ url('/privacy-policy') }}">
-                    Privacy Policy
-                </a>
-
-                <a href="{{ url('/terms-and-conditions') }}">
-                    Terms And Conditions
-                </a>
-                <a href="{{ url('/cookie-policy') }}">
-                    Cookie Policy
-                </a>
-
-                <a href="{{ url('/contact') }}">
-                    Contact
-                </a>
-
-            </div>
-
-        </div>
-
-
-        <hr>
-
-
+        </div>        
+ 
+        {{-- =====================================
+             FOOTER BOTTOM
+        ====================================== --}}
         <div class="footer-bottom">
-
-            © 2026 MyJobAlerts. All rights reserved.
-
+            <div class="footer-copyright">
+                <span>© {{ date('Y') }} MyJobAlerts.</span>
+                <span class="footer-rights">All rights reserved.</span>
+            </div>
         </div>
-
+ 
     </div>
-
 </footer>
-
 
 <!-- Bootstrap JS -->
 
