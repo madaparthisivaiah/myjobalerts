@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $metaTitle ?? View::yieldContent('title', 'MyJobAlerts - Find Your Dream Job') }}</title>
-
     <meta name="description" content="{{ $metaDescription ?? View::yieldContent('meta_description', 'Find the latest jobs in India by job title, company, city and state. Search and discover job opportunities from leading employers and job platforms on MyJobAlerts.in.') }}">
+    <meta name="robots" content="@yield('robots', 'index, follow')">
     <link rel="canonical" href="@yield('canonical', url()->current())">
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <!-- Bootstrap 5 -->
