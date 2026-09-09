@@ -2,7 +2,8 @@
 
 @section('title', 'Search Jobs in India | MyJobAlerts')
 
-@section('meta_description', 'Find the latest jobs in India by job title, company and location. Browse thousands of job opportunities on MyJobAlerts.')
+@section('meta_description', 'Find the latest jobs in India by job title, company and location. Browse thousands of job
+opportunities on MyJobAlerts.')
 
 @section('content')
 
@@ -44,13 +45,8 @@
                                 <i class="bi bi-search"></i>
                             </span>
 
-                            <input
-                                type="text"
-                                name="keyword"
-                                class="form-control"
-                                placeholder="Job title or company"
-                                value="{{ $keyword }}"
-                            >
+                            <input type="text" name="keyword" class="form-control" placeholder="Job title or company"
+                                value="{{ $keyword }}">
 
                         </div>
 
@@ -65,13 +61,8 @@
                                 <i class="bi bi-geo-alt"></i>
                             </span>
 
-                            <input
-                                type="text"
-                                name="location"
-                                class="form-control"
-                                placeholder="City or location"
-                                value="{{ $location }}"
-                            >
+                            <input type="text" name="location" class="form-control" placeholder="City or location"
+                                value="{{ $location }}">
 
                         </div>
 
@@ -80,10 +71,7 @@
 
                     <div class="col-lg-3">
 
-                        <button
-                            type="submit"
-                            class="btn btn-primary w-100 h-100"
-                        >
+                        <button type="submit" class="btn btn-primary w-100 h-100">
                             <i class="bi bi-search me-1"></i>
                             Search Jobs
                         </button>
@@ -114,35 +102,17 @@
 
                     <form method="GET" action="{{ route('jobs.index') }}">
 
-                        <input
-                            type="hidden"
-                            name="keyword"
-                            value="{{ $keyword }}"
-                        >
+                        <input type="hidden" name="keyword" value="{{ $keyword }}">
 
-                        <input
-                            type="hidden"
-                            name="location"
-                            value="{{ $location }}"
-                        >
+                        <input type="hidden" name="location" value="{{ $location }}">
 
-                        <select
-                            name="sort"
-                            class="form-select"
-                            onchange="this.form.submit()"
-                        >
+                        <select name="sort" class="form-select" onchange="this.form.submit()">
 
-                            <option
-                                value="latest"
-                                @selected($sort === 'latest')
-                            >
+                            <option value="latest" @selected($sort==='latest' )>
                                 Newest First
                             </option>
 
-                            <option
-                                value="oldest"
-                                @selected($sort === 'oldest')
-                            >
+                            <option value="oldest" @selected($sort==='oldest' )>
                                 Oldest First
                             </option>
 
@@ -165,11 +135,9 @@
 
                         @foreach($companies as $item)
 
-                            <a
-                                href="{{ route('jobs.index', ['company' => $item]) }}"
-                            >
-                                {{ $item }}
-                            </a>
+                        <a href="{{ route('jobs.index', ['company' => $item]) }}">
+                            {{ $item }}
+                        </a>
 
                         @endforeach
 
@@ -215,13 +183,13 @@
 
                         <h2>
                             @if($keyword)
-                                Jobs for "{{ $keyword }}"
+                            Jobs for "{{ $keyword }}"
                             @elseif($location)
-                                Jobs in "{{ $location }}"
+                            Jobs in "{{ $location }}"
                             @elseif($company)
-                                Jobs at "{{ $company }}"
+                            Jobs at "{{ $company }}"
                             @else
-                                Latest Jobs
+                            Latest Jobs
                             @endif
                         </h2>
 
@@ -238,40 +206,37 @@
                 {{-- ACTIVE FILTER --}}
                 @if($keyword || $location || $company)
 
-                    <div class="mb-3">
+                <div class="mb-3">
 
-                        @if($keyword)
+                    @if($keyword)
 
-                            <span class="badge bg-primary-subtle text-primary me-1">
-                                Keyword: {{ $keyword }}
-                            </span>
+                    <span class="badge bg-primary-subtle text-primary me-1">
+                        Keyword: {{ $keyword }}
+                    </span>
 
-                        @endif
+                    @endif
 
-                        @if($location)
+                    @if($location)
 
-                            <span class="badge bg-primary-subtle text-primary me-1">
-                                Location: {{ $location }}
-                            </span>
+                    <span class="badge bg-primary-subtle text-primary me-1">
+                        Location: {{ $location }}
+                    </span>
 
-                        @endif
+                    @endif
 
-                        @if($company)
+                    @if($company)
 
-                            <span class="badge bg-primary-subtle text-primary me-1">
-                                Company: {{ $company }}
-                            </span>
+                    <span class="badge bg-primary-subtle text-primary me-1">
+                        Company: {{ $company }}
+                    </span>
 
-                        @endif
+                    @endif
 
-                        <a
-                            href="{{ route('jobs.index') }}"
-                            class="small text-decoration-none"
-                        >
-                            Clear filters
-                        </a>
+                    <a href="{{ route('jobs.index') }}" class="small text-decoration-none">
+                        Clear filters
+                    </a>
 
-                    </div>
+                </div>
 
                 @endif
 
@@ -279,179 +244,171 @@
                 {{-- JOBS --}}
                 @forelse($jobs as $job)
 
-                    <article class="search-job-card">
+                <article class="search-job-card">
 
-                        {{-- LOGO --}}
-                        <div class="job-logo-wrapper">
+                    {{-- LOGO --}}
+                    <div class="job-logo-wrapper">
 
-                            @if($job->logo)
+                        @if($job->logo)
 
-                                <img
-                                    src="{{ $job->logo }}"
-                                    alt="{{ $job->company }}"
-                                    class="job-company-logo"
-                                    loading="lazy"
-                                >
+                        <img src="{{ $job->logo }}" alt="{{ $job->company }}" class="job-company-logo" loading="lazy">
 
-                            @else
+                        @else
 
-                                <div class="job-company-logo-placeholder">
+                        <div class="job-company-logo-placeholder">
 
-                                    {{ strtoupper(
+                            {{ strtoupper(
                                         substr($job->company ?: $job->title, 0, 1)
                                     ) }}
 
-                                </div>
-
-                            @endif
-
                         </div>
 
+                        @endif
 
-                        {{-- CONTENT --}}
-                        <div class="search-job-content">
+                    </div>
 
-                            <h3>
 
-                                <a
-                                    href="{{ route(
+                    {{-- CONTENT --}}
+                    <div class="search-job-content">
+
+                        <h3>
+
+                            <a href="{{ route(
                                         'jobs.show',
                                         $job->provider_job_id
-                                    ) }}"
-                                >
-                                    {{ $job->title }}
-                                </a>
+                                    ) }}">
+                                {{ $job->title }}
+                            </a>
 
-                            </h3>
-
-
-                            @if($job->company)
-
-                                <div class="company-name">
-
-                                    <i class="bi bi-building me-1"></i>
-
-                                    {{ $job->company }}
-
-                                </div>
-
-                            @endif
+                        </h3>
 
 
-                            <div class="job-meta">
+                        @if($job->company)
 
-                                @if($job->location)
+                        <div class="company-name">
 
-                                    <span>
+                            <i class="bi bi-building me-1"></i>
 
-                                        <i class="bi bi-geo-alt"></i>
-
-                                        {{ $job->location }}
-
-                                    </span>
-
-                                @endif
-
-
-                                @if($job->job_type)
-
-                                    <span>
-
-                                        <i class="bi bi-briefcase"></i>
-
-                                        {{ $job->job_type }}
-
-                                    </span>
-
-                                @endif
-
-
-                                @if($job->salary && $job->salary !== '0.000000 - 0.000000')
-
-                                    <span>
-
-                                        <i class="bi bi-currency-rupee"></i>
-
-                                        {{ $job->salary }}
-
-                                    </span>
-
-                                @endif
-
-                            </div>
-
-
-                            @if($job->snippet)
-
-                                <div class="mt-2 text-muted small">
-
-                                    {!! Str::limit(
-                                        strip_tags($job->snippet),
-                                        180
-                                    ) !!}
-
-                                </div>
-
-                            @endif
-
-
-                            <div class="job-tags mt-2">
-
-                                @if(!is_null($job->age_days))
-
-                                    <span class="posted-badge">
-
-                                        @if($job->age_days === 0)
-
-                                            Posted today
-
-                                        @elseif($job->age_days === 1)
-
-                                            Posted yesterday
-
-                                        @else
-
-                                            Posted {{ $job->age_days }} days ago
-
-                                        @endif
-
-                                    </span>
-
-                                @endif
-
-                            </div>
+                            {{ $job->company }}
 
                         </div>
 
-                    </article>
+                        @endif
+
+
+                        <div class="job-meta">
+
+                            @if($job->location)
+
+                            <span>
+
+                                <i class="bi bi-geo-alt"></i>
+
+                                {{ $job->location }}
+
+                            </span>
+
+                            @endif
+
+
+                            @if($job->job_type)
+
+                            <span>
+
+                                <i class="bi bi-briefcase"></i>
+
+                                {{ $job->job_type }}
+
+                            </span>
+
+                            @endif
+
+
+                            @if($job->salary)
+                            @php
+                            $salary = trim($job->salary);
+                            $salaryNumbers = preg_replace('/[^0-9.\-]+/', '', $salary);
+                            $salaryNumbers = str_replace('--', '-', $salaryNumbers);
+                            @endphp
+
+                            @if($salary !== '0.000000 - 0.000000' && $salary !== '0 - 0')
+                            <span>
+                                <i class="bi bi-currency-rupee"></i>
+                                {{ $salary }}
+                            </span>
+                            @endif
+                            @endif
+
+                        </div>
+
+                        @if($job->snippet)
+
+                        <div class="mt-2 text-muted small">
+
+                            {!! Str::limit(
+                            strip_tags($job->snippet),
+                            180
+                            ) !!}
+
+                        </div>
+
+                        @endif
+
+
+                        <div class="job-tags mt-2">
+
+                            @if(!is_null($job->age_days))
+
+                            <span class="posted-badge">
+
+                                @if($job->age_days === 0)
+
+                                Posted today
+
+                                @elseif($job->age_days === 1)
+
+                                Posted yesterday
+
+                                @else
+
+                                Posted {{ $job->age_days }} days ago
+
+                                @endif
+
+                            </span>
+
+                            @endif
+
+                        </div>
+
+                    </div>
+
+                </article>
 
                 @empty
 
-                    <div class="job-alert-card">
+                <div class="job-alert-card">
 
-                        <div class="job-alert-icon">
+                    <div class="job-alert-icon">
 
-                            <i class="bi bi-search"></i>
-
-                        </div>
-
-                        <h4>
-                            No jobs found
-                        </h4>
-
-                        <p>
-                            We couldn't find jobs matching your search.
-                            Try another keyword or location.
-                        </p>
-
-                        <a
-                            href="{{ route('jobs.index') }}"
-                            class="btn btn-primary"
-                        >
-                            Browse All Jobs
-                        </a>
+                        <i class="bi bi-search"></i>
 
                     </div>
+
+                    <h4>
+                        No jobs found
+                    </h4>
+
+                    <p>
+                        We couldn't find jobs matching your search.
+                        Try another keyword or location.
+                    </p>
+
+                    <a href="{{ route('jobs.index') }}" class="btn btn-primary">
+                        Browse All Jobs
+                    </a>
+
+                </div>
 
                 @endforelse
 
@@ -459,11 +416,11 @@
                 {{-- PAGINATION --}}
                 @if($jobs->hasPages())
 
-                    <div class="mt-4">
+                <div class="mt-4">
 
-                        {{ $jobs->onEachSide(1)->links('pagination::bootstrap-5') }}
+                    {{ $jobs->onEachSide(1)->links('pagination::bootstrap-5') }}
 
-                    </div>
+                </div>
 
                 @endif
 

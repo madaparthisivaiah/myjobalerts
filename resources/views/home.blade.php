@@ -173,12 +173,22 @@
                                     </div>
                                 @endif
 
-                                @if(!empty($job->salary))
-                                    <div class="job-salary text-secondary">
+                                @if($job->salary)
+                            @php
+                            $salary = trim($job->salary);
+                            $salaryNumbers = preg_replace('/[^0-9.\-]+/', '', $salary);
+                            $salaryNumbers = str_replace('--', '-', $salaryNumbers);
+                            @endphp
+
+                            @if($salary !== '0.000000 - 0.000000' && $salary !== '0 - 0')
+                            <div class="job-salary text-secondary">
                                         <i class="bi bi-cash-stack"></i>
                                         {{ $job->salary }}
                                     </div>
-                                @endif
+                            @endif
+                            @endif
+
+                                
 
                                 @if(!empty($job->job_type))
                                     <div class="job-contract text-secondary">
