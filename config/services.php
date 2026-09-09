@@ -44,6 +44,14 @@ return [
         ),
     ],
 
+    'whatjobs' => [
+        'base_url' => env('WHATJOBS_BASE_URL', 'https://api.whatjobs.com'),
+        'publisher_id' => env('WHATJOBS_PUBLISHER_ID'),
+        'country' => env('WHATJOBS_COUNTRY', 'India'),
+        'limit' => (int) env('WHATJOBS_LIMIT', 50),
+        'sync_ip' => env('WHATJOBS_SYNC_IP'),
+    ],
+
 ];
 
 //'https://search.api.careerjet.net/v4/query'

@@ -13,3 +13,8 @@ Schedule::command('careerjet:refresh-india-jobs')
     ->runInBackground()
     ->withoutOverlapping()
     ->appendOutputTo(storage_path('logs/careerjet-refresh.log'));
+    
+
+Schedule::command('whatjobs:sync-india')
+    ->everySixHours()
+    ->withoutOverlapping();
