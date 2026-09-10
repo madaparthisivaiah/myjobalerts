@@ -121,7 +121,7 @@ class JobController extends Controller
         |--------------------------------------------------------------------------
         | Sidebar companies
         |--------------------------------------------------------------------------
-        */
+        */       
 
         $companies = Job::query()
             ->where('provider', 'whatjobs')
@@ -129,10 +129,12 @@ class JobController extends Controller
             ->whereNotNull('company')
             ->where('company', '!=', '')
             ->select('company')
-            ->distinct()
-            ->orderBy('company')
+            ->selectRaw('COUNT(*) as jobs_count')
+            ->groupBy('company')
+            ->orderByDesc('jobs_count')
             ->limit(20)
             ->pluck('company');
+    
 
         return view('whatjobs.jobs.index', [
             'jobs' => $jobs,
