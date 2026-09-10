@@ -1,128 +1,285 @@
 @extends('layouts.app')
+
 @php
-$jobTitle = trim($job->title);
 
-$description = trim(
-    preg_replace(
-        '/\s+/',
-        ' ',
-        strip_tags($job->snippet ?? '')
-    )
-);
+    $jobTitle = trim($job->title);
 
-if (!$description) {
-    $description = $jobTitle . ' job opportunity on MyJobAlerts.';
-}
+    $description = trim(
+        preg_replace(
+            '/\s+/',
+            ' ',
+            strip_tags($job->snippet ?? '')
+        )
+    );
 
-$metaDescription = \Illuminate\Support\Str::limit(
-    $description,
-    155,
-    '...'
-);
+    if (!$description) {
+        $description = $jobTitle . ' job opportunity on MyJobAlerts.';
+    }
 
-$canonicalUrl = url('/viewjob/' . $job->slug);
+    $metaDescription = \Illuminate\Support\Str::limit(
+        $description,
+        155,
+        '...'
+    );
+
+    $canonicalUrl = url('/viewjob/' . $job->slug);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Salary
+    |--------------------------------------------------------------------------
+    */
+
+    $salary = trim($job->salary ?? '');
+
+    if (
+        $salary === '0.000000 - 0.000000' ||
+        $salary === '0 - 0'
+    ) {
+        $salary = '';
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Actual Posted Date
+    |--------------------------------------------------------------------------
+    | Do not generate datePosted from age_days.
+    */
+
+    $datePosted = null;
+
+    if (!empty($job->date_posted)) {
+        $datePosted = $job->date_posted;
+    } elseif (!empty($job->posted_at)) {
+        $datePosted = $job->posted_at;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Job Location Schema
+    |--------------------------------------------------------------------------
+    */
+
+    $jobLocation = null;
+
+    if (!empty($job->location)) {
+        $jobLocation = [
+            '@type' => 'Place',
+            'address' => [
+                '@type' => 'PostalAddress',
+                'addressLocality' => $job->location,
+                'addressCountry' => 'IN',
+            ],
+        ];
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | JobPosting Schema
+    |--------------------------------------------------------------------------
+    */
+
+    $jobPostingSchema = [
+        '@context' => 'https://schema.org',
+        '@type' => 'JobPosting',
+
+        'title' => $jobTitle,
+
+        'description' => $description,
+
+        'url' => $canonicalUrl,
+    ];
+
+    if ($datePosted) {
+        $jobPostingSchema['datePosted'] = $datePosted;
+    }
+
+    if (!empty($job->company)) {
+
+        $organization = [
+            '@type' => 'Organization',
+            'name' => trim($job->company),
+        ];
+
+        if (!empty($job->logo)) {
+            $organization['logo'] = $job->logo;
+        }
+
+        $jobPostingSchema['hiringOrganization'] = $organization;
+    }
+
+    if ($jobLocation) {
+        $jobPostingSchema['jobLocation'] = $jobLocation;
+    }
+
+    if (!empty($job->job_type)) {
+        $jobPostingSchema['employmentType'] = $job->job_type;
+    }
+
+    if (!empty($job->job_url)) {
+        $jobPostingSchema['sameAs'] = $job->job_url;
+    }
 
 @endphp
+
+
 @section('title', $jobTitle . ' Jobs | MyJobAlerts')
+
 @section('meta_description', $metaDescription)
+
 @section('canonical', $canonicalUrl)
+
+
 @section('content')
 
-<section class="job-detail-header">
+
+{{-- =========================================================
+     JOB HEADER
+========================================================= --}}
+
+<section class="bg-light-subtle border-bottom py-4 py-lg-5">
 
     <div class="container">
 
-        <div class="row align-items-center">
+        <div class="bg-white border rounded-4 shadow-sm p-4 p-lg-5">
 
-            <div class="col-lg-9">
+            <div class="row align-items-center g-4">
 
-                <div class="mb-2">
+                {{-- JOB INFORMATION --}}
+                <div class="col-lg-8">
 
-                    <span class="job-badge">
-                        Job Opportunity
-                    </span>
+                    <div class="d-flex flex-wrap gap-2 mb-3">
 
-                    @if(!is_null($job->age_days))
-
-                        <span class="posted-badge">
-
-                            @if($job->age_days === 0)
-                                Posted today
-                            @elseif($job->age_days === 1)
-                                Posted yesterday
-                            @else
-                                Posted {{ $job->age_days }} days ago
-                            @endif
-
+                        <span class="badge text-bg-primary px-3 py-2">
+                            Job Opportunity
                         </span>
 
-                    @endif
+                        @if(!is_null($job->age_days))
 
-                </div>
+                            <span class="badge text-bg-light border text-dark px-3 py-2">
 
+                                @if($job->age_days === 0)
 
-                <h1>
-                    {{ $job->title }}
-                </h1>
+                                    Posted today
 
+                                @elseif($job->age_days === 1)
 
-                @if($job->company)
+                                    Posted yesterday
 
-                    <div class="company-name detail-company">
+                                @else
 
-                        <i class="bi bi-building me-1"></i>
+                                    Posted {{ $job->age_days }} days ago
 
-                        {{ $job->company }}
+                                @endif
+
+                            </span>
+
+                        @endif
 
                     </div>
 
-                @endif
+
+                    <h1 class="display-6 fw-bold mb-3">
+                        {{ $jobTitle }}
+                    </h1>
 
 
-                <div class="job-meta">
+                    @if($job->company)
 
-                    @if($job->location)
+                        <div class="d-flex align-items-center text-dark fw-semibold mb-3">
 
-                        <span>
+                            <i class="bi bi-building me-2 text-primary"></i>
 
-                            <i class="bi bi-geo-alt"></i>
+                            {{ $job->company }}
 
-                            {{ $job->location }}
-
-                        </span>
-
-                    @endif
-
-
-                    @if($job->job_type)
-
-                        <span>
-
-                            <i class="bi bi-briefcase"></i>
-
-                            {{ $job->job_type }}
-
-                        </span>
+                        </div>
 
                     @endif
+
+
+                    <div class="d-flex flex-wrap gap-3 text-muted">
+
+                        @if($job->location)
+
+                            <span class="d-inline-flex align-items-center">
+
+                                <i class="bi bi-geo-alt me-2 text-primary"></i>
+
+                                {{ $job->location }}
+
+                            </span>
+
+                        @endif
+
+
+                        @if($job->job_type)
+
+                            <span class="d-inline-flex align-items-center">
+
+                                <i class="bi bi-briefcase me-2 text-primary"></i>
+
+                                {{ $job->job_type }}
+
+                            </span>
+
+                        @endif
+
+                    </div>
 
                 </div>
 
-            </div>
+
+                {{-- LOGO + APPLY BUTTON --}}
+                <div class="col-lg-4">
+
+                    <div class="d-flex flex-column align-items-lg-end gap-3">
+
+                        @if($job->logo)
+
+                            <div class="border rounded-3 bg-white p-3">
+
+                                <img
+                                    src="{{ $job->logo }}"
+                                    alt="{{ $job->company ?: $jobTitle }}"
+                                    class="img-fluid"
+                                    width="100"
+                                    height="80"
+                                >
+
+                            </div>
+
+                        @elseif($job->company)
+
+                            <div class="d-flex align-items-center justify-content-center bg-light border rounded-3 fw-bold fs-3 text-primary"
+                                 style="width:72px;height:72px;">
+
+                                {{ strtoupper(substr($job->company, 0, 1)) }}
+
+                            </div>
+
+                        @endif
 
 
-            <div class="col-lg-3 text-lg-end mt-4 mt-lg-0">
+                        {{-- HEADER APPLY BUTTON --}}
+                        @if($job->job_url)
 
-                @if($job->logo)
+                            <a
+                                href="{{ $job->job_url }}"
+                                target="_blank"
+                                rel="nofollow sponsored"
+                                class="btn btn-primary btn-lg px-4 py-3 fw-semibold"
+                            >
+                                Apply Now
 
-                    <img
-                        src="{{ $job->logo }}"
-                        alt="{{ $job->company }}"
-                        class="img-fluid"
-                        style="max-width:100px;max-height:80px;object-fit:contain;"
-                    >
+                                <i class="bi bi-box-arrow-up-right ms-2"></i>
 
-                @endif
+                            </a>
+
+                        @endif
+
+                    </div>
+
+                </div>
 
             </div>
 
@@ -133,19 +290,32 @@ $canonicalUrl = url('/viewjob/' . $job->slug);
 </section>
 
 
-<main class="container job-detail-area">
 
-    <div class="row g-5">
+{{-- =========================================================
+     JOB CONTENT
+========================================================= --}}
+
+<main class="container py-5">
+
+    <div class="row g-4 g-lg-5">
 
 
-        {{-- MAIN CONTENT --}}
+        {{-- =================================================
+             MAIN CONTENT
+        ================================================== --}}
+
         <article class="col-lg-8">
 
-            <div class="job-content-card">
+            <div class="bg-white border rounded-4 shadow-sm p-4 p-lg-5">
 
-                <h2>
+                <h2 class="h4 fw-bold mb-4">
+
+                    <i class="bi bi-file-text text-primary me-2"></i>
+
                     Job Description
+
                 </h2>
+
 
                 @if($job->snippet)
 
@@ -157,71 +327,130 @@ $canonicalUrl = url('/viewjob/' . $job->slug);
 
                 @else
 
-                    <p class="text-muted">
+                    <p class="text-muted mb-0">
+
                         Job description is available on the employer's
                         application page.
+
                     </p>
 
                 @endif
 
             </div>
 
+
+            {{-- SOURCE INFORMATION --}}
+
+            <div class="alert alert-light border rounded-4 mt-4 mb-0">
+
+                <div class="d-flex">
+
+                    <i class="bi bi-info-circle text-primary fs-5 me-3"></i>
+
+                    <div>
+
+                        <strong>
+                            About this job listing
+                        </strong>
+
+                        <p class="mb-0 mt-1 text-muted small">
+
+                            This job opportunity is provided through our
+                            external job listing network. MyJobAlerts helps
+                            you discover job opportunities and redirects you
+                            to the original listing to apply.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
         </article>
 
 
-        {{-- SIDEBAR --}}
+
+        {{-- =================================================
+             SIDEBAR
+        ================================================== --}}
+
         <aside class="col-lg-4">
 
 
-            <div class="apply-card">
+            {{-- APPLY CARD --}}
 
-                @if($job->salary && $job->salary !== '0.000000 - 0.000000')
+            <div class="bg-white border rounded-4 shadow-sm p-4 sticky-lg-top">
 
-                    <div class="salary-label">
-                        Salary
-                    </div>
+                @if($salary)
 
-                    <div class="salary-value">
-                        {{ $job->salary }}
+                    <div class="mb-4">
+
+                        <div class="small text-muted mb-1">
+                            Salary
+                        </div>
+
+                        <div class="h5 fw-bold mb-0">
+
+                            <i class="bi bi-cash-stack text-success me-2"></i>
+
+                            {{ $salary }}
+
+                        </div>
+
                     </div>
 
                 @endif
 
 
-                <a
-                    href="{{ $job->job_url }}"
-                    target="_blank"
-                    rel="nofollow sponsored"
-                    class="btn btn-primary btn-lg w-100 mt-3"
-                >
-                    Apply for this job
-                    <i class="bi bi-box-arrow-up-right ms-1"></i>
-                </a>
+                @if($job->job_url)
+
+                    <a
+                        href="{{ $job->job_url }}"
+                        target="_blank"
+                        rel="nofollow sponsored"
+                        class="btn btn-primary btn-lg w-100 fw-semibold"
+                    >
+
+                        Apply for this job
+
+                        <i class="bi bi-box-arrow-up-right ms-2"></i>
+
+                    </a>
+
+                @endif
 
 
-                <hr>
+                <hr class="my-4">
 
 
-                <h3>
+                <h2 class="h5 fw-bold mb-4">
                     Job Overview
-                </h3>
+                </h2>
 
+
+                {{-- COMPANY --}}
 
                 @if($job->company)
 
-                    <div class="overview-item">
+                    <div class="d-flex gap-3 mb-4">
 
-                        <i class="bi bi-building"></i>
+                        <div class="text-primary fs-5">
+
+                            <i class="bi bi-building"></i>
+
+                        </div>
 
                         <div>
 
-                            <small>
+                            <div class="small text-muted">
                                 Company
-                            </small>
+                            </div>
 
-                            <strong>
+                            <div class="fw-semibold">
                                 {{ $job->company }}
-                            </strong>
+                            </div>
 
                         </div>
 
@@ -229,22 +458,28 @@ $canonicalUrl = url('/viewjob/' . $job->slug);
 
                 @endif
 
+
+                {{-- LOCATION --}}
 
                 @if($job->location)
 
-                    <div class="overview-item">
+                    <div class="d-flex gap-3 mb-4">
 
-                        <i class="bi bi-geo-alt"></i>
+                        <div class="text-primary fs-5">
+
+                            <i class="bi bi-geo-alt"></i>
+
+                        </div>
 
                         <div>
 
-                            <small>
+                            <div class="small text-muted">
                                 Location
-                            </small>
+                            </div>
 
-                            <strong>
+                            <div class="fw-semibold">
                                 {{ $job->location }}
-                            </strong>
+                            </div>
 
                         </div>
 
@@ -252,22 +487,28 @@ $canonicalUrl = url('/viewjob/' . $job->slug);
 
                 @endif
 
+
+                {{-- JOB TYPE --}}
 
                 @if($job->job_type)
 
-                    <div class="overview-item">
+                    <div class="d-flex gap-3 mb-4">
 
-                        <i class="bi bi-briefcase"></i>
+                        <div class="text-primary fs-5">
+
+                            <i class="bi bi-briefcase"></i>
+
+                        </div>
 
                         <div>
 
-                            <small>
+                            <div class="small text-muted">
                                 Job Type
-                            </small>
+                            </div>
 
-                            <strong>
+                            <div class="fw-semibold">
                                 {{ $job->job_type }}
-                            </strong>
+                            </div>
 
                         </div>
 
@@ -276,29 +517,41 @@ $canonicalUrl = url('/viewjob/' . $job->slug);
                 @endif
 
 
+                {{-- POSTED --}}
+
                 @if(!is_null($job->age_days))
 
-                    <div class="overview-item">
+                    <div class="d-flex gap-3">
 
-                        <i class="bi bi-clock"></i>
+                        <div class="text-primary fs-5">
+
+                            <i class="bi bi-clock"></i>
+
+                        </div>
 
                         <div>
 
-                            <small>
+                            <div class="small text-muted">
                                 Posted
-                            </small>
+                            </div>
 
-                            <strong>
+                            <div class="fw-semibold">
 
                                 @if($job->age_days === 0)
+
                                     Today
+
                                 @elseif($job->age_days === 1)
+
                                     Yesterday
+
                                 @else
+
                                     {{ $job->age_days }} days ago
+
                                 @endif
 
-                            </strong>
+                            </div>
 
                         </div>
 
@@ -309,26 +562,43 @@ $canonicalUrl = url('/viewjob/' . $job->slug);
             </div>
 
 
-            {{-- SOURCE --}}
-            <div class="company-sidebar-card">
+            {{-- ORIGINAL LISTING --}}
 
-                <h3>
-                    About this job
-                </h3>
+            <div class="bg-white border rounded-4 shadow-sm p-4 mt-4">
 
-                <p>
-                    This job opportunity is provided through
-                    our job listing network.
+                <h2 class="h5 fw-bold mb-3">
+
+                    <i class="bi bi-globe2 text-primary me-2"></i>
+
+                    Original Job Listing
+
+                </h2>
+
+
+                <p class="text-muted small">
+
+                    View the original job posting and complete your
+                    application on the external job platform.
+
                 </p>
 
-                <a
-                    href="{{ $job->job_url }}"
-                    target="_blank"
-                    rel="nofollow sponsored"
-                >
-                    View original job
-                    <i class="bi bi-arrow-right"></i>
-                </a>
+
+                @if($job->job_url)
+
+                    <a
+                        href="{{ $job->job_url }}"
+                        target="_blank"
+                        rel="nofollow sponsored"
+                        class="fw-semibold text-decoration-none"
+                    >
+
+                        View original job
+
+                        <i class="bi bi-arrow-right ms-1"></i>
+
+                    </a>
+
+                @endif
 
             </div>
 
@@ -338,4 +608,21 @@ $canonicalUrl = url('/viewjob/' . $job->slug);
 
 </main>
 
+
+
+{{-- =========================================================
+     JOBPOSTING STRUCTURED DATA
+========================================================= --}}
+
+<script type="application/ld+json">
+{!! json_encode(
+    $jobPostingSchema,
+    JSON_UNESCAPED_SLASHES |
+    JSON_UNESCAPED_UNICODE |
+    JSON_PRETTY_PRINT
+) !!}
+</script>
+
+
 @endsection
+
