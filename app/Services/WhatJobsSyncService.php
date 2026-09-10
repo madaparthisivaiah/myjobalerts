@@ -11,7 +11,8 @@ use RuntimeException;
 class WhatJobsSyncService
 {
     public function __construct(
-        protected WhatJobsService $whatJobs
+        protected WhatJobsService $whatJobs,
+        protected SitemapService $sitemapService
     ) {
     }
 
@@ -125,6 +126,17 @@ class WhatJobsSyncService
                 'is_active' => false,
                 'updated_at' => now(),
             ]);
+
+        /* |-------------------------------------------------------------------------- | Generate dynamic sitemap 
+        |-------------------------------------------------------------------------- | 
+        | IMPORTANT: | | Sitemap generation happens AFTER: | 
+        | 1. All WhatJobs pages are processed | 
+        | 2. New jobs are inserted | 
+        | 3. Existing jobs are updated | 
+        | 4. Missing jobs are marked inactive | 
+        | Therefore the sitemap contains only current active jobs. | */ 
+        
+        $this->sitemapService->generate();
 
         /*
         |--------------------------------------------------------------------------
