@@ -22,3 +22,6 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+/pub
+/public/sitemap.xml
+/public/sitemap-jobs-1.xml
