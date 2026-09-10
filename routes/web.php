@@ -15,8 +15,7 @@ use App\Http\Controllers\WhatJobs\HomeController;
 use App\Http\Controllers\WhatJobs\JobController;
 
 //Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/', [HomeController::class, 'index'])
-    ->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 //Route::get('/jobs', [JobController::class, 'index'])->name('jobs.index');
 //Route::get('/jobs/{state}', [JobController::class, 'jobsbystate'])->name('jobs.by-state');

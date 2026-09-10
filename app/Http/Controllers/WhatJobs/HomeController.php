@@ -15,7 +15,6 @@ class HomeController extends Controller
     public function index()
     {
         $data = $this->homePageJobService->getHomePageData();
-
         return view('home', $data);
     }
 }
