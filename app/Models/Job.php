@@ -11,6 +11,8 @@ class Job extends Model
         'provider_job_id',
 
         'title',
+        'slug',
+
         'company',
         'location',
         'postcode',
@@ -26,6 +28,8 @@ class Job extends Model
 
         'last_seen_at',
         'is_active',
+
+        'job_gfj_status',
     ];
 
     protected function casts(): array
@@ -38,7 +42,8 @@ class Job extends Model
             'age_days' => 'integer',
 
             'is_active' => 'boolean',
-            
+
+            'job_gfj_status' => 'integer',
         ];
     }
 }

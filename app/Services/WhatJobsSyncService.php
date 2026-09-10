@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Job;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use RuntimeException;
 
 class WhatJobsSyncService
@@ -44,7 +45,6 @@ class WhatJobsSyncService
         */
 
         $totalJobs = (int) ($firstPage['total'] ?? 0);
-
         $lastPage = (int) ($firstPage['last_page'] ?? 1);
 
         Log::info('WhatJobs sync started', [
@@ -113,7 +113,6 @@ class WhatJobsSyncService
             ->where('provider', 'whatjobs')
             ->where('is_active', true)
             ->where(function ($query) use ($syncStartedAt) {
-
                 $query
                     ->whereNull('last_seen_at')
                     ->orWhere(
@@ -152,7 +151,6 @@ class WhatJobsSyncService
         ];
     }
 
-
     /**
      * Process one page of WhatJobs results.
      */
@@ -160,7 +158,6 @@ class WhatJobsSyncService
         array $response,
         Carbon $syncStartedAt
     ): array {
-
         $jobs = $response['data'] ?? [];
 
         $processed = 0;
@@ -181,7 +178,6 @@ class WhatJobsSyncService
             ) {
                 continue;
             }
-
 
             /*
             |--------------------------------------------------------------------------
@@ -206,6 +202,24 @@ class WhatJobsSyncService
                 continue;
             }
 
+            /*
+            |--------------------------------------------------------------------------
+            | Generate MyJobAlerts slug
+            |--------------------------------------------------------------------------
+            |
+            | Example:
+            |
+            | Associate | QA Engineer
+            |
+            | becomes:
+            |
+            | associate-qa-engineer-242331104
+            |
+            */
+
+            $slug = Str::slug(
+                $jobData['title']
+            ) . '-' . $providerJobId;
 
             /*
             |--------------------------------------------------------------------------
@@ -221,7 +235,6 @@ class WhatJobsSyncService
                 )
                 ->first();
 
-
             /*
             |--------------------------------------------------------------------------
             | Prepare job data
@@ -229,21 +242,23 @@ class WhatJobsSyncService
             */
 
             $attributes = [
-
                 'title' => $jobData['title'] ?? null,
 
+                /*
+                |--------------------------------------------------------------------------
+                | MyJobAlerts SEO slug
+                |--------------------------------------------------------------------------
+                */
+
+                'slug' => $slug,
+
                 'company' => $jobData['company'] ?? null,
-
                 'location' => $jobData['location'] ?? null,
-
                 'postcode' => $jobData['postcode'] ?? null,
-
                 'job_type' => $jobData['job_type'] ?? null,
-
                 'salary' => $jobData['salary'] ?? null,
 
                 'snippet' => $jobData['snippet'] ?? null,
-
                 'logo' => $jobData['logo'] ?? null,
 
                 /*
@@ -269,7 +284,6 @@ class WhatJobsSyncService
                 'is_active' => true,
             ];
 
-
             /*
             |--------------------------------------------------------------------------
             | Published date
@@ -286,45 +300,75 @@ class WhatJobsSyncService
                         );
             }
 
-
             /*
             |--------------------------------------------------------------------------
             | Update existing job
             |--------------------------------------------------------------------------
+            |
+            | IMPORTANT:
+            |
+            | Do NOT change job_gfj_status here.
+            |
+            | If the job already has status 2, it must remain 2.
+            |
             */
 
             if ($job) {
 
+                /*
+                |--------------------------------------------------------------------------
+                | If a previously expired job comes back
+                |--------------------------------------------------------------------------
+                |
+                | Status 3 means the previous Google lifecycle was completed.
+                |
+                | Therefore, if WhatJobs sends this job again, start a new
+                | Google posting lifecycle with status 1.
+                |
+                */
+
+                if (
+                    !$job->is_active &&
+                    (int) $job->job_gfj_status === 3
+                ) {
+                    $attributes['job_gfj_status'] = 1;
+                }
+
                 $job->update($attributes);
 
                 $updated++;
-
             }
 
             /*
             |--------------------------------------------------------------------------
             | Insert new job
             |--------------------------------------------------------------------------
+            |
+            | New job starts with:
+            |
+            | job_gfj_status = 1
+            |
+            | Meaning:
+            | Waiting to be processed for Google for Jobs.
+            |
             */
 
             else {
 
                 Job::create([
-
                     'provider' => 'whatjobs',
-
                     'provider_job_id' => $providerJobId,
 
                     ...$attributes,
+
+                    'job_gfj_status' => 1,
                 ]);
 
                 $inserted++;
             }
 
-
             $processed++;
         }
-
 
         return [
             'processed' => $processed,
@@ -332,7 +376,6 @@ class WhatJobsSyncService
             'updated' => $updated,
         ];
     }
-
 
     /**
      * Extract the WhatJobs job ID from the tracking URL.
@@ -349,7 +392,6 @@ class WhatJobsSyncService
     protected function extractProviderJobId(
         string $url
     ): ?string {
-
         if (
             preg_match(
                 '/pub_api__cpl__(\d+)__/i',

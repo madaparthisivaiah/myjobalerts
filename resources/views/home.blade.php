@@ -146,10 +146,9 @@
 
                 <div class="col-lg-6">
 
-                    <a
-                        href="{{ route('jobs.show', ['job' => $job->provider_job_id]) }}"
-                        class="text-decoration-none text-dark"
-                    >
+                   
+                    <a href="{{ url('viewjob/' . $job->slug) }}" class="text-decoration-none text-dark">
+                                        
 
                         <div class="job-card h-100">
 

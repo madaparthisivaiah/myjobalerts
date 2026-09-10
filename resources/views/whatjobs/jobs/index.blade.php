@@ -272,16 +272,10 @@ opportunities on MyJobAlerts.')
                     <div class="search-job-content">
 
                         <h3>
-
-                            <a href="{{ route(
-                                        'jobs.show',
-                                        $job->provider_job_id
-                                    ) }}">
+                            <a href="{{ url('viewjob/' . $job->slug) }}" class="text-decoration-none text-dark">
                                 {{ $job->title }}
                             </a>
-
                         </h3>
-
 
                         @if($job->company)
 

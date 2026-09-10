@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $metaTitle ?? View::yieldContent('title', 'MyJobAlerts - Find Your Dream Job') }}</title>
 
-    <meta name="description" content="{{ $metaDescription ?? View::yieldContent('meta_description', 'Find the latest jobs in India by job title, company, city and state. Search and discover job opportunities from leading employers and job platforms on MyJobAlerts.in.') }}">
+    <meta name="description"
+        content="{{ $metaDescription ?? View::yieldContent('meta_description', 'Find the latest jobs in India by job title, company, city and state. Search and discover job opportunities from leading employers and job platforms on MyJobAlerts.in.') }}">
     <link rel="canonical" href="@yield('canonical', url()->current())">
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <!-- Bootstrap 5 -->
@@ -19,159 +20,226 @@
     <link href="{{ asset('css/jobboard.css') }}" rel="stylesheet">
 
     @yield('styles')
+    {{-- Existing WebSite JSON-LD --}}
+    @if (request()->segment(1) !== 'viewjob')
+
     @php
-        $jsonLd = json_encode([
-            "@context" => "https://schema.org",
-            "@type" => "WebSite",
-            "name" => "MyJobAlerts",
-            "url" => url('/'),
-            "description" => "Find the latest jobs in India by job title, company, city and state.",
-        ]);
+    $jsonLd = json_encode([
+    "@context" => "https://schema.org",
+    "@type" => "WebSite",
+    "name" => "MyJobAlerts",
+    "url" => url('/'),
+    "description" => "Find the latest jobs in India by job title, company, city and state.",
+    ]);
     @endphp
 
     <script type="application/ld+json">
-    {!! $jsonLd !!}
+    {!!  $jsonLd !!}
     </script>
+
+    @endif
+
+
+    {{-- JobPosting JSON-LD --}}
+    @if (request()->segment(1) === 'viewjob' && isset($job) && $job)
+
+    @php
+    $description = trim(
+    preg_replace(
+    '/\s+/',
+    ' ',
+    strip_tags($job->snippet ?? $job->title)
+    )
+    );
+
+    $jobPosting = [
+    "@context" => "https://schema.org",
+    "@type" => "JobPosting",
+
+    "title" => $job->title,
+
+    "description" => $description,
+
+    "url" => url('/viewjob/' . $job->slug),
+
+    "hiringOrganization" => [
+    "@type" => "Organization",
+    "name" => $job->company ?: "Company",
+    ],
+
+    "directApply" => false,
+    ];
+
+    if ($job->published_at) {
+    $jobPosting["datePosted"] =
+    $job->published_at->toIso8601String();
+    }
+
+    if (!empty($job->location)) {
+    $jobPosting["jobLocation"] = [
+    "@type" => "Place",
+    "address" => [
+    "@type" => "PostalAddress",
+    "addressLocality" => $job->location,
+    "addressCountry" => "IN",
+    ],
+    ];
+    }
+
+    if (!empty($job->job_type)) {
+    $jobPosting["employmentType"] = $job->job_type;
+    }
+
+    if (!empty($job->logo)) {
+    $jobPosting["hiringOrganization"]["logo"] = $job->logo;
+    }
+    @endphp
+
+    <script type="application/ld+json">
+        {!! json_encode(
+        $jobPosting,
+        JSON_UNESCAPED_SLASHES |
+        JSON_UNESCAPED_UNICODE |
+        JSON_PRETTY_PRINT
+        ) !!}
+    </script>
+
+    @endif
 
 </head>
 
 <body>
 
-<!-- =========================================
+    <!-- =========================================
      NAVBAR
 ========================================= -->
-<nav class="navbar navbar-expand-lg navbar-dark main-navbar">
-    <div class="container">
+    <nav class="navbar navbar-expand-lg navbar-dark main-navbar">
+        <div class="container">
 
-        <a class="navbar-brand fw-bold" href="{{ url('/') }}">
-            <span class="brand-icon">
-                <img src="{{ asset('images/myjobalerts-logo.png') }}" alt="MyJobAlerts Logo" width="30" height="30">
-            </span>
-            MyJobAlerts
-        </a>
+            <a class="navbar-brand fw-bold" href="{{ url('/') }}">
+                <span class="brand-icon">
+                    <img src="{{ asset('images/myjobalerts-logo.png') }}" alt="MyJobAlerts Logo" width="30" height="30">
+                </span>
+                MyJobAlerts
+            </a>
 
-        <button
-            class="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#mainNavbar"
-            aria-controls="mainNavbar"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-        >
-            <span class="navbar-toggler-icon"></span>
-        </button>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
+                aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-        <div class="collapse navbar-collapse" id="mainNavbar">
-            <ul class="navbar-nav ms-auto align-items-lg-center">
+            <div class="collapse navbar-collapse" id="mainNavbar">
+                <ul class="navbar-nav ms-auto align-items-lg-center">
 
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url('/') }}">Home</a>
-                </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url('/') }}">Home</a>
+                    </li>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url('/about-us') }}">About Us</a>
-                </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url('/about-us') }}">About Us</a>
+                    </li>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url('/jobs') }}">Browse Jobs</a>
-                </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url('/jobs') }}">Browse Jobs</a>
+                    </li>
 
-                <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
-                    <a href="#" class="btn btn-light post-job-btn">Post a Job</a>
-                </li>
+                    <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
+                        <a href="#" class="btn btn-light post-job-btn">Post a Job</a>
+                    </li>
 
-            </ul>
+                </ul>
+            </div>
+
         </div>
+    </nav>
 
-    </div>
-</nav>
-
-<!-- =========================================
+    <!-- =========================================
      PAGE CONTENT
 ========================================= -->
-@yield('content')
+    @yield('content')
 
-<!-- =========================================
+    <!-- =========================================
      MODERN FOOTER
 ========================================= -->
-<footer class="site-footer">
-    <div class="container">
+    <footer class="site-footer">
+        <div class="container">
 
-        {{-- =====================================
+            {{-- =====================================
              FOOTER MAIN
         ====================================== --}}
-        <div class="footer-main">
-            <div class="row gy-4">
+            <div class="footer-main">
+                <div class="row gy-4">
 
-                {{-- =================================
+                    {{-- =================================
                      BRAND
                 ================================== --}}
-                <div class="col-lg-6 col-md-6">
-                    <a href="{{ url('/') }}" class="footer-brand text-decoration-none">
-                        <span class="footer-brand-icon">
-                            <img src="{{ asset('images/myjobalerts-logo.png') }}" alt="MyJobAlerts Logo" width="34" height="34">
-                        </span>
-                        <span>MyJobAlerts</span>
-                    </a>
+                    <div class="col-lg-6 col-md-6">
+                        <a href="{{ url('/') }}" class="footer-brand text-decoration-none">
+                            <span class="footer-brand-icon">
+                                <img src="{{ asset('images/myjobalerts-logo.png') }}" alt="MyJobAlerts Logo" width="34"
+                                    height="34">
+                            </span>
+                            <span>MyJobAlerts</span>
+                        </a>
 
-                    <p class="footer-description">
-                        Discover the latest job opportunities across India.
-                        Search jobs by title, company, city and state and
-                        take the next step in your career.
-                    </p>
-                </div>
+                        <p class="footer-description">
+                            Discover the latest job opportunities across India.
+                            Search jobs by title, company, city and state and
+                            take the next step in your career.
+                        </p>
+                    </div>
 
-                {{-- =================================
+                    {{-- =================================
                      QUICK LINKS
                 ================================== --}}
-                <div class="col-lg-3 col-md-6">
-                    <div class="footer-column">
-                        <h6>Explore</h6>
-                        <ul>
-                            <li><a href="{{ url('/') }}">Home</a></li>
-                            <li><a href="{{ url('/jobs') }}">Browse Jobs</a></li>
-                            <li><a href="{{ url('/about-us') }}">About Us</a></li>
-                            <li><a href="{{ url('/contact') }}">Contact</a></li>
-                            <li><a href="{{ url('/faqs') }}">FAQs</a></li>
-                        </ul>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="footer-column">
+                            <h6>Explore</h6>
+                            <ul>
+                                <li><a href="{{ url('/') }}">Home</a></li>
+                                <li><a href="{{ url('/jobs') }}">Browse Jobs</a></li>
+                                <li><a href="{{ url('/about-us') }}">About Us</a></li>
+                                <li><a href="{{ url('/contact') }}">Contact</a></li>
+                                <li><a href="{{ url('/faqs') }}">FAQs</a></li>
+                            </ul>
+                        </div>
                     </div>
-                </div>
 
-                {{-- =================================
+                    {{-- =================================
                      LEGAL
                 ================================== --}}
-                <div class="col-lg-3 col-md-6">
-                    <div class="footer-column">
-                        <h6>Information</h6>
-                        <ul>
-                            <li><a href="{{ url('/privacy-policy') }}">Privacy Policy</a></li>
-                            <li><a href="{{ url('/terms-and-conditions') }}">Terms & Conditions</a></li>
-                            <li><a href="{{ url('/cookie-policy') }}">Cookie Policy</a></li>
-                            <li><a href="{{ url('/disclaimer') }}">Disclaimer</a></li>
-                            <li><a href="{{ url('/contact') }}">Support</a></li>
-                        </ul>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="footer-column">
+                            <h6>Information</h6>
+                            <ul>
+                                <li><a href="{{ url('/privacy-policy') }}">Privacy Policy</a></li>
+                                <li><a href="{{ url('/terms-and-conditions') }}">Terms & Conditions</a></li>
+                                <li><a href="{{ url('/cookie-policy') }}">Cookie Policy</a></li>
+                                <li><a href="{{ url('/disclaimer') }}">Disclaimer</a></li>
+                                <li><a href="{{ url('/contact') }}">Support</a></li>
+                            </ul>
+                        </div>
                     </div>
+
                 </div>
-
             </div>
-        </div>
 
-        {{-- =====================================
+            {{-- =====================================
              FOOTER BOTTOM
         ====================================== --}}
-        <div class="footer-bottom">
-            <div class="footer-copyright">
-                <span>© {{ date('Y') }} MyJobAlerts.</span>
-                <span class="footer-rights">All rights reserved.</span>
+            <div class="footer-bottom">
+                <div class="footer-copyright">
+                    <span>© {{ date('Y') }} MyJobAlerts.</span>
+                    <span class="footer-rights">All rights reserved.</span>
+                </div>
             </div>
+
         </div>
+    </footer>
 
-    </div>
-</footer>
-
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-@yield('scripts')
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    @yield('scripts')
 </body>
+
 </html>

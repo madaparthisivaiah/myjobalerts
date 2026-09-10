@@ -16,8 +16,13 @@ class JobController extends Controller
     {
         if ($value) {
             if ($request->routeIs('jobs.location')) {
+                $locationMap = [
+                    'bangalore-bazaar' => 'Bangalore',                   
+                    // add more here
+                ];
+                $location = $locationMap[$value] ?? str_replace('-', ' ', $value);
                 $request->merge([
-                    'location' => $value,
+                    'location' => $location,
                 ]);
             }
 
@@ -215,5 +220,19 @@ class JobController extends Controller
             'jobs' => $jobs,
             'location' => $locationName,
         ]);
+    }
+
+    public function showjob(string $slug)
+    {
+        $job = Job::query()
+            ->where('provider', 'whatjobs')
+            ->where('slug', $slug)
+            ->where('is_active', true)
+            ->firstOrFail();
+
+        return view('whatjobs.jobs.show', [
+            'job' => $job,
+        ]);
+        //return view('whatjobs.show', compact('job'));
     }
 }
