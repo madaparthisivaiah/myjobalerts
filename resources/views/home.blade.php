@@ -66,31 +66,8 @@
                                 Search Jobs
                             </button>
                         </div>
-
                     </div>
-                </form>
-
-                <div class="popular-searches">
-
-                    <span>Popular:</span>
-
-                    <a href="{{ route('jobs.index', ['keyword' => 'Software Engineer']) }}">
-                        Software Engineer
-                    </a>
-
-                    <a href="{{ route('jobs.index', ['keyword' => 'Marketing']) }}">
-                        Marketing
-                    </a>
-
-                    <a href="{{ route('jobs.index', ['keyword' => 'Data Analyst']) }}">
-                        Data Analyst
-                    </a>
-
-                    <a href="{{ route('jobs.index', ['keyword' => 'Remote']) }}">
-                        Remote Jobs
-                    </a>
-
-                </div>
+                </form>               
 
             </div>
         </div>

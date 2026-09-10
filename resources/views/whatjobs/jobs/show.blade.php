@@ -1,14 +1,31 @@
 @extends('layouts.app')
+@php
+$jobTitle = trim($job->title);
 
-@section('title', $job->title . ' | MyJobAlerts')
+$description = trim(
+    preg_replace(
+        '/\s+/',
+        ' ',
+        strip_tags($job->snippet ?? '')
+    )
+);
 
-@section('meta_description')
-    {{ Str::limit(
-        strip_tags($job->snippet ?? $job->title),
-        155
-    ) }}
-@endsection
+if (!$description) {
+    $description = $jobTitle . ' job opportunity on MyJobAlerts.';
+}
 
+$metaDescription = \Illuminate\Support\Str::limit(
+    $description,
+    155,
+    '...'
+);
+
+$canonicalUrl = url('/viewjob/' . $job->slug);
+
+@endphp
+@section('title', $jobTitle . ' Jobs | MyJobAlerts')
+@section('meta_description', $metaDescription)
+@section('canonical', $canonicalUrl)
 @section('content')
 
 <section class="job-detail-header">
