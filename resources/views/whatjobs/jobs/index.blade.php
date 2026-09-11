@@ -1,11 +1,7 @@
 @extends('layouts.app')
-
-@section('title', 'Search Jobs in India | MyJobAlerts')
-
-@section('meta_description', 'Find the latest jobs in India by job title, company and location. Browse thousands of job opportunities on MyJobAlerts.')
-
+@section('title', $pageTitle)
+@section('meta_description', $metaDescription)
 @section('content')
-
 <section class="section-padding bg-light-subtle">
 
 <div class="container">

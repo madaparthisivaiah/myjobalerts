@@ -14,32 +14,86 @@ class JobController extends Controller
      */
     public function index(Request $request, ?string $value = null)
     {
+        /*
+        |--------------------------------------------------------------------------
+        | Default Request Values
+        |--------------------------------------------------------------------------
+        |
+        | Always initialize these variables so they are never undefined.
+        |
+        */
+
+        $keyword = '';
+        $location = '';
+        $company = '';
+
+        /*
+        |--------------------------------------------------------------------------
+        | Handle Route Value
+        |--------------------------------------------------------------------------
+        */
+
         if ($value) {
+
+            /*
+            |--------------------------------------------------------------------------
+            | Location Route
+            |--------------------------------------------------------------------------
+            */
+
             if ($request->routeIs('jobs.location')) {
+
                 $locationMap = [
-                    'bangalore-bazaar' => 'Bangalore',                   
+                    'bangalore-bazaar' => 'Bangalore',
                     // add more here
                 ];
-                $location = $locationMap[$value] ?? str_replace('-', ' ', $value);
+
+                $location = $locationMap[$value]
+                    ?? str_replace('-', ' ', $value);
+
                 $request->merge([
                     'location' => $location,
                 ]);
             }
 
+            /*
+            |--------------------------------------------------------------------------
+            | Company Route
+            |--------------------------------------------------------------------------
+            */
+
             if ($request->routeIs('jobs.company')) {
+
                 $companyMap = [
-                'mufg-global-service-mgs' => 'MUFG Global Service',
-                'artech-llc'              => 'Artech L.L.C.', 
-                // add more here
-            ];
+                    'mufg-global-service-mgs' => 'MUFG Global Service',
+                    'artech-llc'              => 'Artech L.L.C.',
+                    // add more here
+                ];
 
-            $company = $companyMap[$value] ?? str_replace('-', ' ', $value);
+                $company = $companyMap[$value]
+                    ?? str_replace('-', ' ', $value);
 
-            $request->merge([
-                'company' => $company,
-            ]);
+                $request->merge([
+                    'company' => $company,
+                ]);
+            }
         }
-    }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Get Request Values Safely
+        |--------------------------------------------------------------------------
+        */
+
+        $keyword = trim((string) $request->input('keyword', ''));
+        $location = trim((string) $request->input('location', ''));
+        $company = trim((string) $request->input('company', ''));
+
+        /*
+        |--------------------------------------------------------------------------
+        | Base Query
+        |--------------------------------------------------------------------------
+        */
 
         $query = Job::query()
             ->where('provider', 'whatjobs')
@@ -51,10 +105,10 @@ class JobController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        if ($request->filled('keyword')) {
-            $keyword = trim($request->keyword);
+        if ($keyword !== '') {
 
             $query->where(function ($q) use ($keyword) {
+
                 $q->where('title', 'like', "%{$keyword}%")
                     ->orWhere('company', 'like', "%{$keyword}%");
             });
@@ -66,10 +120,13 @@ class JobController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        if ($request->filled('location')) {
-            $location = trim($request->location);
+        if ($location !== '') {
 
-            $query->where('location', 'like', "%{$location}%");
+            $query->where(
+                'location',
+                'like',
+                "%{$location}%"
+            );
         }
 
         /*
@@ -78,8 +135,7 @@ class JobController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        if ($request->filled('company')) {
-            $company = trim($request->company);
+        if ($company !== '') {
 
             $normalizedCompany = preg_replace(
                 '/[^a-z0-9]/',
@@ -99,11 +155,14 @@ class JobController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $sort = $request->get('sort', 'latest');
+        $sort = $request->input('sort', 'latest');
 
         if ($sort === 'oldest') {
+
             $query->orderBy('published_at', 'asc');
+
         } else {
+
             $query->orderByDesc('published_at');
         }
 
@@ -119,30 +178,159 @@ class JobController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Sidebar companies
+        | Sidebar Companies
         |--------------------------------------------------------------------------
-        */       
+        */
 
-        $companies = Job::query()
-            ->where('provider', 'whatjobs')
-            ->where('is_active', true)
-            ->whereNotNull('company')
-            ->where('company', '!=', '')
-            ->select('company')
-            ->selectRaw('COUNT(*) as jobs_count')
-            ->groupBy('company')
-            ->orderByDesc('jobs_count')
-            ->limit(20)
-            ->pluck('company');
-    
+        $companies = [];
+
+        /*
+        |--------------------------------------------------------------------------
+        | Dynamic SEO
+        |--------------------------------------------------------------------------
+        */
+
+        /*
+        |--------------------------------------------------------------------------
+        | Default SEO
+        |--------------------------------------------------------------------------
+        */
+
+        $pageTitle = 'Search Jobs in India | MyJobAlerts';
+
+        $metaDescription =
+            'Find the latest jobs in India by job title, company and location. Browse thousands of job opportunities on MyJobAlerts.';
+
+        /*
+        |--------------------------------------------------------------------------
+        | Keyword + Location
+        |--------------------------------------------------------------------------
+        */
+
+        if ($keyword !== '' && $location !== '') {
+
+            $pageTitle =
+                "{$keyword} Jobs in {$location}, India | MyJobAlerts";
+
+            $metaDescription =
+                "Find the latest {$keyword} jobs in {$location}, India. Browse current job opportunities from top companies and apply for jobs on MyJobAlerts.";
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Keyword Only
+        |--------------------------------------------------------------------------
+        */
+
+        elseif ($keyword !== '') {
+
+            $pageTitle =
+                "{$keyword} Jobs in India | MyJobAlerts";
+
+            $metaDescription =
+                "Find the latest {$keyword} jobs in India. Browse current job opportunities from top companies and apply for jobs on MyJobAlerts.";
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Company + Location
+        |--------------------------------------------------------------------------
+        */
+
+        elseif ($company !== '' && $location !== '') {
+
+            $pageTitle =
+                "{$company} Jobs in {$location}, India | MyJobAlerts";
+
+            $metaDescription =
+                "Find the latest {$company} jobs in {$location}, India. Browse current job openings and apply for available positions on MyJobAlerts.";
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Company Only
+        |--------------------------------------------------------------------------
+        */
+
+        elseif ($company !== '') {
+
+            $pageTitle =
+                "{$company} Jobs in India | MyJobAlerts";
+
+            $metaDescription =
+                "Find the latest {$company} jobs in India. Browse current job openings and apply for available positions on MyJobAlerts.";
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Location Only
+        |--------------------------------------------------------------------------
+        */
+
+        elseif ($location !== '') {
+
+            $pageTitle =
+                "Jobs in {$location}, India | MyJobAlerts";
+
+            $metaDescription =
+                "Find the latest jobs in {$location}, India. Browse current job opportunities from top companies and apply for jobs on MyJobAlerts.";
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Clean SEO Values
+        |--------------------------------------------------------------------------
+        */
+
+        $pageTitle = preg_replace('/\s+/', ' ', trim($pageTitle));
+
+        $metaDescription = preg_replace(
+            '/\s+/',
+            ' ',
+            trim($metaDescription)
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Limit SEO Length
+        |--------------------------------------------------------------------------
+        */
+
+        $pageTitle = \Illuminate\Support\Str::limit(
+            $pageTitle,
+            70,
+            ''
+        );
+
+        $metaDescription = \Illuminate\Support\Str::limit(
+            $metaDescription,
+            160,
+            ''
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Return View
+        |--------------------------------------------------------------------------
+        */
 
         return view('whatjobs.jobs.index', [
+
             'jobs' => $jobs,
+
             'companies' => $companies,
-            'keyword' => $request->keyword,
-            'location' => $request->location,
-            'company' => $request->company,
+
+            'keyword' => $keyword,
+
+            'location' => $location,
+
+            'company' => $company,
+
             'sort' => $sort,
+
+            'pageTitle' => $pageTitle,
+
+            'metaDescription' => $metaDescription,
         ]);
     }
 
