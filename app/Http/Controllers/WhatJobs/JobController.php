@@ -472,13 +472,13 @@ class JobController extends Controller
         |
         */
 
-        if ($isExpired) {
+        if (!$isExpired) {
 
             return response()
                 ->view('whatjobs.jobs.show', [
                     'job' => $job,
                     'isExpired' => true,
-                ], 410);
+                ], 200);
         }
 
         /*
