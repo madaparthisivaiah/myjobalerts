@@ -208,7 +208,7 @@ class JobController extends Controller
 
         if ($keyword !== '' && $location !== '') {
 
-            $pageTitle = "{$keyword} Jobs in {$location}, India - Latest Vacancies and Careers | MyJobAlerts";
+            $pageTitle = "{$keyword} Jobs in {$location}, India - Latest Job Vacancies and Careers | MyJobAlerts";
 
             $metaDescription = "Find the latest {$keyword} jobs in {$location}, India. Browse current job vacancies, explore career opportunities and apply directly through MyJobAlerts.";
         }
@@ -242,7 +242,7 @@ class JobController extends Controller
         */
 
         elseif ($company !== '') {
-            $pageTitle = "{$company} Jobs in India - Latest Vacancies and Careers | MyJobAlerts";
+            $pageTitle = "{$company} Jobs in India - Latest Job Vacancies and Careers | MyJobAlerts";
             $metaDescription = "Find the latest {$company} jobs in India. Browse current job vacancies, explore career opportunities and apply directly through MyJobAlerts.";
         }
 
@@ -253,7 +253,7 @@ class JobController extends Controller
         */
 
         elseif ($location !== '') {
-            $pageTitle = "Jobs in {$location}, India - Latest Vacancies and Careers | MyJobAlerts";
+            $pageTitle = "Jobs in {$location}, India - Latest Job Vacancies and Careers | MyJobAlerts";
             $metaDescription = "Find the latest jobs in {$location}, India. Browse current job vacancies from leading companies and explore career opportunities on MyJobAlerts.";
         }
 
