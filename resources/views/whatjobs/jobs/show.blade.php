@@ -36,7 +36,7 @@
         *
         * Only shorten the HTML <title>.
         */
-        if (\Illuminate\Support\Str::length($seoJobTitle) > 65) {
+        if (\Illuminate\Support\Str::length($seoJobTitle) > 70) {
 
             $seoJobTitle = \Illuminate\Support\Str::limit(
                 $seoJobTitle,
