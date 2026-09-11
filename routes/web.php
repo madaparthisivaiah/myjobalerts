@@ -60,12 +60,11 @@ Route::get(
     [WhatJobsTestController::class, 'index']
 );
 
-Route::get('/job/{job}', [JobController::class, 'show'])
-    ->name('jobs.show');
+//Route::get('/job/{job}', [JobController::class, 'show'])->name('jobs.show');
 
 Route::get('/jobs', [JobController::class, 'index'])->name('jobs.index');
 
 Route::get('/jobs/{location}', [JobController::class, 'index'])->name('jobs.location');
 Route::get('/company/{company}', [JobController::class, 'index'])->name('jobs.company');
 
-Route::get('/viewjob/{slug}', [JobController::class, 'showjob']); 
+Route::get('/viewjob/{slug}', [JobController::class, 'showjob']);

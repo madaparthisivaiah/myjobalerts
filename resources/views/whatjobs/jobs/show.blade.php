@@ -1,353 +1,358 @@
 @extends('layouts.app')
 
-    @php
+@php
+
+    /*
+    |--------------------------------------------------------------------------
+    | Expired Job Status
+    |--------------------------------------------------------------------------
+    */
+
+    $isExpired = $isExpired ?? false;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Basic Job Data
+    |--------------------------------------------------------------------------
+    */
+
+    $jobTitle = trim($job->title ?? 'Job Opportunity');
+
+    $company = trim($job->company ?? '');
+
+    $location = trim($job->location ?? '');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Clean Job Title for SEO
+    |--------------------------------------------------------------------------
+    */
+
+    $seoJobTitle = trim(
+        preg_replace(
+            '/\s+/',
+            ' ',
+            strip_tags($jobTitle)
+        )
+    );
+
+    /*
+    * Keep the complete original job title for:
+    * - H1
+    * - JobPosting schema
+    *
+    * Only shorten the HTML <title>.
+    */
+    if (\Illuminate\Support\Str::length($seoJobTitle) > 70) {
+
+        $seoJobTitle = \Illuminate\Support\Str::limit(
+            $seoJobTitle,
+            65,
+            ''
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SEO Page Title
+    |--------------------------------------------------------------------------
+    */
+
+    if ($company !== '' && $location !== '') {
+
+        $pageTitle =
+            "{$seoJobTitle} - {$company}, {$location} | MyJobAlerts";
+
+    } elseif ($company !== '') {
+
+        $pageTitle =
+            "{$seoJobTitle} - {$company}, India | MyJobAlerts";
+
+    } elseif ($location !== '') {
+
+        $pageTitle =
+            "{$seoJobTitle} - {$location}, India | MyJobAlerts";
+
+    } else {
+
+        $pageTitle =
+            "{$seoJobTitle} | MyJobAlerts";
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SEO Meta Description
+    |--------------------------------------------------------------------------
+    */
+
+    if ($isExpired) {
+
+        if ($company !== '' && $location !== '') {
+
+            $metaDescription =
+                "{$jobTitle} at {$company} in {$location} has expired. This job is no longer available for applications. Browse other job opportunities on MyJobAlerts.";
+
+        } elseif ($company !== '') {
+
+            $metaDescription =
+                "{$jobTitle} at {$company} has expired. This job is no longer available for applications. Browse other job opportunities on MyJobAlerts.";
+
+        } elseif ($location !== '') {
+
+            $metaDescription =
+                "{$jobTitle} in {$location}, India has expired. This job is no longer available for applications. Browse other job opportunities on MyJobAlerts.";
+
+        } else {
+
+            $metaDescription =
+                "{$jobTitle} job opportunity has expired and is no longer available for applications. Browse other job opportunities on MyJobAlerts.";
+        }
+
+    } elseif ($company !== '' && $location !== '') {
+
+        $metaDescription =
+            "Find {$jobTitle} at {$company} in {$location}. Explore the job details, requirements and career opportunity, and apply through the original job listing.";
+
+    } elseif ($company !== '') {
+
+        $metaDescription =
+            "Find {$jobTitle} at {$company} in India. Explore the job details, requirements and career opportunity, and apply through the original job listing.";
+
+    } elseif ($location !== '') {
+
+        $metaDescription =
+            "Find {$jobTitle} jobs in {$location}, India. Explore the job details, requirements and career opportunity, and apply through the original job listing.";
+
+    } else {
+
+        $metaDescription =
+            "Find {$jobTitle} job opportunities in India. Explore the job details, requirements and career opportunity, and apply through the original job listing.";
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Final Meta Description Cleanup
+    |--------------------------------------------------------------------------
+    */
+
+    $metaDescription = html_entity_decode(
+        $metaDescription,
+        ENT_QUOTES | ENT_HTML5,
+        'UTF-8'
+    );
+
+    $metaDescription = strip_tags($metaDescription);
+
+    $metaDescription = preg_replace(
+        '/\s+/',
+        ' ',
+        $metaDescription
+    );
+
+    $metaDescription = trim($metaDescription);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Canonical URL
+    |--------------------------------------------------------------------------
+    */
+
+    $canonicalUrl = url('/viewjob/' . $job->slug);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Salary
+    |--------------------------------------------------------------------------
+    */
+
+    $salary = trim($job->salary ?? '');
+
+    if (
+        $salary === '0.000000 - 0.000000' ||
+        $salary === '0 - 0'
+    ) {
+
+        $salary = '';
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Actual Posted Date
+    |--------------------------------------------------------------------------
+    */
+
+    $datePosted = null;
+
+    if (!empty($job->date_posted)) {
+
+        $datePosted = $job->date_posted;
+
+    } elseif (!empty($job->posted_at)) {
+
+        $datePosted = $job->posted_at;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Job Location Schema
+    |--------------------------------------------------------------------------
+    */
+
+    $jobLocation = null;
+
+    if (!empty($job->location)) {
+
+        $jobLocation = [
+
+            '@type' => 'Place',
+
+            'address' => [
+
+                '@type' => 'PostalAddress',
+
+                'addressLocality' => trim($job->location),
+
+                'addressCountry' => 'IN',
+
+            ],
+
+        ];
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | JobPosting Schema
+    |--------------------------------------------------------------------------
+    |
+    | Do not generate JobPosting schema for expired jobs.
+    |
+    */
+
+    $jobPostingSchema = [
+
+        '@context' => 'https://schema.org',
+
+        '@type' => 'JobPosting',
 
         /*
-        |--------------------------------------------------------------------------
-        | Basic Job Data
-        |--------------------------------------------------------------------------
+        * Use the complete original job title.
         */
-
-        $jobTitle = trim($job->title ?? 'Job Opportunity');
-
-        $company = trim($job->company ?? '');
-
-        $location = trim($job->location ?? '');
-
+        'title' => $jobTitle,
 
         /*
-        |--------------------------------------------------------------------------
-        | Clean Job Title for SEO
-        |--------------------------------------------------------------------------
+        * Keep the actual WhatJobs snippet for structured data.
+        *
+        * This is separate from the clean SEO meta description.
         */
-
-        $seoJobTitle = trim(
+        'description' => trim(
             preg_replace(
                 '/\s+/',
                 ' ',
-                strip_tags($jobTitle)
-            )
-        );
-
-        /*
-        * Keep the complete original job title for:
-        * - H1
-        * - JobPosting schema
-        *
-        * Only shorten the HTML <title>.
-        */
-        if (\Illuminate\Support\Str::length($seoJobTitle) > 70) {
-
-            $seoJobTitle = \Illuminate\Support\Str::limit(
-                $seoJobTitle,
-                65,
-                ''
-            );
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | SEO Page Title
-        |--------------------------------------------------------------------------
-        */
-
-        if ($company !== '' && $location !== '') {
-
-            $pageTitle =
-                "{$seoJobTitle} - {$company}, {$location} | MyJobAlerts";
-
-        } elseif ($company !== '') {
-
-            $pageTitle =
-                "{$seoJobTitle} - {$company}, India | MyJobAlerts";
-
-        } elseif ($location !== '') {
-
-            $pageTitle =
-                "{$seoJobTitle} - {$location}, India | MyJobAlerts";
-
-        } else {
-
-            $pageTitle =
-                "{$seoJobTitle} | MyJobAlerts";
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | SEO Meta Description
-        |--------------------------------------------------------------------------
-        |
-        | Keep this clean and consistent.
-        |
-        | Do NOT use the WhatJobs snippet here because feed snippets
-        | can contain:
-        |
-        | - duplicated job titles
-        | - company introductions
-        | - "About Company"
-        | - "Dear Connections"
-        | - feed formatting
-        |
-        |--------------------------------------------------------------------------
-        */
-
-        if ($company !== '' && $location !== '') {
-
-            $metaDescription =
-                "Find {$jobTitle} at {$company} in {$location}. Explore the job details, requirements and career opportunity, and apply through the original job listing.";
-
-        } elseif ($company !== '') {
-
-            $metaDescription =
-                "Find {$jobTitle} at {$company} in India. Explore the job details, requirements and career opportunity, and apply through the original job listing.";
-
-        } elseif ($location !== '') {
-
-            $metaDescription =
-                "Find {$jobTitle} jobs in {$location}, India. Explore the job details, requirements and career opportunity, and apply through the original job listing.";
-
-        } else {
-
-            $metaDescription =
-                "Find {$jobTitle} job opportunities in India. Explore the job details, requirements and career opportunity, and apply through the original job listing.";
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Final Meta Description Cleanup
-        |--------------------------------------------------------------------------
-        */
-
-        $metaDescription = html_entity_decode(
-            $metaDescription,
-            ENT_QUOTES | ENT_HTML5,
-            'UTF-8'
-        );
-
-        $metaDescription = strip_tags($metaDescription);
-
-        $metaDescription = preg_replace(
-            '/\s+/',
-            ' ',
-            $metaDescription
-        );
-
-        $metaDescription = trim($metaDescription);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | IMPORTANT
-        |--------------------------------------------------------------------------
-        |
-        | Do NOT use Str::limit() here.
-        |
-        | This prevents Laravel from adding:
-        |
-        | ...
-        |
-        | to the end of your meta description.
-        |
-        |--------------------------------------------------------------------------
-        */
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Canonical URL
-        |--------------------------------------------------------------------------
-        */
-
-        $canonicalUrl = url('/viewjob/' . $job->slug);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Salary
-        |--------------------------------------------------------------------------
-        */
-
-        $salary = trim($job->salary ?? '');
-
-        if (
-            $salary === '0.000000 - 0.000000' ||
-            $salary === '0 - 0'
-        ) {
-
-            $salary = '';
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Actual Posted Date
-        |--------------------------------------------------------------------------
-        */
-
-        $datePosted = null;
-
-        if (!empty($job->date_posted)) {
-
-            $datePosted = $job->date_posted;
-
-        } elseif (!empty($job->posted_at)) {
-
-            $datePosted = $job->posted_at;
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Job Location Schema
-        |--------------------------------------------------------------------------
-        */
-
-        $jobLocation = null;
-
-        if (!empty($job->location)) {
-
-            $jobLocation = [
-
-                '@type' => 'Place',
-
-                'address' => [
-
-                    '@type' => 'PostalAddress',
-
-                    'addressLocality' => trim($job->location),
-
-                    'addressCountry' => 'IN',
-
-                ],
-
-            ];
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | JobPosting Schema
-        |--------------------------------------------------------------------------
-        */
-
-        $jobPostingSchema = [
-
-            '@context' => 'https://schema.org',
-
-            '@type' => 'JobPosting',
-
-            /*
-            * Use the complete original job title.
-            */
-            'title' => $jobTitle,
-
-            /*
-            * Keep the actual WhatJobs snippet for structured data.
-            *
-            * This is separate from the clean SEO meta description.
-            */
-            'description' => trim(
-                preg_replace(
-                    '/\s+/',
-                    ' ',
-                    strip_tags(
-                        html_entity_decode(
-                            $job->snippet ?? '',
-                            ENT_QUOTES | ENT_HTML5,
-                            'UTF-8'
-                        )
+                strip_tags(
+                    html_entity_decode(
+                        $job->snippet ?? '',
+                        ENT_QUOTES | ENT_HTML5,
+                        'UTF-8'
                     )
                 )
-            ) ?: "Find {$jobTitle} at {$company} in {$location}.",
+            )
+        ) ?: "Find {$jobTitle} at {$company} in {$location}.",
 
-            'url' => $canonicalUrl,
+        'url' => $canonicalUrl,
+
+    ];
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Date Posted
+    |--------------------------------------------------------------------------
+    */
+
+    if ($datePosted) {
+
+        $jobPostingSchema['datePosted'] = $datePosted;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Hiring Organization
+    |--------------------------------------------------------------------------
+    */
+
+    if (!empty($job->company)) {
+
+        $organization = [
+
+            '@type' => 'Organization',
+
+            'name' => trim($job->company),
 
         ];
 
+        if (!empty($job->logo)) {
 
-        /*
-        |--------------------------------------------------------------------------
-        | Date Posted
-        |--------------------------------------------------------------------------
-        */
-
-        if ($datePosted) {
-
-            $jobPostingSchema['datePosted'] = $datePosted;
+            $organization['logo'] = $job->logo;
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Hiring Organization
-        |--------------------------------------------------------------------------
-        */
-
-        if (!empty($job->company)) {
-
-            $organization = [
-
-                '@type' => 'Organization',
-
-                'name' => trim($job->company),
-
-            ];
-
-            if (!empty($job->logo)) {
-
-                $organization['logo'] = $job->logo;
-            }
-
-            $jobPostingSchema['hiringOrganization'] = $organization;
-        }
+        $jobPostingSchema['hiringOrganization'] = $organization;
+    }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Job Location
-        |--------------------------------------------------------------------------
-        */
+    /*
+    |--------------------------------------------------------------------------
+    | Job Location
+    |--------------------------------------------------------------------------
+    */
 
-        if ($jobLocation) {
+    if ($jobLocation) {
 
-            $jobPostingSchema['jobLocation'] = $jobLocation;
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Employment Type
-        |--------------------------------------------------------------------------
-        */
-
-        if (!empty($job->job_type)) {
-
-            $jobPostingSchema['employmentType'] = $job->job_type;
-        }
+        $jobPostingSchema['jobLocation'] = $jobLocation;
+    }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Original Job URL
-        |--------------------------------------------------------------------------
-        */
+    /*
+    |--------------------------------------------------------------------------
+    | Employment Type
+    |--------------------------------------------------------------------------
+    */
 
-        if (!empty($job->job_url)) {
+    if (!empty($job->job_type)) {
 
-            $jobPostingSchema['sameAs'] = $job->job_url;
-        }
-
-    @endphp
+        $jobPostingSchema['employmentType'] = $job->job_type;
+    }
 
 
-    @section('title', $pageTitle)
+    /*
+    |--------------------------------------------------------------------------
+    | Original Job URL
+    |--------------------------------------------------------------------------
+    */
 
-    @section('meta_description', $metaDescription)
+    if (!empty($job->job_url)) {
 
-    @section('canonical', $canonicalUrl)
+        $jobPostingSchema['sameAs'] = $job->job_url;
+    }
+
+@endphp
+
+
+@section('title', $pageTitle)
+
+@section('meta_description', $metaDescription)
+
+@section('canonical', $canonicalUrl)
 
 
 @section('content')
@@ -378,13 +383,27 @@
 
                         <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
 
-                            <span class="badge text-bg-primary px-3 py-2">
+                            @if($isExpired)
 
-                                <i class="bi bi-briefcase me-1"></i>
+                                <span class="badge text-bg-secondary px-3 py-2">
 
-                                Job Opportunity
+                                    <i class="bi bi-x-circle me-1"></i>
 
-                            </span>
+                                    Job Expired
+
+                                </span>
+
+                            @else
+
+                                <span class="badge text-bg-primary px-3 py-2">
+
+                                    <i class="bi bi-briefcase me-1"></i>
+
+                                    Job Opportunity
+
+                                </span>
+
+                            @endif
 
 
                             @if(!is_null($job->age_days))
@@ -513,9 +532,23 @@
                             @endif
 
 
-                            {{-- HEADER APPLY BUTTON --}}
+                            {{-- HEADER APPLY / EXPIRED BUTTON --}}
 
-                            @if($job->job_url)
+                            @if($isExpired)
+
+                                <button
+                                    type="button"
+                                    class="btn btn-secondary btn-lg fw-semibold px-4"
+                                    disabled
+                                >
+
+                                    <i class="bi bi-x-circle me-2"></i>
+
+                                    Expired
+
+                                </button>
+
+                            @elseif($job->job_url)
 
                                 <a
                                     href="{{ $job->job_url }}"
@@ -547,6 +580,48 @@
     </div>
 
 </section>
+
+
+
+{{-- =========================================================
+     EXPIRED JOB NOTICE
+========================================================= --}}
+
+@if($isExpired)
+
+    <div class="container pt-4">
+
+        <div class="alert alert-secondary border rounded-4 mb-0">
+
+            <div class="d-flex align-items-start">
+
+                <i class="bi bi-exclamation-circle fs-5 me-3"></i>
+
+                <div>
+
+                    <div class="fw-semibold mb-1">
+
+                        This job has expired
+
+                    </div>
+
+                    <div class="small">
+
+                        This job opportunity is no longer available
+                        for applications. You can continue browsing
+                        other job opportunities on MyJobAlerts.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+@endif
 
 
 
@@ -675,9 +750,23 @@
 
 
 
-                {{-- APPLY BUTTON --}}
+                {{-- APPLY / EXPIRED BUTTON --}}
 
-                @if($job->job_url)
+                @if($isExpired)
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary btn-lg w-100 fw-semibold"
+                        disabled
+                    >
+
+                        <i class="bi bi-x-circle me-2"></i>
+
+                        Job Expired
+
+                    </button>
+
+                @elseif($job->job_url)
 
                     <a
                         href="{{ $job->job_url }}"
@@ -870,28 +959,41 @@
                 </h2>
 
 
-                <p class="text-muted small mb-3">
+                @if($isExpired)
 
-                    View the original job posting and complete your
-                    application on the external job platform.
+                    <p class="text-muted small mb-0">
 
-                </p>
+                        This job listing has expired and is no longer
+                        available for applications.
+
+                    </p>
+
+                @else
+
+                    <p class="text-muted small mb-3">
+
+                        View the original job posting and complete your
+                        application on the external job platform.
+
+                    </p>
 
 
-                @if($job->job_url)
+                    @if($job->job_url)
 
-                    <a
-                        href="{{ $job->job_url }}"
-                        target="_blank"
-                        rel="nofollow sponsored"
-                        class="fw-semibold text-decoration-none"
-                    >
+                        <a
+                            href="{{ $job->job_url }}"
+                            target="_blank"
+                            rel="nofollow sponsored"
+                            class="fw-semibold text-decoration-none"
+                        >
 
-                        View original job
+                            View original job
 
-                        <i class="bi bi-arrow-right ms-1"></i>
+                            <i class="bi bi-arrow-right ms-1"></i>
 
-                    </a>
+                        </a>
+
+                    @endif
 
                 @endif
 
@@ -909,14 +1011,18 @@
      JOBPOSTING STRUCTURED DATA
 ========================================================= --}}
 
-<script type="application/ld+json">
-{!! json_encode(
-    $jobPostingSchema,
-    JSON_UNESCAPED_SLASHES |
-    JSON_UNESCAPED_UNICODE |
-    JSON_PRETTY_PRINT
-) !!}
-</script>
+@if(!$isExpired)
+
+    <script type="application/ld+json">
+    {!! json_encode(
+        $jobPostingSchema,
+        JSON_UNESCAPED_SLASHES |
+        JSON_UNESCAPED_UNICODE |
+        JSON_PRETTY_PRINT
+    ) !!}
+    </script>
+
+@endif
 
 
 @endsection

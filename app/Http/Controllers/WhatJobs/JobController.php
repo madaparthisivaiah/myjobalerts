@@ -323,11 +323,50 @@ class JobController extends Controller
         $job = Job::query()
             ->where('provider', 'whatjobs')
             ->where('provider_job_id', $id)
-            ->where('is_active', true)
-            ->firstOrFail();
+            ->first();
+
+            dd($job);
+        /*
+        |--------------------------------------------------------------------------
+        | Job Not Found
+        |--------------------------------------------------------------------------
+        */
+
+        if (!$job) {
+            abort(404);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Expired / Inactive Job
+        |--------------------------------------------------------------------------
+        |
+        | WhatJobs:
+        | is_active = 0 → Active
+        | is_active = 1 → Inactive / Expired
+        |
+        */
+
+        $isExpired = ((int) $job->is_active === 1);
+
+        if ($isExpired) {
+
+            return response()
+                ->view('whatjobs.jobs.show', [
+                    'job' => $job,
+                    'isExpired' => true,
+                ], 410);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Active Job
+        |--------------------------------------------------------------------------
+        */
 
         return view('whatjobs.jobs.show', [
             'job' => $job,
+            'isExpired' => false,
         ]);
     }
 
@@ -393,17 +432,65 @@ class JobController extends Controller
         ]);
     }
 
+
     public function showjob(string $slug)
     {
         $job = Job::query()
             ->where('provider', 'whatjobs')
             ->where('slug', $slug)
-            ->where('is_active', true)
-            ->firstOrFail();
+            ->first();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Job Not Found
+        |--------------------------------------------------------------------------
+        */
+
+        if (!$job) {
+            abort(404);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Check Job Status
+        |--------------------------------------------------------------------------
+        |
+        | WhatJobs:
+        | is_active = 0 → Active
+        | is_active = 1 → Inactive / Expired
+        |
+        */
+
+        $isExpired = ((int) $job->is_active === 1);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Expired Job
+        |--------------------------------------------------------------------------
+        |
+        | Return HTTP 410 Gone but still render the job page.
+        |
+        */
+
+        if ($isExpired) {
+
+            return response()
+                ->view('whatjobs.jobs.show', [
+                    'job' => $job,
+                    'isExpired' => true,
+                ], 410);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Active Job
+        |--------------------------------------------------------------------------
+        */
 
         return view('whatjobs.jobs.show', [
             'job' => $job,
+            'isExpired' => false,
         ]);
-        //return view('whatjobs.show', compact('job'));
     }
+
 }
