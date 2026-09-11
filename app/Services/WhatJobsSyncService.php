@@ -138,6 +138,9 @@ class WhatJobsSyncService
         
         $this->sitemapService->generate();
 
+        //Refresh the cache
+        $this->homePageJobService->refreshHomepageCache();
+
         /*
         |--------------------------------------------------------------------------
         | Log completed sync
