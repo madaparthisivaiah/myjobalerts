@@ -1,115 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $metaTitle ?? View::yieldContent('title', 'MyJobAlerts - Find Your Dream Job') }}</title>
-
-    <meta name="description"
-        content="{{ $metaDescription ?? View::yieldContent('meta_description', 'Find the latest jobs in India by job title, company, city and state. Search and discover job opportunities from leading employers and job platforms on MyJobAlerts.in.') }}">
+    <meta name="description" content="{{ $metaDescription ?? View::yieldContent('meta_description', 'Find the latest jobs in India by job title, company, city and state. Search and discover job opportunities from leading employers and job platforms on MyJobAlerts.in.') }}">
     <link rel="canonical" href="@yield('canonical', url()->current())">
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-
     <!-- JobBoard CSS -->
     <link href="{{ asset('css/jobboard.css') }}" rel="stylesheet">
-
     @yield('styles')
     {{-- Existing WebSite JSON-LD --}}
     @if (request()->segment(1) !== 'viewjob')
-
-    @php
-    $jsonLd = json_encode([
-    "@context" => "https://schema.org",
-    "@type" => "WebSite",
-    "name" => "MyJobAlerts",
-    "url" => url('/'),
-    "description" => "Find the latest jobs in India by job title, company, city and state.",
-    ]);
-    @endphp
-
-    <script type="application/ld+json">
-    {!!  $jsonLd !!}
-    </script>
-
-    @endif
-
-
+        @php
+            $jsonLd = json_encode([
+            "@context" => "https://schema.org",
+            "@type" => "WebSite",
+            "name" => "MyJobAlerts",
+            "url" => url('/'),
+            "description" => "Find the latest jobs in India by job title, company, city and state.",
+            ]);
+        @endphp
+        <script type="application/ld+json">
+        {!!  $jsonLd !!}
+        </script>
+    @endif 
+    
     {{-- JobPosting JSON-LD --}}
-    @if (request()->segment(1) === 'viewjob' && isset($job) && $job)
+    @if (request()->segment(1) === 'viewjob' && isset($job) && $job && $job->is_active == 0)
+        @php
+        $description = trim(
+            preg_replace(
+                '/\s+/',
+                ' ',
+                strip_tags($job->snippet ?? $job->title)
+            )
+        );
 
-    @php
-    $description = trim(
-    preg_replace(
-    '/\s+/',
-    ' ',
-    strip_tags($job->snippet ?? $job->title)
-    )
-    );
+        $jobPosting = [
+            "@context" => "https://schema.org",
+            "@type" => "JobPosting",
 
-    $jobPosting = [
-    "@context" => "https://schema.org",
-    "@type" => "JobPosting",
+            "title" => $job->title,
 
-    "title" => $job->title,
+            "description" => $description,
 
-    "description" => $description,
+            "url" => url('/viewjob/' . $job->slug),
 
-    "url" => url('/viewjob/' . $job->slug),
+            "hiringOrganization" => [
+                "@type" => "Organization",
+                "name" => $job->company ?: "Company",
+            ],
 
-    "hiringOrganization" => [
-    "@type" => "Organization",
-    "name" => $job->company ?: "Company",
-    ],
+            "directApply" => false,
+        ];
 
-    "directApply" => false,
-    ];
+        if ($job->published_at) {
+            $jobPosting["datePosted"] =
+                $job->published_at->toIso8601String();
+        }
 
-    if ($job->published_at) {
-    $jobPosting["datePosted"] =
-    $job->published_at->toIso8601String();
-    }
+        if (!empty($job->location)) {
+            $jobPosting["jobLocation"] = [
+                "@type" => "Place",
+                "address" => [
+                    "@type" => "PostalAddress",
+                    "addressLocality" => $job->location,
+                    "addressCountry" => "IN",
+                ],
+            ];
+        }
 
-    if (!empty($job->location)) {
-    $jobPosting["jobLocation"] = [
-    "@type" => "Place",
-    "address" => [
-    "@type" => "PostalAddress",
-    "addressLocality" => $job->location,
-    "addressCountry" => "IN",
-    ],
-    ];
-    }
+        if (!empty($job->job_type)) {
+            $jobPosting["employmentType"] = $job->job_type;
+        }
 
-    if (!empty($job->job_type)) {
-    $jobPosting["employmentType"] = $job->job_type;
-    }
-
-    if (!empty($job->logo)) {
-    $jobPosting["hiringOrganization"]["logo"] = $job->logo;
-    }
-    @endphp
-
-    <script type="application/ld+json">
-        {!! json_encode(
-        $jobPosting,
-        JSON_UNESCAPED_SLASHES |
-        JSON_UNESCAPED_UNICODE |
-        JSON_PRETTY_PRINT
-        ) !!}
-    </script>
-
+        if (!empty($job->logo)) {
+            $jobPosting["hiringOrganization"]["logo"] = $job->logo;
+        }
+        @endphp
+        <script type="application/ld+json">
+            {!! json_encode(
+                $jobPosting,
+                JSON_UNESCAPED_SLASHES |
+                JSON_UNESCAPED_UNICODE |
+                JSON_PRETTY_PRINT
+            ) !!}
+        </script>
     @endif
-
 </head>
-
 <body>
-
     <!-- =========================================
      NAVBAR
 ========================================= -->

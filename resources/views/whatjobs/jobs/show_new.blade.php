@@ -43,7 +43,7 @@
     * - H1
     * - JobPosting schema
     *
-    * Only shorten the HTML <title>.
+    * Only shorten the HTML title.
     */
     if (\Illuminate\Support\Str::length($seoJobTitle) > 70) {
 
@@ -53,7 +53,6 @@
             ''
         );
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -156,7 +155,6 @@
 
     $metaDescription = trim($metaDescription);
 
-
     /*
     |--------------------------------------------------------------------------
     | Canonical URL
@@ -164,7 +162,6 @@
     */
 
     $canonicalUrl = url('/viewjob/' . $job->slug);
-
 
     /*
     |--------------------------------------------------------------------------
@@ -182,7 +179,6 @@
         $salary = '';
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | Actual Posted Date
@@ -199,7 +195,6 @@
 
         $datePosted = $job->posted_at;
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -227,7 +222,6 @@
 
         ];
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -931,19 +925,11 @@
                                     {{ $job->age_days }} days ago
 
                                 @endif
-
                             </div>
-
                         </div>
-
                     </div>
-
                 @endif
-
             </div>
-
-
-
             {{-- =================================================
                  ORIGINAL LISTING CARD
             ================================================== --}}
@@ -986,27 +972,16 @@
                             rel="nofollow sponsored"
                             class="fw-semibold text-decoration-none"
                         >
-
                             View original job
 
                             <i class="bi bi-arrow-right ms-1"></i>
-
                         </a>
-
                     @endif
-
                 @endif
-
             </div>
-
         </aside>
-
     </div>
-
 </main>
-
-
-
 {{-- =========================================================
      ADDED: MOBILE STICKY APPLY
      Existing code above is unchanged.
