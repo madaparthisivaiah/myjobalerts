@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Find Your Next Job | MyJobAlerts')
+@section('title', 'Jobs in India - Latest Job Vacancies and Careers | MyJobAlerts')
 
 @section('meta_description', 'Discover the latest jobs in India by company, location and job title. Search thousands of job opportunities and apply directly through the original job listing.')
 
