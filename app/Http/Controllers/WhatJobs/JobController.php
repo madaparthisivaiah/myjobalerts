@@ -85,9 +85,9 @@ class JobController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $keyword = trim((string) $request->input('keyword', ''));
-        $location = trim((string) $request->input('location', ''));
-        $company = trim((string) $request->input('company', ''));
+        $keyword = Str::title(trim((string) $request->input('keyword', '')));
+        $location = Str::title(trim((string) $request->input('location', '')));
+        $company = Str::title(trim((string) $request->input('company', '')));
 
         /*
         |--------------------------------------------------------------------------
