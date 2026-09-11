@@ -4,248 +4,204 @@
 @section('content')
 <section class="section-padding bg-light-subtle">
 
-<div class="container">
+    <div class="container">
 
-    {{-- HEADER --}}
-    <div class="text-center mb-4">
+        {{-- HEADER --}}
+        <div class="text-center mb-4">
 
-        <span class="section-label">
-            <i class="bi bi-search me-1"></i>
-            FIND YOUR NEXT JOB
-        </span>
+            <span class="section-label">
+                <i class="bi bi-search me-1"></i>
+                FIND YOUR NEXT JOB
+            </span>
 
-        <h1 class="mt-2">
-            Search Jobs in India
-        </h1>
+            <h1 class="mt-2">
+                Search Jobs in India
+            </h1>
 
-        <p class="text-muted mb-0">
-            Browse the latest job opportunities from leading employers.
-        </p>
+            <p class="text-muted mb-0">
+                Browse the latest job opportunities from leading employers.
+            </p>
 
-    </div>
-
-
-    {{-- SEARCH --}}
-    <div class="job-search-box mb-4">
-
-        <form method="GET" action="{{ route('jobs.index') }}">
-
-            <div class="row g-2">
-
-                {{-- KEYWORD --}}
-                <div class="col-lg-5">
-
-                    <div class="input-group">
-
-                        <span class="input-group-text bg-white">
-                            <i class="bi bi-search"></i>
-                        </span>
-
-                        <input
-                            type="text"
-                            name="keyword"
-                            class="form-control"
-                            placeholder="Job title or company"
-                            value="{{ $keyword }}"
-                        >
-
-                    </div>
-
-                </div>
+        </div>
 
 
-                {{-- LOCATION --}}
-                <div class="col-lg-4">
+        {{-- SEARCH --}}
+        <div class="job-search-box mb-4">
 
-                    <div class="input-group">
+            <form method="GET" action="{{ route('jobs.index') }}">
 
-                        <span class="input-group-text bg-white">
-                            <i class="bi bi-geo-alt"></i>
-                        </span>
+                <div class="row g-2">
 
-                        <input
-                            type="text"
-                            name="location"
-                            class="form-control"
-                            placeholder="City or location"
-                            value="{{ $location }}"
-                        >
+                    {{-- KEYWORD --}}
+                    <div class="col-lg-5">
 
-                    </div>
+                        <div class="input-group">
 
-                </div>
+                            <span class="input-group-text bg-white">
+                                <i class="bi bi-search"></i>
+                            </span>
 
-
-                {{-- SEARCH BUTTON --}}
-                <div class="col-lg-3">
-
-                    <button
-                        type="submit"
-                        class="btn btn-primary w-100 h-100"
-                    >
-                        <i class="bi bi-search me-1"></i>
-                        Search Jobs
-                    </button>
-
-                </div>
-
-            </div>
-
-        </form>
-
-    </div>
-
-
-    {{-- RESULTS --}}
-    <div class="row">
-
-        <main class="col-12">
-
-
-            {{-- RESULTS TOOLBAR --}}
-            <div class="bg-white border rounded-3 shadow-sm px-3 py-3 mb-3">
-
-                <div class="row align-items-center g-3">
-
-
-                    {{-- RESULTS INFORMATION --}}
-                    <div class="col-md">
-
-                        <div class="d-flex align-items-center gap-2">
-
-                            <div
-                                class="d-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle"
-                                style="width: 42px; height: 42px;"
-                            >
-                                <i class="bi bi-briefcase fs-5"></i>
-                            </div>
-
-
-                            <div>
-
-                                <h2 class="h5 mb-0 fw-semibold">
-
-                                    @if($keyword)
-
-                                        Jobs for "{{ $keyword }}"
-
-                                    @elseif($location)
-
-                                        Jobs in "{{ $location }}"
-
-                                    @elseif($company)
-
-                                        Jobs at "{{ $company }}"
-
-                                    @else
-
-                                        Latest Jobs
-
-                                    @endif
-
-                                </h2>
-
-
-                                <small class="text-muted">
-
-                                    <strong class="text-dark">
-                                        {{ number_format($jobs->total()) }}
-                                    </strong>
-
-                                    {{ Str::plural('job', $jobs->total()) }}
-
-                                    available
-
-                                </small>
-
-                            </div>
+                            <input type="text" name="keyword" class="form-control" placeholder="Job title or company"
+                                value="{{ $keyword }}">
 
                         </div>
 
                     </div>
 
 
-                    {{-- SORT --}}
-                    <div class="col-md-auto">
+                    {{-- LOCATION --}}
+                    <div class="col-lg-4">
 
-                        <form
-                            method="GET"
-                            action="{{ route('jobs.index') }}"
-                            class="d-flex align-items-center gap-2"
-                        >
+                        <div class="input-group">
 
-                            {{-- PRESERVE KEYWORD --}}
-                            <input
-                                type="hidden"
-                                name="keyword"
-                                value="{{ $keyword }}"
-                            >
+                            <span class="input-group-text bg-white">
+                                <i class="bi bi-geo-alt"></i>
+                            </span>
 
+                            <input type="text" name="location" class="form-control" placeholder="City or location"
+                                value="{{ $location }}">
 
-                            {{-- PRESERVE LOCATION --}}
-                            <input
-                                type="hidden"
-                                name="location"
-                                value="{{ $location }}"
-                            >
+                        </div>
+
+                    </div>
 
 
-                            {{-- PRESERVE COMPANY --}}
-                            @if($company)
+                    {{-- SEARCH BUTTON --}}
+                    <div class="col-lg-3">
 
-                                <input
-                                    type="hidden"
-                                    name="company"
-                                    value="{{ $company }}"
-                                >
-
-                            @endif
-
-
-                            <label
-                                for="sort"
-                                class="small text-muted mb-0 text-nowrap"
-                            >
-                                <i class="bi bi-sort-down me-1"></i>
-                                Sort by
-                            </label>
-
-
-                            <select
-                                id="sort"
-                                name="sort"
-                                class="form-select form-select-sm"
-                                onchange="this.form.submit()"
-                                style="min-width: 150px;"
-                            >
-
-                                <option
-                                    value="latest"
-                                    @selected($sort == 'latest')
-                                >
-                                    Newest First
-                                </option>
-
-                                <option
-                                    value="oldest"
-                                    @selected($sort == 'oldest')
-                                >
-                                    Oldest First
-                                </option>
-
-                            </select>
-
-                        </form>
+                        <button type="submit" class="btn btn-primary w-100 h-100">
+                            <i class="bi bi-search me-1"></i>
+                            Search Jobs
+                        </button>
 
                     </div>
 
                 </div>
 
-            </div>
+            </form>
+
+        </div>
 
 
-            {{-- ACTIVE FILTERS --}}
-            @if($keyword || $location || $company)
+        {{-- RESULTS --}}
+        <div class="row">
+
+            <main class="col-12">
+
+
+                {{-- RESULTS TOOLBAR --}}
+                <div class="bg-white border rounded-3 shadow-sm px-3 py-3 mb-3">
+
+                    <div class="row align-items-center g-3">
+
+
+                        {{-- RESULTS INFORMATION --}}
+                        <div class="col-md">
+
+                            <div class="d-flex align-items-center gap-2">
+
+                                <div class="d-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle"
+                                    style="width: 42px; height: 42px;">
+                                    <i class="bi bi-briefcase fs-5"></i>
+                                </div>
+
+
+                                <div>
+
+                                    <h2 class="h5 mb-0 fw-semibold">
+
+                                        @if($keyword)
+
+                                        Jobs for "{{ $keyword }}"
+
+                                        @elseif($location)
+
+                                        Jobs in "{{ $location }}"
+
+                                        @elseif($company)
+
+                                        Jobs at "{{ $company }}"
+
+                                        @else
+
+                                        Latest Jobs
+
+                                        @endif
+
+                                    </h2>
+
+
+                                    <small class="text-muted">
+
+                                        <strong class="text-dark">
+                                            {{ number_format($jobs->total()) }}
+                                        </strong>
+
+                                        {{ Str::plural('job', $jobs->total()) }}
+
+                                        available
+
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        {{-- SORT --}}
+                        <div class="col-md-auto">
+
+                            <form method="GET" action="{{ route('jobs.index') }}"
+                                class="d-flex align-items-center gap-2">
+
+                                {{-- PRESERVE KEYWORD --}}
+                                <input type="hidden" name="keyword" value="{{ $keyword }}">
+
+
+                                {{-- PRESERVE LOCATION --}}
+                                <input type="hidden" name="location" value="{{ $location }}">
+
+
+                                {{-- PRESERVE COMPANY --}}
+                                @if($company)
+
+                                <input type="hidden" name="company" value="{{ $company }}">
+
+                                @endif
+
+
+                                <label for="sort" class="small text-muted mb-0 text-nowrap">
+                                    <i class="bi bi-sort-down me-1"></i>
+                                    Sort by
+                                </label>
+
+
+                                <select id="sort" name="sort" class="form-select form-select-sm"
+                                    onchange="this.form.submit()" style="min-width: 150px;">
+
+                                    <option value="latest" @selected($sort=='latest' )>
+                                        Newest First
+                                    </option>
+
+                                    <option value="oldest" @selected($sort=='oldest' )>
+                                        Oldest First
+                                    </option>
+
+                                </select>
+
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                {{-- ACTIVE FILTERS --}}
+                @if($keyword || $location || $company)
 
                 <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
 
@@ -257,13 +213,13 @@
                     {{-- KEYWORD --}}
                     @if($keyword)
 
-                        <span class="badge rounded-pill bg-primary-subtle text-primary px-3 py-2">
+                    <span class="badge rounded-pill bg-primary-subtle text-primary px-3 py-2">
 
-                            <i class="bi bi-search me-1"></i>
+                        <i class="bi bi-search me-1"></i>
 
-                            {{ $keyword }}
+                        {{ $keyword }}
 
-                        </span>
+                    </span>
 
                     @endif
 
@@ -271,13 +227,13 @@
                     {{-- LOCATION --}}
                     @if($location)
 
-                        <span class="badge rounded-pill bg-primary-subtle text-primary px-3 py-2">
+                    <span class="badge rounded-pill bg-primary-subtle text-primary px-3 py-2">
 
-                            <i class="bi bi-geo-alt me-1"></i>
+                        <i class="bi bi-geo-alt me-1"></i>
 
-                            {{ $location }}
+                        {{ $location }}
 
-                        </span>
+                    </span>
 
                     @endif
 
@@ -285,35 +241,32 @@
                     {{-- COMPANY --}}
                     @if($company)
 
-                        <span class="badge rounded-pill bg-primary-subtle text-primary px-3 py-2">
+                    <span class="badge rounded-pill bg-primary-subtle text-primary px-3 py-2">
 
-                            <i class="bi bi-building me-1"></i>
+                        <i class="bi bi-building me-1"></i>
 
-                            {{ $company }}
+                        {{ $company }}
 
-                        </span>
+                    </span>
 
                     @endif
 
 
                     {{-- CLEAR --}}
-                    <a
-                        href="{{ route('jobs.index') }}"
-                        class="small text-decoration-none ms-1"
-                    >
+                    <a href="{{ route('jobs.index') }}" class="small text-decoration-none ms-1">
                         Clear filters
                         <i class="bi bi-x-circle ms-1"></i>
                     </a>
 
                 </div>
 
-            @endif
+                @endif
 
 
-            {{-- JOB GRID --}}
-            <div class="row g-4">
+                {{-- JOB GRID --}}
+                <div class="row g-4">
 
-                @forelse($jobs as $job)
+                    @forelse($jobs as $job)
 
                     {{-- TWO JOBS PER ROW --}}
                     <div class="col-12 col-md-6">
@@ -326,18 +279,14 @@
 
                                 @if($job->logo)
 
-                                    <img
-                                        src="{{ $job->logo }}"
-                                        alt="{{ $job->company }}"
-                                        class="job-company-logo"
-                                        loading="lazy"
-                                    >
+                                <img src="{{ $job->logo }}" alt="{{ $job->company }}" class="job-company-logo"
+                                    loading="lazy">
 
                                 @else
 
-                                    <div class="job-company-logo-placeholder">
+                                <div class="job-company-logo-placeholder">
 
-                                        {{ strtoupper(
+                                    {{ strtoupper(
                                             substr(
                                                 $job->company ?: $job->title,
                                                 0,
@@ -345,7 +294,7 @@
                                             )
                                         ) }}
 
-                                    </div>
+                                </div>
 
                                 @endif
 
@@ -359,10 +308,7 @@
                                 {{-- JOB TITLE --}}
                                 <h3 class="mb-2">
 
-                                    <a
-                                        href="{{ url('viewjob/' . $job->slug) }}"
-                                        class="text-decoration-none text-dark"
-                                    >
+                                    <a href="{{ url('viewjob/' . $job->slug) }}" class="text-decoration-none text-dark">
                                         {{ $job->title }}
                                     </a>
 
@@ -372,13 +318,13 @@
                                 {{-- COMPANY --}}
                                 @if($job->company)
 
-                                    <div class="company-name mb-2">
+                                <div class="company-name mb-2">
 
-                                        <i class="bi bi-building me-1"></i>
+                                    <i class="bi bi-building me-1"></i>
 
-                                        {{ $job->company }}
+                                    {{ $job->company }}
 
-                                    </div>
+                                </div>
 
                                 @endif
 
@@ -390,13 +336,13 @@
                                     {{-- LOCATION --}}
                                     @if($job->location)
 
-                                        <span>
+                                    <span>
 
-                                            <i class="bi bi-geo-alt"></i>
+                                        <i class="bi bi-geo-alt"></i>
 
-                                            {{ $job->location }}
+                                        {{ $job->location }}
 
-                                        </span>
+                                    </span>
 
                                     @endif
 
@@ -404,13 +350,13 @@
                                     {{-- JOB TYPE --}}
                                     @if($job->job_type)
 
-                                        <span>
+                                    <span>
 
-                                            <i class="bi bi-briefcase"></i>
+                                        <i class="bi bi-briefcase"></i>
 
-                                            {{ $job->job_type }}
+                                        {{ $job->job_type }}
 
-                                        </span>
+                                    </span>
 
                                     @endif
 
@@ -418,29 +364,29 @@
                                     {{-- SALARY --}}
                                     @if($job->salary)
 
-                                        @php
+                                    @php
 
-                                            $salary = trim(
-                                                $job->salary
-                                            );
+                                    $salary = trim(
+                                    $job->salary
+                                    );
 
-                                        @endphp
+                                    @endphp
 
 
-                                        @if(
-                                            $salary !== '0.000000 - 0.000000' &&
-                                            $salary !== '0 - 0'
-                                        )
+                                    @if(
+                                    $salary !== '0.000000 - 0.000000' &&
+                                    $salary !== '0 - 0'
+                                    )
 
-                                            <span>
+                                    <span>
 
-                                                <i class="bi bi-currency-rupee"></i>
+                                        <i class="bi bi-currency-rupee"></i>
 
-                                                {{ $salary }}
+                                        {{ $salary }}
 
-                                            </span>
+                                    </span>
 
-                                        @endif
+                                    @endif
 
                                     @endif
 
@@ -450,14 +396,14 @@
                                 {{-- JOB SNIPPET --}}
                                 @if($job->snippet)
 
-                                    <div class="mt-2 text-muted small">
+                                <div class="mt-2 text-muted small">
 
-                                        {!! Str::limit(
-                                            strip_tags($job->snippet),
-                                            180
-                                        ) !!}
+                                    {!! Str::limit(
+                                    strip_tags($job->snippet),
+                                    180
+                                    ) !!}
 
-                                    </div>
+                                </div>
 
                                 @endif
 
@@ -465,45 +411,39 @@
                                 {{-- POSTED DATE --}}
                                 @if(!is_null($job->age_days))
 
-                                    <div class="job-tags mt-2">
+                                <div class="job-tags mt-2">
 
-                                        <span class="posted-badge">
+                                    <span class="posted-badge">
 
-                                            @if($job->age_days === 0)
+                                        @if($job->age_days === 0)
 
-                                                Posted today
+                                        Posted today
 
-                                            @elseif($job->age_days === 1)
+                                        @elseif($job->age_days === 1)
 
-                                                Posted yesterday
+                                        Posted yesterday
 
-                                            @else
+                                        @else
 
-                                                Posted
-                                                {{ $job->age_days }}
-                                                days ago
+                                        Posted
+                                        {{ $job->age_days }}
+                                        days ago
 
-                                            @endif
+                                        @endif
 
-                                        </span>
-
-                                    </div>
-
-                                @endif
-
-
-                                {{-- VIEW JOB --}}
-                                <div class="mt-3">
-
-                                    <a
-                                        href="{{ url('viewjob/' . $job->slug) }}"
-                                        class="btn btn-primary btn-sm"
-                                    >
-                                        View Job
-                                        <i class="bi bi-arrow-right ms-1"></i>
-                                    </a>
+                                    </span>
 
                                 </div>
+
+                                @endif
+                                {{-- VIEW JOB + QUICK APPLY --}} <div class="d-flex gap-2 mt-3"> {{-- VIEW JOB --}} <a
+                                        href="{{ url('viewjob/' . $job->slug) }}"
+                                        class="btn btn-primary btn-sm flex-grow-1 fw-semibold"> <i
+                                            class="bi bi-eye me-1"></i> View Job </a> {{-- QUICK APPLY --}}
+                                    @if(!empty($job->job_url)) <a href="{{ $job->job_url }}" target="_blank"
+                                        rel="nofollow sponsored" class="btn btn-success btn-sm flex-grow-1 fw-semibold">
+                                        <i class="bi bi-send me-1"></i> Quick Apply <i
+                                            class="bi bi-box-arrow-up-right ms-1"></i> </a> @endif </div>
 
                             </div>
 
@@ -511,7 +451,7 @@
 
                     </div>
 
-                @empty
+                    @empty
 
 
                     {{-- NO JOBS --}}
@@ -540,10 +480,7 @@
                             </p>
 
 
-                            <a
-                                href="{{ route('jobs.index') }}"
-                                class="btn btn-primary"
-                            >
+                            <a href="{{ route('jobs.index') }}" class="btn btn-primary">
                                 Browse All Jobs
                             </a>
 
@@ -551,13 +488,13 @@
 
                     </div>
 
-                @endforelse
+                    @endforelse
 
-            </div>
+                </div>
 
 
-            {{-- PAGINATION --}}
-            @if($jobs->hasPages())
+                {{-- PAGINATION --}}
+                @if($jobs->hasPages())
 
                 <div class="mt-4">
 
@@ -568,14 +505,14 @@
 
                 </div>
 
-            @endif
+                @endif
 
 
-        </main>
+            </main>
+
+        </div>
 
     </div>
-
-</div>
 
 </section>
 

@@ -97,7 +97,7 @@ class JobController extends Controller
 
         $query = Job::query()
             ->where('provider', 'whatjobs')
-            ->where('is_active', true);
+            ->where('is_active', 0);
 
         /*
         |--------------------------------------------------------------------------
@@ -325,7 +325,6 @@ class JobController extends Controller
             ->where('provider_job_id', $id)
             ->first();
 
-            dd($job);
         /*
         |--------------------------------------------------------------------------
         | Job Not Found
@@ -388,7 +387,7 @@ class JobController extends Controller
 
         $locationName = Job::query()
             ->where('provider', 'whatjobs')
-            ->where('is_active', true)
+            ->where('is_active', 0)
             ->whereNotNull('location')
             ->pluck('location')
             ->filter()
@@ -413,7 +412,7 @@ class JobController extends Controller
 
         $jobs = Job::query()
             ->where('provider', 'whatjobs')
-            ->where('is_active', true)
+            ->where('is_active', 0)
             ->where('location', $locationName)
             ->latest()
             ->paginate(20)
@@ -468,17 +467,19 @@ class JobController extends Controller
         | Expired Job
         |--------------------------------------------------------------------------
         |
-        | Return HTTP 410 Gone but still render the job page.
+        | Return HTTP 410 Gone.
+        | Do not render expired job content.
         |
         */
-
-        if (!$isExpired) {
-
-            return response()
-                ->view('whatjobs.jobs.show', [
+        if ($isExpired) {
+            return response()->view(
+                'whatjobs.jobs.show_new',
+                [
                     'job' => $job,
                     'isExpired' => true,
-                ], 200);
+                ],
+                410
+            );
         }
 
         /*
@@ -486,8 +487,7 @@ class JobController extends Controller
         | Active Job
         |--------------------------------------------------------------------------
         */
-
-        return view('whatjobs.jobs.show', [
+        return view('whatjobs.jobs.show_new', [
             'job' => $job,
             'isExpired' => false,
         ]);
