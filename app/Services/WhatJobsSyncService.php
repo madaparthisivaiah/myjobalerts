@@ -14,7 +14,7 @@ class WhatJobsSyncService
     public function __construct(
         protected WhatJobsService $whatJobs,
         protected SitemapService $sitemapService,
-        protected HomePageJobService $homePageJobService
+        protected HomePageJobService $homePageJobService 
     ) {
     }
 
