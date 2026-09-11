@@ -1,171 +1,243 @@
 @extends('layouts.app')
 
-@php
+    @php
+ 
+        /*
+        |--------------------------------------------------------------------------
+        | Basic Job Data
+        |--------------------------------------------------------------------------
+        */
 
-    /*
-    |--------------------------------------------------------------------------
-    | Basic Job Data
-    |--------------------------------------------------------------------------
-    */
+        $jobTitle = trim($job->title ?? 'Job Opportunity');
 
-    $jobTitle = trim($job->title ?? 'Job Opportunity');
+        $company = trim($job->company ?? '');
 
-    $description = trim(
-        preg_replace(
-            '/\s+/',
-            ' ',
-            strip_tags($job->snippet ?? '')
-        )
-    );
-
-    if (!$description) {
-        $description = $jobTitle . ' job opportunity on MyJobAlerts.';
-    }
-
-    $metaDescription = \Illuminate\Support\Str::limit(
-        $description,
-        155,
-        '...'
-    );
-
-    $canonicalUrl = url('/viewjob/' . $job->slug);
+        $location = trim($job->location ?? '');
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Salary
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | Job Description
+        |--------------------------------------------------------------------------
+        */
 
-    $salary = trim($job->salary ?? '');
+        $description = trim(
+            preg_replace(
+                '/\s+/',
+                ' ',
+                strip_tags($job->snippet ?? '')
+            )
+        );
 
-    if (
-        $salary === '0.000000 - 0.000000' ||
-        $salary === '0 - 0'
-    ) {
-        $salary = '';
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Actual Posted Date
-    |--------------------------------------------------------------------------
-    | Do not calculate datePosted from age_days.
-    */
-
-    $datePosted = null;
-
-    if (!empty($job->date_posted)) {
-
-        $datePosted = $job->date_posted;
-
-    } elseif (!empty($job->posted_at)) {
-
-        $datePosted = $job->posted_at;
-
-    }
+        if (!$description) {
+            $description = $jobTitle . ' job opportunity on MyJobAlerts.';
+        }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Job Location Schema
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | SEO Page Title
+        |--------------------------------------------------------------------------
+        */
 
-    $jobLocation = null;
+        if ($company !== '' && $location !== '') {
 
-    if (!empty($job->location)) {
+            $pageTitle = "{$jobTitle} - {$company}, {$location} | MyJobAlerts";
 
-        $jobLocation = [
-            '@type' => 'Place',
-            'address' => [
-                '@type' => 'PostalAddress',
-                'addressLocality' => trim($job->location),
-                'addressCountry' => 'IN',
-            ],
-        ];
+        } elseif ($company !== '') {
 
-    }
+            $pageTitle =
+                "{$jobTitle} - {$company}, India | MyJobAlerts";
+
+        } elseif ($location !== '') {
+
+            $pageTitle =
+                "{$jobTitle} - {$location}, India | MyJobAlerts";
+
+        } else {
+
+            $pageTitle =
+                "{$jobTitle} | MyJobAlerts";
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | SEO Meta Description
+        |--------------------------------------------------------------------------
+        */
+
+        if ($company !== '' && $location !== '') {
+
+            $metaDescription =
+                "Find {$jobTitle} at {$company} in {$location}. {$description}";
+
+        } elseif ($company !== '') {
+
+            $metaDescription =
+                "Find {$jobTitle} at {$company} in India. {$description}";
+
+        } elseif ($location !== '') {
+
+            $metaDescription =
+                "Find {$jobTitle} jobs in {$location}, India. {$description}";
+
+        } else {
+
+            $metaDescription =
+                "Find {$jobTitle} job opportunities in India. {$description}";
+        }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | JobPosting Schema
-    |--------------------------------------------------------------------------
-    */
-
-    $jobPostingSchema = [
-
-        '@context' => 'https://schema.org',
-
-        '@type' => 'JobPosting',
-
-        'title' => $jobTitle,
-
-        'description' => $description,
-
-        'url' => $canonicalUrl,
-
-    ];
+        $metaDescription = \Illuminate\Support\Str::limit(
+            trim($metaDescription),
+            155,
+            '...'
+        );
 
 
-    if ($datePosted) {
+        /*
+        |--------------------------------------------------------------------------
+        | Canonical URL
+        |--------------------------------------------------------------------------
+        */
 
-        $jobPostingSchema['datePosted'] = $datePosted;
-
-    }
+        $canonicalUrl = url('/viewjob/' . $job->slug);
 
 
-    if (!empty($job->company)) {
+        /*
+        |--------------------------------------------------------------------------
+        | Salary
+        |--------------------------------------------------------------------------
+        */
 
-        $organization = [
+        $salary = trim($job->salary ?? '');
 
-            '@type' => 'Organization',
+        if (
+            $salary === '0.000000 - 0.000000' ||
+            $salary === '0 - 0'
+        ) {
+            $salary = '';
+        }
 
-            'name' => trim($job->company),
 
-        ];
+        /*
+        |--------------------------------------------------------------------------
+        | Actual Posted Date
+        |--------------------------------------------------------------------------
+        */
 
-        if (!empty($job->logo)) {
+        $datePosted = null;
 
-            $organization['logo'] = $job->logo;
+        if (!empty($job->date_posted)) {
+
+            $datePosted = $job->date_posted;
+
+        } elseif (!empty($job->posted_at)) {
+
+            $datePosted = $job->posted_at;
 
         }
 
-        $jobPostingSchema['hiringOrganization'] = $organization;
 
-    }
+        /*
+        |--------------------------------------------------------------------------
+        | Job Location Schema
+        |--------------------------------------------------------------------------
+        */
 
+        $jobLocation = null;
 
-    if ($jobLocation) {
+        if (!empty($job->location)) {
 
-        $jobPostingSchema['jobLocation'] = $jobLocation;
+            $jobLocation = [
+                '@type' => 'Place',
+                'address' => [
+                    '@type' => 'PostalAddress',
+                    'addressLocality' => trim($job->location),
+                    'addressCountry' => 'IN',
+                ],
+            ];
 
-    }
-
-
-    if (!empty($job->job_type)) {
-
-        $jobPostingSchema['employmentType'] = $job->job_type;
-
-    }
-
-
-    if (!empty($job->job_url)) {
-
-        $jobPostingSchema['sameAs'] = $job->job_url;
-
-    }
-
-@endphp
+        }
 
 
-@section('title', $jobTitle . ' Jobs | MyJobAlerts')
+        /*
+        |--------------------------------------------------------------------------
+        | JobPosting Schema
+        |--------------------------------------------------------------------------
+        */
 
-@section('meta_description', $metaDescription)
+        $jobPostingSchema = [
 
-@section('canonical', $canonicalUrl)
+            '@context' => 'https://schema.org',
+
+            '@type' => 'JobPosting',
+
+            'title' => $jobTitle,
+
+            'description' => $description,
+
+            'url' => $canonicalUrl,
+
+        ];
+
+
+        if ($datePosted) {
+
+            $jobPostingSchema['datePosted'] = $datePosted;
+
+        }
+
+
+        if (!empty($job->company)) {
+
+            $organization = [
+
+                '@type' => 'Organization',
+
+                'name' => trim($job->company),
+
+            ];
+
+            if (!empty($job->logo)) {
+
+                $organization['logo'] = $job->logo;
+
+            }
+
+            $jobPostingSchema['hiringOrganization'] = $organization;
+
+        }
+
+
+        if ($jobLocation) {
+
+            $jobPostingSchema['jobLocation'] = $jobLocation;
+
+        }
+
+
+        if (!empty($job->job_type)) {
+
+            $jobPostingSchema['employmentType'] = $job->job_type;
+
+        }
+
+
+        if (!empty($job->job_url)) {
+
+            $jobPostingSchema['sameAs'] = $job->job_url;
+
+        }
+
+    @endphp
+
+
+    @section('title', $pageTitle)
+
+    @section('meta_description', $metaDescription)
+
+    @section('canonical', $canonicalUrl)
 
 
 @section('content')
