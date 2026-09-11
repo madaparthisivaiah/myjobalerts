@@ -196,10 +196,9 @@ class JobController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $pageTitle = 'Search Jobs in India | MyJobAlerts';
+        $pageTitle = 'Search Jobs in India - Latest Vacancies and Careers | MyJobAlerts';
 
-        $metaDescription =
-            'Find the latest jobs in India by job title, company and location. Browse thousands of job opportunities on MyJobAlerts.';
+        $metaDescription = 'Find the latest jobs in India by job title, company and location. Browse current job vacancies, explore career opportunities and apply directly through trusted job listings on MyJobAlerts.';
 
         /*
         |--------------------------------------------------------------------------
@@ -209,11 +208,9 @@ class JobController extends Controller
 
         if ($keyword !== '' && $location !== '') {
 
-            $pageTitle =
-                "{$keyword} Jobs in {$location}, India | MyJobAlerts";
+            $pageTitle = "{$keyword} Jobs in {$location}, India - Latest Vacancies and Careers | MyJobAlerts";
 
-            $metaDescription =
-                "Find the latest {$keyword} jobs in {$location}, India. Browse current job opportunities from top companies and apply for jobs on MyJobAlerts.";
+            $metaDescription = "Find the latest {$keyword} jobs in {$location}, India. Browse current job vacancies, explore career opportunities and apply directly through MyJobAlerts.";
         }
 
         /*
@@ -223,12 +220,8 @@ class JobController extends Controller
         */
 
         elseif ($keyword !== '') {
-
-            $pageTitle =
-                "{$keyword} Jobs in India | MyJobAlerts";
-
-            $metaDescription =
-                "Find the latest {$keyword} jobs in India. Browse current job opportunities from top companies and apply for jobs on MyJobAlerts.";
+            $pageTitle = "{$keyword} Jobs in India - Latest Job Vacancies | MyJobAlerts";
+            $metaDescription = "Find the latest {$keyword} jobs in India. Browse current job vacancies, explore career opportunities and apply directly through MyJobAlerts.";
         }
 
         /*
@@ -238,12 +231,8 @@ class JobController extends Controller
         */
 
         elseif ($company !== '' && $location !== '') {
-
-            $pageTitle =
-                "{$company} Jobs in {$location}, India | MyJobAlerts";
-
-            $metaDescription =
-                "Find the latest {$company} jobs in {$location}, India. Browse current job openings and apply for available positions on MyJobAlerts.";
+            $pageTitle = "{$company} Jobs in {$location}, India - Latest Job Vacancies | MyJobAlerts";
+            $metaDescription = "Find the latest {$company} jobs in {$location}, India. Browse current job vacancies, explore career opportunities and apply directly through MyJobAlerts.";
         }
 
         /*
@@ -253,12 +242,8 @@ class JobController extends Controller
         */
 
         elseif ($company !== '') {
-
-            $pageTitle =
-                "{$company} Jobs in India | MyJobAlerts";
-
-            $metaDescription =
-                "Find the latest {$company} jobs in India. Browse current job openings and apply for available positions on MyJobAlerts.";
+            $pageTitle = "{$company} Jobs in India - Latest Vacancies and Careers | MyJobAlerts";
+            $metaDescription = "Find the latest {$company} jobs in India. Browse current job vacancies, explore career opportunities and apply directly through MyJobAlerts.";
         }
 
         /*
@@ -268,12 +253,8 @@ class JobController extends Controller
         */
 
         elseif ($location !== '') {
-
-            $pageTitle =
-                "Jobs in {$location}, India | MyJobAlerts";
-
-            $metaDescription =
-                "Find the latest jobs in {$location}, India. Browse current job opportunities from top companies and apply for jobs on MyJobAlerts.";
+            $pageTitle = "Jobs in {$location}, India - Latest Vacancies and Careers | MyJobAlerts";
+            $metaDescription = "Find the latest jobs in {$location}, India. Browse current job vacancies from leading companies and explore career opportunities on MyJobAlerts.";
         }
 
         /*
