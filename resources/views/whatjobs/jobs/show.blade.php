@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
     @php
- 
+
         /*
         |--------------------------------------------------------------------------
         | Basic Job Data
@@ -17,20 +17,32 @@
 
         /*
         |--------------------------------------------------------------------------
-        | Job Description
+        | Clean Job Title for SEO
         |--------------------------------------------------------------------------
         */
 
-        $description = trim(
+        $seoJobTitle = trim(
             preg_replace(
                 '/\s+/',
                 ' ',
-                strip_tags($job->snippet ?? '')
+                strip_tags($jobTitle)
             )
         );
 
-        if (!$description) {
-            $description = $jobTitle . ' job opportunity on MyJobAlerts.';
+        /*
+        * Keep the complete original job title for:
+        * - H1
+        * - JobPosting schema
+        *
+        * Only shorten the HTML <title>.
+        */
+        if (\Illuminate\Support\Str::length($seoJobTitle) > 65) {
+
+            $seoJobTitle = \Illuminate\Support\Str::limit(
+                $seoJobTitle,
+                65,
+                ''
+            );
         }
 
 
@@ -42,57 +54,105 @@
 
         if ($company !== '' && $location !== '') {
 
-            $pageTitle = "{$jobTitle} - {$company}, {$location} | MyJobAlerts";
+            $pageTitle =
+                "{$seoJobTitle} - {$company}, {$location} | MyJobAlerts";
 
         } elseif ($company !== '') {
 
             $pageTitle =
-                "{$jobTitle} - {$company}, India | MyJobAlerts";
+                "{$seoJobTitle} - {$company}, India | MyJobAlerts";
 
         } elseif ($location !== '') {
 
             $pageTitle =
-                "{$jobTitle} - {$location}, India | MyJobAlerts";
+                "{$seoJobTitle} - {$location}, India | MyJobAlerts";
 
         } else {
 
             $pageTitle =
-                "{$jobTitle} | MyJobAlerts";
+                "{$seoJobTitle} | MyJobAlerts";
         }
+
 
         /*
         |--------------------------------------------------------------------------
         | SEO Meta Description
+        |--------------------------------------------------------------------------
+        |
+        | Keep this clean and consistent.
+        |
+        | Do NOT use the WhatJobs snippet here because feed snippets
+        | can contain:
+        |
+        | - duplicated job titles
+        | - company introductions
+        | - "About Company"
+        | - "Dear Connections"
+        | - feed formatting
+        |
         |--------------------------------------------------------------------------
         */
 
         if ($company !== '' && $location !== '') {
 
             $metaDescription =
-                "Find {$jobTitle} at {$company} in {$location}. {$description}";
+                "Find {$jobTitle} at {$company} in {$location}. Explore the job details, requirements and career opportunity, and apply through the original job listing.";
 
         } elseif ($company !== '') {
 
             $metaDescription =
-                "Find {$jobTitle} at {$company} in India. {$description}";
+                "Find {$jobTitle} at {$company} in India. Explore the job details, requirements and career opportunity, and apply through the original job listing.";
 
         } elseif ($location !== '') {
 
             $metaDescription =
-                "Find {$jobTitle} jobs in {$location}, India. {$description}";
+                "Find {$jobTitle} jobs in {$location}, India. Explore the job details, requirements and career opportunity, and apply through the original job listing.";
 
         } else {
 
             $metaDescription =
-                "Find {$jobTitle} job opportunities in India. {$description}";
+                "Find {$jobTitle} job opportunities in India. Explore the job details, requirements and career opportunity, and apply through the original job listing.";
         }
 
 
-        $metaDescription = \Illuminate\Support\Str::limit(
-            trim($metaDescription),
-            155,
-            '...'
+        /*
+        |--------------------------------------------------------------------------
+        | Final Meta Description Cleanup
+        |--------------------------------------------------------------------------
+        */
+
+        $metaDescription = html_entity_decode(
+            $metaDescription,
+            ENT_QUOTES | ENT_HTML5,
+            'UTF-8'
         );
+
+        $metaDescription = strip_tags($metaDescription);
+
+        $metaDescription = preg_replace(
+            '/\s+/',
+            ' ',
+            $metaDescription
+        );
+
+        $metaDescription = trim($metaDescription);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | IMPORTANT
+        |--------------------------------------------------------------------------
+        |
+        | Do NOT use Str::limit() here.
+        |
+        | This prevents Laravel from adding:
+        |
+        | ...
+        |
+        | to the end of your meta description.
+        |
+        |--------------------------------------------------------------------------
+        */
 
 
         /*
@@ -116,6 +176,7 @@
             $salary === '0.000000 - 0.000000' ||
             $salary === '0 - 0'
         ) {
+
             $salary = '';
         }
 
@@ -135,7 +196,6 @@
         } elseif (!empty($job->posted_at)) {
 
             $datePosted = $job->posted_at;
-
         }
 
 
@@ -150,14 +210,20 @@
         if (!empty($job->location)) {
 
             $jobLocation = [
-                '@type' => 'Place',
-                'address' => [
-                    '@type' => 'PostalAddress',
-                    'addressLocality' => trim($job->location),
-                    'addressCountry' => 'IN',
-                ],
-            ];
 
+                '@type' => 'Place',
+
+                'address' => [
+
+                    '@type' => 'PostalAddress',
+
+                    'addressLocality' => trim($job->location),
+
+                    'addressCountry' => 'IN',
+
+                ],
+
+            ];
         }
 
 
@@ -173,21 +239,52 @@
 
             '@type' => 'JobPosting',
 
+            /*
+            * Use the complete original job title.
+            */
             'title' => $jobTitle,
 
-            'description' => $description,
+            /*
+            * Keep the actual WhatJobs snippet for structured data.
+            *
+            * This is separate from the clean SEO meta description.
+            */
+            'description' => trim(
+                preg_replace(
+                    '/\s+/',
+                    ' ',
+                    strip_tags(
+                        html_entity_decode(
+                            $job->snippet ?? '',
+                            ENT_QUOTES | ENT_HTML5,
+                            'UTF-8'
+                        )
+                    )
+                )
+            ) ?: "Find {$jobTitle} at {$company} in {$location}.",
 
             'url' => $canonicalUrl,
 
         ];
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | Date Posted
+        |--------------------------------------------------------------------------
+        */
+
         if ($datePosted) {
 
             $jobPostingSchema['datePosted'] = $datePosted;
-
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Hiring Organization
+        |--------------------------------------------------------------------------
+        */
 
         if (!empty($job->company)) {
 
@@ -202,32 +299,45 @@
             if (!empty($job->logo)) {
 
                 $organization['logo'] = $job->logo;
-
             }
 
             $jobPostingSchema['hiringOrganization'] = $organization;
-
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Job Location
+        |--------------------------------------------------------------------------
+        */
 
         if ($jobLocation) {
 
             $jobPostingSchema['jobLocation'] = $jobLocation;
-
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Employment Type
+        |--------------------------------------------------------------------------
+        */
 
         if (!empty($job->job_type)) {
 
             $jobPostingSchema['employmentType'] = $job->job_type;
-
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Original Job URL
+        |--------------------------------------------------------------------------
+        */
 
         if (!empty($job->job_url)) {
 
             $jobPostingSchema['sameAs'] = $job->job_url;
-
         }
 
     @endphp
