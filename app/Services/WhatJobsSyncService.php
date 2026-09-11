@@ -7,12 +7,14 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use RuntimeException;
+use App\Services\WhatJobs\HomePageJobService;
 
 class WhatJobsSyncService
 {
     public function __construct(
         protected WhatJobsService $whatJobs,
-        protected SitemapService $sitemapService
+        protected SitemapService $sitemapService,
+        protected HomePageJobService $homePageJobService
     ) {
     }
 
