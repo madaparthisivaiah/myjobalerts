@@ -303,6 +303,31 @@ class WhatJobsSyncService
 
             /*
             |--------------------------------------------------------------------------
+            | Derive additional attributes from the snippet
+            |--------------------------------------------------------------------------
+            |
+            | WhatJobs does not send remote/employment-type/salary as
+            | structured fields. These are parsed from labeled key-value
+            | patterns inside the snippet text (e.g. "Type: Contract",
+            | "Compensation: $80-$120/hour", "Location: Remote").
+            |
+            | strip_tags() is run once here and the plain text is passed
+            | to all three extractors, instead of each extractor stripping
+            | tags from the same snippet independently.
+            |
+            | Extraction can fail to find a match, in which case null
+            | (or false for is_remote) is stored rather than a guess.
+            |
+            */
+
+            $snippetText = strip_tags($jobData['snippet'] ?? '');
+
+            $rawJobType = $this->extractJobType($snippetText);
+
+            $salaryData = $this->extractSalary($snippetText);
+
+            /*
+            |--------------------------------------------------------------------------
             | Prepare job data
             |--------------------------------------------------------------------------
             */
@@ -320,9 +345,21 @@ class WhatJobsSyncService
 
                 'company' => $jobData['company'] ?? null,
                 'location' => $jobData['location'] ?? null,
+
+                'is_remote' => $this->extractRemoteSignal(
+                    $jobData['title'] ?? null,
+                    $snippetText
+                ),
+
                 'postcode' => $jobData['postcode'] ?? null,
                 'job_type' => $jobData['job_type'] ?? null,
+                'employment_type' => $this->mapEmploymentType($rawJobType),
+
                 'salary' => $jobData['salary'] ?? null,
+                'salary_min' => $salaryData['min'] ?? null,
+                'salary_max' => $salaryData['max'] ?? null,
+                'salary_currency' => $salaryData['currency'] ?? null,
+                'salary_unit' => $salaryData['unit'] ?? null,
 
                 'snippet' => $jobData['snippet'] ?? null,
                 'logo' => $jobData['logo'] ?? null,
@@ -473,5 +510,178 @@ class WhatJobsSyncService
         }
 
         return null;
+    }
+
+    /**
+     * Detect whether a job is remote.
+     *
+     * WhatJobs does not send a structured remote/telecommute field.
+     *
+     * Preference order:
+     * 1. A labeled "Location:" field inside the snippet
+     *    (e.g. "Location: Remote") — most reliable signal available.
+     * 2. Fallback keyword scan across title + snippet text.
+     *
+     * $snippetText is expected to already be stripped of HTML tags.
+     */
+    protected function extractRemoteSignal(
+        ?string $title,
+        string $snippetText
+    ): bool {
+        if (
+            preg_match(
+                '/Location:\s*([^A-Z]{0,30}?)(?:[A-Z][a-z]+:|$)/',
+                $snippetText,
+                $matches
+            )
+        ) {
+            $locationValue = trim($matches[1]);
+
+            if (preg_match('/\bremote\b/i', $locationValue)) {
+                return true;
+            }
+
+            if ($locationValue !== '') {
+                // Explicit non-remote location label found — trust it.
+                return false;
+            }
+        }
+
+        $haystack = strtolower(
+            ($title ?? '') . ' ' . $snippetText
+        );
+
+        return (bool) preg_match(
+            '/\b(fully remote|100% remote|remote job|remote position|work from home|wfh|remote-first|telecommute)\b/i',
+            $haystack
+        );
+    }
+
+    /**
+     * Extract job type from a labeled "Type:" field in the snippet.
+     *
+     * Example:
+     * "... Type: Contract Compensation: $80-$120/hour ..."
+     *
+     * $snippetText is expected to already be stripped of HTML tags.
+     */
+    protected function extractJobType(string $snippetText): ?string
+    {
+        if (
+            preg_match(
+                '/Type:\s*([^A-Z]{0,30}?)(?:[A-Z][a-z]+:|$)/',
+                $snippetText,
+                $matches
+            )
+        ) {
+            $value = trim($matches[1]);
+
+            if ($value !== '') {
+                return $value;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Map a free-text job type to schema.org's fixed employmentType enum.
+     *
+     * Google only accepts:
+     * FULL_TIME, PART_TIME, CONTRACTOR, TEMPORARY,
+     * INTERN, VOLUNTEER, PER_DIEM, OTHER
+     */
+    protected function mapEmploymentType(?string $rawType): ?string
+    {
+        if (!$rawType) {
+            return null;
+        }
+
+        $normalized = strtolower(trim($rawType));
+
+        return match (true) {
+            str_contains($normalized, 'full') => 'FULL_TIME',
+            str_contains($normalized, 'part') => 'PART_TIME',
+            str_contains($normalized, 'contract') => 'CONTRACTOR',
+            str_contains($normalized, 'temp') => 'TEMPORARY',
+            str_contains($normalized, 'intern') => 'INTERN',
+            str_contains($normalized, 'volunteer') => 'VOLUNTEER',
+            str_contains($normalized, 'per diem') => 'PER_DIEM',
+            default => 'OTHER',
+        };
+    }
+
+    /**
+     * Extract salary range from a labeled compensation field in the snippet.
+     *
+     * Recognized labels: Compensation, Salary, Salary Range, Pay,
+     * Pay Range, Wage, Remuneration, CTC, Rate.
+     *
+     * Example:
+     * "Compensation: $80-$120/hour"
+     * "Salary: ₹8,00,000 - ₹12,00,000 per annum"
+     *
+     * Returns null if no usable numeric range is found — do NOT
+     * fall back to a 0.00 placeholder, since a zero salary is worse
+     * for Google for Jobs than omitting baseSalary entirely.
+     *
+     * Note: CTC-labeled values are treated as baseSalary as-is, though
+     * CTC in Indian listings often bundles benefits/employer contributions
+     * and isn't strictly equivalent to gross salary.
+     *
+     * $snippetText is expected to already be stripped of HTML tags.
+     */
+    protected function extractSalary(string $snippetText): ?array
+    {
+        $labelPattern = '(?:Compensation|Salary(?:\s*Range)?|Pay(?:\s*Range)?|Wage|Remuneration|CTC|Rate)';
+
+        if (
+            !preg_match(
+                '/' . $labelPattern . ':\s*([^A-Z]{0,60}?)(?:[A-Z][a-z]+:|$)/',
+                $snippetText,
+                $matches
+            )
+        ) {
+            return null;
+        }
+
+        $raw = trim($matches[1]);
+
+        if (
+            !preg_match(
+                '/([\$₹])\s?([\d,]+(?:\.\d+)?)\s*(?:-|–|to)\s*([\$₹]?)\s?([\d,]+(?:\.\d+)?)\s*\/?\s*(?:per\s*)?(hour|hr|year|yr|annum|month|mo|week|wk|day)?/i',
+                $raw,
+                $m
+            )
+        ) {
+            return null;
+        }
+
+        $currencySymbol = $m[1];
+        $minValue = (float) str_replace(',', '', $m[2]);
+        $maxValue = (float) str_replace(',', '', $m[4]);
+        $unitRaw = strtolower($m[5] ?? '');
+
+        if ($minValue <= 0 && $maxValue <= 0) {
+            return null;
+        }
+
+        $currency = $currencySymbol === '₹' ? 'INR' : 'USD';
+
+        $unitTime = match (true) {
+            str_starts_with($unitRaw, 'hour'), $unitRaw === 'hr' => 'HOUR',
+            str_starts_with($unitRaw, 'year'), $unitRaw === 'yr', $unitRaw === 'annum' => 'YEAR',
+            str_starts_with($unitRaw, 'month'), $unitRaw === 'mo' => 'MONTH',
+            str_starts_with($unitRaw, 'week'), $unitRaw === 'wk' => 'WEEK',
+            $unitRaw === 'day' => 'DAY',
+            default => 'HOUR',
+        };
+
+        return [
+            'currency' => $currency,
+            'min' => $minValue,
+            'max' => $maxValue,
+            'unit' => $unitTime,
+        ];
     }
 }

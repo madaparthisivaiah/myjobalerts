@@ -15,9 +15,15 @@ class Job extends Model
 
         'company',
         'location',
+        'is_remote',
         'postcode',
         'job_type',
+        'employment_type',
         'salary',
+        'salary_min',
+        'salary_max',
+        'salary_currency',
+        'salary_unit',
 
         'snippet',
         'logo',
@@ -42,6 +48,10 @@ class Job extends Model
             'age_days' => 'integer',
 
             'is_active' => 'boolean',
+            'is_remote' => 'boolean',
+
+            'salary_min' => 'decimal:2',
+            'salary_max' => 'decimal:2',
 
             'job_gfj_status' => 'integer',
         ];
