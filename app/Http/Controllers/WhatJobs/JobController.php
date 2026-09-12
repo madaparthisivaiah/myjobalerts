@@ -97,7 +97,7 @@ class JobController extends Controller
 
         $query = Job::query()
             ->where('provider', 'whatjobs')
-            ->where('is_active', 0);
+            ->where('is_active', true);
 
         /*
         |--------------------------------------------------------------------------
@@ -335,12 +335,12 @@ class JobController extends Controller
         |--------------------------------------------------------------------------
         |
         | WhatJobs:
-        | is_active = 0 → Active
-        | is_active = 1 → Inactive / Expired
+        | is_active = true → Active
+        | is_active = false → Inactive / Expired
         |
         */
 
-        $isExpired = ((int) $job->is_active === 1);
+        $isExpired = ((int) $job->is_active === 0);
 
         if ($isExpired) {
 
@@ -381,7 +381,7 @@ class JobController extends Controller
 
         $locationName = Job::query()
             ->where('provider', 'whatjobs')
-            ->where('is_active', 0)
+            ->where('is_active', true)
             ->whereNotNull('location')
             ->pluck('location')
             ->filter()
@@ -406,7 +406,7 @@ class JobController extends Controller
 
         $jobs = Job::query()
             ->where('provider', 'whatjobs')
-            ->where('is_active', 0)
+            ->where('is_active', true)
             ->where('location', $locationName)
             ->latest()
             ->paginate(20)
@@ -455,7 +455,7 @@ class JobController extends Controller
         |
         */
 
-        $isExpired = ((int) $job->is_active === 1);
+        $isExpired = ((int) $job->is_active === 0);
         /*
         |--------------------------------------------------------------------------
         | Expired Job

@@ -23,10 +23,10 @@ class WhatJobsSyncService
     /**
      * Sync all India jobs from WhatJobs.
      *
-     * is_active convention:
+     * is_active convention (standard Laravel boolean):
      *
-     * 0 = ACTIVE
-     * 1 = INACTIVE / EXPIRED
+     * true  = ACTIVE
+     * false = INACTIVE / EXPIRED
      */
     public function syncIndiaJobs(string $userIp): array
     {
@@ -116,19 +116,19 @@ class WhatJobsSyncService
         |
         | is_active:
         |
-        | 0 = ACTIVE
-        | 1 = INACTIVE / EXPIRED
+        | true  = ACTIVE
+        | false = INACTIVE / EXPIRED
         |
         | Therefore:
         |
-        | Find active jobs (0) that were not seen during this sync
-        | and change them to inactive (1).
+        | Find active jobs that were not seen during this sync
+        | and mark them inactive.
         |
         */
 
         $deactivated = Job::query()
             ->where('provider', 'whatjobs')
-            ->where('is_active', 0)
+            ->where('is_active', true)
             ->where(function ($query) use ($syncStartedAt) {
                 $query
                     ->whereNull('last_seen_at')
@@ -139,7 +139,7 @@ class WhatJobsSyncService
                     );
             })
             ->update([
-                'is_active' => 1,
+                'is_active' => false,
                 'updated_at' => now(),
             ]);
 
@@ -157,7 +157,7 @@ class WhatJobsSyncService
         |
         | Sitemap should therefore contain only:
         |
-        | is_active = 0
+        | is_active = true
         |
         */
 
@@ -215,10 +215,10 @@ class WhatJobsSyncService
     /**
      * Process one page of WhatJobs results.
      *
-     * is_active convention:
+     * is_active convention (standard Laravel boolean):
      *
-     * 0 = ACTIVE
-     * 1 = INACTIVE / EXPIRED
+     * true  = ACTIVE
+     * false = INACTIVE / EXPIRED
      */
     protected function processPage(
         array $response,
@@ -343,14 +343,11 @@ class WhatJobsSyncService
                 |--------------------------------------------------------------------------
                 | Mark this job as seen during this sync
                 |--------------------------------------------------------------------------
-                |
-                | 0 = ACTIVE
-                |
                 */
 
                 'last_seen_at' => $syncStartedAt,
 
-                'is_active' => 0,
+                'is_active' => true,
             ];
 
             /*
@@ -388,7 +385,7 @@ class WhatJobsSyncService
                 | If a previously inactive job comes back
                 |--------------------------------------------------------------------------
                 |
-                | is_active = 1 means the previous state was inactive.
+                | is_active === false means the job was previously inactive.
                 |
                 | If job_gfj_status is 3, the previous Google lifecycle
                 | was completed.
@@ -399,7 +396,7 @@ class WhatJobsSyncService
                 */
 
                 if (
-                    $job->is_active == 1 &&
+                    $job->is_active === false &&
                     (int) $job->job_gfj_status === 3
                 ) {
                     $attributes['job_gfj_status'] = 1;
@@ -417,7 +414,7 @@ class WhatJobsSyncService
             |
             | New job starts with:
             |
-            | is_active = 0
+            | is_active = true
             | job_gfj_status = 1
             |
             | Meaning:
@@ -478,4 +475,3 @@ class WhatJobsSyncService
         return null;
     }
 }
-?>

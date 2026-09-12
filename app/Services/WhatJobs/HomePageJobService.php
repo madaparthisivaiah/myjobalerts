@@ -64,7 +64,7 @@ class HomePageJobService
     {
         return Job::query()
             ->where('provider', 'whatjobs')
-            ->where('is_active', 0)
+            ->where('is_active', true)
             ->get();
     }
 
