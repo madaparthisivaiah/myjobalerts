@@ -432,6 +432,7 @@ class JobController extends Controller
             ->where('provider', 'whatjobs')
             ->where('slug', $slug)
             ->first();
+            dd($job);
 
         /*
         |--------------------------------------------------------------------------
