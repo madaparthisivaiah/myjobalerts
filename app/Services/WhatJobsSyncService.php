@@ -513,6 +513,78 @@ class WhatJobsSyncService
     }
 
     /**
+     * Known snippet field labels.
+     *
+     * Once HTML is stripped from the snippet, labeled fields sit back
+     * to back with no separating punctuation, e.g.:
+     *
+     * "Type: Contract Compensation: $80-$120/hour Location: Remote"
+     *
+     * We need to know where one label's value ends and the next
+     * label begins. Matching is done against this known list rather
+     * than "stop at the next uppercase letter", because real values
+     * (e.g. "Contract", "Full Time", "Remote", "Bangalore") almost
+     * always start with an uppercase letter themselves — a regex that
+     * excludes uppercase from the captured value fails to capture
+     * anything on virtually every real snippet.
+     */
+    protected const SNIPPET_LABELS = [
+        'Employment Type',
+        'Job Type',
+        'Type',
+        'Salary Range',
+        'Compensation',
+        'Salary',
+        'Pay Range',
+        'Pay',
+        'Wage',
+        'Remuneration',
+        'CTC',
+        'Rate',
+        'Location',
+        'Position',
+        'Role',
+    ];
+
+    /**
+     * Extract the value following a given label in labeled snippet
+     * text, stopping at the next known label or end of string.
+     *
+     * $snippetText is expected to already be stripped of HTML tags.
+     */
+    protected function extractLabeledValue(
+        string $snippetText,
+        string $label
+    ): ?string {
+        $stopLabels = array_filter(
+            self::SNIPPET_LABELS,
+            fn ($candidate) => strcasecmp($candidate, $label) !== 0
+        );
+
+        $stopPattern = implode(
+            '|',
+            array_map(
+                fn ($candidate) => preg_quote($candidate, '/'),
+                $stopLabels
+            )
+        );
+
+        $pattern = '/\b'
+            . preg_quote($label, '/')
+            . ':\s*(.*?)(?=\s*(?:' . $stopPattern . '):|$)/is';
+
+        if (preg_match($pattern, $snippetText, $matches)) {
+            $value = trim($matches[1]);
+
+            if ($value !== '') {
+                return $value;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Detect whether a job is remote.
      *
      * WhatJobs does not send a structured remote/telecommute field.
@@ -520,6 +592,8 @@ class WhatJobsSyncService
      * Preference order:
      * 1. A labeled "Location:" field inside the snippet
      *    (e.g. "Location: Remote") — most reliable signal available.
+     *    If found but doesn't mention "remote", trust it as an
+     *    explicit non-remote location.
      * 2. Fallback keyword scan across title + snippet text.
      *
      * $snippetText is expected to already be stripped of HTML tags.
@@ -528,23 +602,13 @@ class WhatJobsSyncService
         ?string $title,
         string $snippetText
     ): bool {
-        if (
-            preg_match(
-                '/Location:\s*([^A-Z]{0,30}?)(?:[A-Z][a-z]+:|$)/',
-                $snippetText,
-                $matches
-            )
-        ) {
-            $locationValue = trim($matches[1]);
+        $locationValue = $this->extractLabeledValue(
+            $snippetText,
+            'Location'
+        );
 
-            if (preg_match('/\bremote\b/i', $locationValue)) {
-                return true;
-            }
-
-            if ($locationValue !== '') {
-                // Explicit non-remote location label found — trust it.
-                return false;
-            }
+        if ($locationValue !== null) {
+            return (bool) preg_match('/\bremote\b/i', $locationValue);
         }
 
         $haystack = strtolower(
@@ -558,7 +622,10 @@ class WhatJobsSyncService
     }
 
     /**
-     * Extract job type from a labeled "Type:" field in the snippet.
+     * Extract job type from a labeled type field in the snippet.
+     *
+     * Checks "Employment Type:", "Job Type:", and "Type:" in that
+     * order, since more specific labels should win when present.
      *
      * Example:
      * "... Type: Contract Compensation: $80-$120/hour ..."
@@ -567,21 +634,9 @@ class WhatJobsSyncService
      */
     protected function extractJobType(string $snippetText): ?string
     {
-        if (
-            preg_match(
-                '/Type:\s*([^A-Z]{0,30}?)(?:[A-Z][a-z]+:|$)/',
-                $snippetText,
-                $matches
-            )
-        ) {
-            $value = trim($matches[1]);
-
-            if ($value !== '') {
-                return $value;
-            }
-        }
-
-        return null;
+        return $this->extractLabeledValue($snippetText, 'Employment Type')
+            ?? $this->extractLabeledValue($snippetText, 'Job Type')
+            ?? $this->extractLabeledValue($snippetText, 'Type');
     }
 
     /**
@@ -633,19 +688,19 @@ class WhatJobsSyncService
      */
     protected function extractSalary(string $snippetText): ?array
     {
-        $labelPattern = '(?:Compensation|Salary(?:\s*Range)?|Pay(?:\s*Range)?|Wage|Remuneration|CTC|Rate)';
+        $raw = $this->extractLabeledValue($snippetText, 'Salary Range')
+            ?? $this->extractLabeledValue($snippetText, 'Compensation')
+            ?? $this->extractLabeledValue($snippetText, 'Salary')
+            ?? $this->extractLabeledValue($snippetText, 'Pay Range')
+            ?? $this->extractLabeledValue($snippetText, 'Pay')
+            ?? $this->extractLabeledValue($snippetText, 'Wage')
+            ?? $this->extractLabeledValue($snippetText, 'Remuneration')
+            ?? $this->extractLabeledValue($snippetText, 'CTC')
+            ?? $this->extractLabeledValue($snippetText, 'Rate');
 
-        if (
-            !preg_match(
-                '/' . $labelPattern . ':\s*([^A-Z]{0,60}?)(?:[A-Z][a-z]+:|$)/',
-                $snippetText,
-                $matches
-            )
-        ) {
+        if ($raw === null) {
             return null;
         }
-
-        $raw = trim($matches[1]);
 
         if (
             !preg_match(
