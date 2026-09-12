@@ -15,13 +15,18 @@ class WhatJobsSyncService
     public function __construct(
         protected WhatJobsService $whatJobs,
         protected SitemapService $sitemapService,
-        protected HomePageJobService $homePageJobService ,
+        protected HomePageJobService $homePageJobService,
         protected WhatJobsSearchPageCacheService $searchPageCache
     ) {
     }
 
     /**
      * Sync all India jobs from WhatJobs.
+     *
+     * is_active convention:
+     *
+     * 0 = ACTIVE
+     * 1 = INACTIVE / EXPIRED
      */
     public function syncIndiaJobs(string $userIp): array
     {
@@ -107,16 +112,23 @@ class WhatJobsSyncService
         |
         | IMPORTANT:
         |
-        | We do this ONLY after every page has been processed.
+        | This runs ONLY after every WhatJobs page has been processed.
         |
-        | If WhatJobs API fails halfway through, old jobs are NOT
-        | accidentally deactivated.
+        | is_active:
+        |
+        | 0 = ACTIVE
+        | 1 = INACTIVE / EXPIRED
+        |
+        | Therefore:
+        |
+        | Find active jobs (0) that were not seen during this sync
+        | and change them to inactive (1).
         |
         */
 
         $deactivated = Job::query()
             ->where('provider', 'whatjobs')
-            ->where('is_active', true)
+            ->where('is_active', 0)
             ->where(function ($query) use ($syncStartedAt) {
                 $query
                     ->whereNull('last_seen_at')
@@ -127,32 +139,48 @@ class WhatJobsSyncService
                     );
             })
             ->update([
-                'is_active' => false,
+                'is_active' => 1,
                 'updated_at' => now(),
             ]);
 
-        /* |-------------------------------------------------------------------------- | Generate dynamic sitemap 
-        |-------------------------------------------------------------------------- | 
-        | IMPORTANT: | | Sitemap generation happens AFTER: | 
-        | 1. All WhatJobs pages are processed | 
-        | 2. New jobs are inserted | 
-        | 3. Existing jobs are updated | 
-        | 4. Missing jobs are marked inactive | 
-        | Therefore the sitemap contains only current active jobs. | */ 
-        
+        /*
+        |--------------------------------------------------------------------------
+        | Generate dynamic sitemap
+        |--------------------------------------------------------------------------
+        |
+        | Sitemap generation happens AFTER:
+        |
+        | 1. All WhatJobs pages are processed
+        | 2. New jobs are inserted
+        | 3. Existing jobs are updated
+        | 4. Missing jobs are marked inactive
+        |
+        | Sitemap should therefore contain only:
+        |
+        | is_active = 0
+        |
+        */
+
         $this->sitemapService->generate();
 
-        //Refresh the cache
+        /*
+        |--------------------------------------------------------------------------
+        | Refresh homepage cache
+        |--------------------------------------------------------------------------
+        */
+
         $this->homePageJobService->refreshHomepageCache();
 
-        // Refresh the cache
-        $this->homePageJobService->refreshHomepageCache();
+        /*
+        |--------------------------------------------------------------------------
+        | Refresh WhatJobs search-page cache version
+        |--------------------------------------------------------------------------
+        |
+        | This happens only after the complete WhatJobs sync
+        | has successfully processed all pages.
+        |
+        */
 
-        // Refresh WhatJobs search-page cache version.
-        //
-        // IMPORTANT:
-        // This happens only after the complete WhatJobs sync
-        // has successfully processed all pages.
         $searchCacheVersion = $this->searchPageCache->newVersion();
 
         Log::info('WhatJobs search cache version refreshed', [
@@ -186,6 +214,11 @@ class WhatJobsSyncService
 
     /**
      * Process one page of WhatJobs results.
+     *
+     * is_active convention:
+     *
+     * 0 = ACTIVE
+     * 1 = INACTIVE / EXPIRED
      */
     protected function processPage(
         array $response,
@@ -310,11 +343,14 @@ class WhatJobsSyncService
                 |--------------------------------------------------------------------------
                 | Mark this job as seen during this sync
                 |--------------------------------------------------------------------------
+                |
+                | 0 = ACTIVE
+                |
                 */
 
                 'last_seen_at' => $syncStartedAt,
 
-                'is_active' => true,
+                'is_active' => 0,
             ];
 
             /*
@@ -340,9 +376,8 @@ class WhatJobsSyncService
             |
             | IMPORTANT:
             |
-            | Do NOT change job_gfj_status here.
-            |
-            | If the job already has status 2, it must remain 2.
+            | Do NOT change job_gfj_status here unless a previously
+            | completed Google lifecycle job comes back.
             |
             */
 
@@ -350,10 +385,13 @@ class WhatJobsSyncService
 
                 /*
                 |--------------------------------------------------------------------------
-                | If a previously expired job comes back
+                | If a previously inactive job comes back
                 |--------------------------------------------------------------------------
                 |
-                | Status 3 means the previous Google lifecycle was completed.
+                | is_active = 1 means the previous state was inactive.
+                |
+                | If job_gfj_status is 3, the previous Google lifecycle
+                | was completed.
                 |
                 | Therefore, if WhatJobs sends this job again, start a new
                 | Google posting lifecycle with status 1.
@@ -361,7 +399,7 @@ class WhatJobsSyncService
                 */
 
                 if (
-                    !$job->is_active &&
+                    $job->is_active == 1 &&
                     (int) $job->job_gfj_status === 3
                 ) {
                     $attributes['job_gfj_status'] = 1;
@@ -379,10 +417,12 @@ class WhatJobsSyncService
             |
             | New job starts with:
             |
+            | is_active = 0
             | job_gfj_status = 1
             |
             | Meaning:
-            | Waiting to be processed for Google for Jobs.
+            |
+            | Active and waiting to be processed for Google for Jobs.
             |
             */
 
@@ -438,3 +478,4 @@ class WhatJobsSyncService
         return null;
     }
 }
+?>

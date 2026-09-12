@@ -69,7 +69,7 @@ class SitemapService
          */
         $jobs = Job::query()
             ->where('provider', 'whatjobs')
-            ->where('is_active', true)
+            ->where('is_active', 0)
             ->whereNotNull('slug')
             ->where('slug', '!=', '')
             ->orderBy('id')
