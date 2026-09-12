@@ -2,345 +2,539 @@
 
 @php
 
-    /*
-    |--------------------------------------------------------------------------
-    | Expired Job Status
-    |--------------------------------------------------------------------------
-    */
 
-    $isExpired = $isExpired ?? false;
+/*
+|--------------------------------------------------------------------------
+| Basic Job Data
+|--------------------------------------------------------------------------
+*/
 
+$jobTitle = trim($job->title ?? 'Job Opportunity');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Basic Job Data
-    |--------------------------------------------------------------------------
-    */
+$company = trim($job->company ?? '');
 
-    $jobTitle = trim($job->title ?? 'Job Opportunity');
-
-    $company = trim($job->company ?? '');
-
-    $location = trim($job->location ?? '');
+$location = trim($job->location ?? '');
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Clean Job Title for SEO
-    |--------------------------------------------------------------------------
-    */
+/*
+|--------------------------------------------------------------------------
+| Clean Job Title for SEO
+|--------------------------------------------------------------------------
+*/
 
-    $seoJobTitle = trim(
-        preg_replace(
-            '/\s+/',
-            ' ',
-            strip_tags($jobTitle)
+$seoJobTitle = trim(
+    preg_replace(
+        '/\s+/',
+        ' ',
+        strip_tags($jobTitle)
+    )
+);
+
+/*
+* Keep the complete original job title for:
+* - H1
+* - JobPosting schema
+*
+* Only shorten the HTML
+*/
+
+if (\Illuminate\Support\Str::length($seoJobTitle) > 70) {
+
+    $seoJobTitle = \Illuminate\Support\Str::limit(
+        $seoJobTitle,
+        65,
+        ''
+    );
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| SEO Page Title
+|--------------------------------------------------------------------------
+*/
+
+if ($company !== '' && $location !== '') {
+
+    $pageTitle =
+        "{$seoJobTitle} - {$company}, {$location} | MyJobAlerts";
+
+} elseif ($company !== '') {
+
+    $pageTitle =
+        "{$seoJobTitle} - {$company}, India | MyJobAlerts";
+
+} elseif ($location !== '') {
+
+    $pageTitle =
+        "{$seoJobTitle} - {$location}, India | MyJobAlerts";
+
+} else {
+
+    $pageTitle =
+        "{$seoJobTitle} | MyJobAlerts";
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| SEO Meta Description
+|--------------------------------------------------------------------------
+|
+| Keep this clean and consistent.
+|
+| Do NOT use the WhatJobs snippet here because feed snippets
+| can contain:
+|
+| - duplicated job titles
+| - company introductions
+| - "About Company"
+| - "Dear Connections"
+| - feed formatting
+|
+|--------------------------------------------------------------------------
+*/
+
+if ($company !== '' && $location !== '') {
+
+    $metaDescription =
+        "Find {$jobTitle} at {$company} in {$location}. Explore the job details, requirements and career opportunity, and apply through the original job listing.";
+
+} elseif ($company !== '') {
+
+    $metaDescription =
+        "Find {$jobTitle} at {$company} in India. Explore the job details, requirements and career opportunity, and apply through the original job listing.";
+
+} elseif ($location !== '') {
+
+    $metaDescription =
+        "Find {$jobTitle} jobs in {$location}, India. Explore the job details, requirements and career opportunity, and apply through the original job listing.";
+
+} else {
+
+    $metaDescription =
+        "Find {$jobTitle} job opportunities in India. Explore the job details, requirements and career opportunity, and apply through the original job listing.";
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Final Meta Description Cleanup
+|--------------------------------------------------------------------------
+*/
+
+$metaDescription = html_entity_decode(
+    $metaDescription,
+    ENT_QUOTES | ENT_HTML5,
+    'UTF-8'
+);
+
+$metaDescription = strip_tags($metaDescription);
+
+$metaDescription = preg_replace(
+    '/\s+/',
+    ' ',
+    $metaDescription
+);
+
+$metaDescription = trim($metaDescription);
+
+
+/*
+|--------------------------------------------------------------------------
+| IMPORTANT
+|--------------------------------------------------------------------------
+|
+| Do NOT use Str::limit() here.
+|
+| This prevents Laravel from adding:
+|
+| ...
+|
+| to the end of your meta description.
+|
+|--------------------------------------------------------------------------
+*/
+
+
+/*
+|--------------------------------------------------------------------------
+| Canonical URL
+|--------------------------------------------------------------------------
+*/
+
+$canonicalUrl = url('/viewjob/' . $job->slug);
+
+/*
+|--------------------------------------------------------------------------
+| Optional Postal Code
+|--------------------------------------------------------------------------
+*/
+
+$postalCode = null;
+
+if (!empty($job->postcode)) {
+
+    $postalCode = trim(
+        (string) $job->postcode
+    );
+
+    if ($postalCode === '') {
+
+        $postalCode = null;
+
+    }
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Optional Salary Fields
+|--------------------------------------------------------------------------
+|
+| Only valid positive numeric values are used.
+|
+*/
+
+$salaryMin = null;
+
+$salaryMax = null;
+
+$salaryCurrency = null;
+
+$salaryUnit = null;
+
+
+if (
+    isset($job->salary_min) &&
+    is_numeric($job->salary_min) &&
+    (float) $job->salary_min > 0
+) {
+
+    $salaryMin = (float) $job->salary_min;
+
+}
+
+
+if (
+    isset($job->salary_max) &&
+    is_numeric($job->salary_max) &&
+    (float) $job->salary_max > 0
+) {
+
+    $salaryMax = (float) $job->salary_max;
+
+}
+
+
+if (!empty($job->salary_currency)) {
+
+    $salaryCurrency = strtoupper(
+        trim(
+            (string) $job->salary_currency
         )
     );
 
-    /*
-    * Keep the complete original job title for:
-    * - H1
-    * - JobPosting schema
-    *
-    * Only shorten the HTML title.
-    */
-    if (\Illuminate\Support\Str::length($seoJobTitle) > 70) {
-
-        $seoJobTitle = \Illuminate\Support\Str::limit(
-            $seoJobTitle,
-            65,
-            ''
-        );
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | SEO Page Title
-    |--------------------------------------------------------------------------
-    */
-
-    if ($company !== '' && $location !== '') {
-
-        $pageTitle =
-            "{$seoJobTitle} - {$company}, {$location} | MyJobAlerts";
-
-    } elseif ($company !== '') {
-
-        $pageTitle =
-            "{$seoJobTitle} - {$company}, India | MyJobAlerts";
-
-    } elseif ($location !== '') {
-
-        $pageTitle =
-            "{$seoJobTitle} - {$location}, India | MyJobAlerts";
-
-    } else {
-
-        $pageTitle =
-            "{$seoJobTitle} | MyJobAlerts";
-    }
+}
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | SEO Meta Description
-    |--------------------------------------------------------------------------
-    */
+if (!empty($job->salary_unit)) {
 
-    if ($isExpired) {
-
-        if ($company !== '' && $location !== '') {
-
-            $metaDescription =
-                "{$jobTitle} at {$company} in {$location} has expired. This job is no longer available for applications. Browse other job opportunities on MyJobAlerts.";
-
-        } elseif ($company !== '') {
-
-            $metaDescription =
-                "{$jobTitle} at {$company} has expired. This job is no longer available for applications. Browse other job opportunities on MyJobAlerts.";
-
-        } elseif ($location !== '') {
-
-            $metaDescription =
-                "{$jobTitle} in {$location}, India has expired. This job is no longer available for applications. Browse other job opportunities on MyJobAlerts.";
-
-        } else {
-
-            $metaDescription =
-                "{$jobTitle} job opportunity has expired and is no longer available for applications. Browse other job opportunities on MyJobAlerts.";
-        }
-
-    } elseif ($company !== '' && $location !== '') {
-
-        $metaDescription =
-            "Find {$jobTitle} at {$company} in {$location}. Explore the job details, requirements and career opportunity, and apply through the original job listing.";
-
-    } elseif ($company !== '') {
-
-        $metaDescription =
-            "Find {$jobTitle} at {$company} in India. Explore the job details, requirements and career opportunity, and apply through the original job listing.";
-
-    } elseif ($location !== '') {
-
-        $metaDescription =
-            "Find {$jobTitle} jobs in {$location}, India. Explore the job details, requirements and career opportunity, and apply through the original job listing.";
-
-    } else {
-
-        $metaDescription =
-            "Find {$jobTitle} job opportunities in India. Explore the job details, requirements and career opportunity, and apply through the original job listing.";
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Final Meta Description Cleanup
-    |--------------------------------------------------------------------------
-    */
-
-    $metaDescription = html_entity_decode(
-        $metaDescription,
-        ENT_QUOTES | ENT_HTML5,
-        'UTF-8'
+    $salaryUnit = trim(
+        (string) $job->salary_unit
     );
 
-    $metaDescription = strip_tags($metaDescription);
+}
 
-    $metaDescription = preg_replace(
-        '/\s+/',
-        ' ',
-        $metaDescription
-    );
 
-    $metaDescription = trim($metaDescription);
+/*
+|--------------------------------------------------------------------------
+| Actual Posted Date
+|--------------------------------------------------------------------------
+*/
 
-    /*
-    |--------------------------------------------------------------------------
-    | Canonical URL
-    |--------------------------------------------------------------------------
-    */
+$datePosted = null;
 
-    $canonicalUrl = url('/viewjob/' . $job->slug);
+if (!empty($job->date_posted)) {
 
-    /*
-    |--------------------------------------------------------------------------
-    | Salary
-    |--------------------------------------------------------------------------
-    */
+    $datePosted = $job->date_posted;
 
-    $salary = trim($job->salary ?? '');
+} elseif (!empty($job->posted_at)) {
 
-    if (
-        $salary === '0.000000 - 0.000000' ||
-        $salary === '0 - 0'
-    ) {
+    $datePosted = $job->posted_at;
 
-        $salary = '';
-    }
+}
 
-    /*
-    |--------------------------------------------------------------------------
-    | Actual Posted Date
-    |--------------------------------------------------------------------------
-    */
 
-    $datePosted = null;
+/*
+|--------------------------------------------------------------------------
+| Job Location Schema
+|--------------------------------------------------------------------------
+*/
 
-    if (!empty($job->date_posted)) {
+$jobLocation = null;
 
-        $datePosted = $job->date_posted;
+if (!empty($job->location)) {
 
-    } elseif (!empty($job->posted_at)) {
-
-        $datePosted = $job->posted_at;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Job Location Schema
-    |--------------------------------------------------------------------------
-    */
-
-    $jobLocation = null;
-
-    if (!empty($job->location)) {
-
-        $jobLocation = [
-
-            '@type' => 'Place',
-
-            'address' => [
-
-                '@type' => 'PostalAddress',
-
-                'addressLocality' => trim($job->location),
-
-                'addressCountry' => 'IN',
-
-            ],
-
-        ];
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | JobPosting Schema
-    |--------------------------------------------------------------------------
-    |
-    | Do not generate JobPosting schema for expired jobs.
-    |
-    */
-
-    $jobPostingSchema = [
-
-        '@context' => 'https://schema.org',
-
-        '@type' => 'JobPosting',
-
-        /*
-        * Use the complete original job title.
-        */
-        'title' => $jobTitle,
-
-        /*
-        * Keep the actual WhatJobs snippet for structured data.
-        *
-        * This is separate from the clean SEO meta description.
-        */
-        'description' => trim(
-            preg_replace(
-                '/\s+/',
-                ' ',
-                strip_tags(
-                    html_entity_decode(
-                        $job->snippet ?? '',
-                        ENT_QUOTES | ENT_HTML5,
-                        'UTF-8'
-                    )
-                )
-            )
-        ) ?: "Find {$jobTitle} at {$company} in {$location}.",
-
-        'url' => $canonicalUrl,
-
+    $postalAddress = [
+        '@type' => 'PostalAddress',
+        'addressLocality' => trim($job->location),
+        'addressCountry' => 'IN',
     ];
 
 
     /*
     |--------------------------------------------------------------------------
-    | Date Posted
+    | Add Postal Code Only If Available
     |--------------------------------------------------------------------------
     */
 
-    if ($datePosted) {
+    if ($postalCode !== null) {
 
-        $jobPostingSchema['datePosted'] = $datePosted;
+        $postalAddress['postalCode'] = $postalCode;
+
+    }
+
+
+    $jobLocation = [
+        '@type' => 'Place',
+        'address' => $postalAddress,
+    ];
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| JobPosting Schema
+|--------------------------------------------------------------------------
+*/
+
+$jobPostingSchema = [
+
+    '@context' => 'https://schema.org',
+
+    '@type' => 'JobPosting',
+
+    /*
+    * Use the complete original job title.
+    */
+
+    'title' => $jobTitle,
+
+    /*
+    * Keep the actual WhatJobs snippet for structured data.
+    *
+    * This is separate from the clean SEO meta description.
+    */
+
+    'description' => trim(
+        preg_replace(
+            '/\s+/',
+            ' ',
+            strip_tags(
+                html_entity_decode(
+                    $job->snippet ?? '',
+                    ENT_QUOTES | ENT_HTML5,
+                    'UTF-8'
+                )
+            )
+        )
+    ) ?: "Find {$jobTitle} at {$company} in {$location}.",
+
+    'url' => $canonicalUrl,
+
+];
+
+
+/*
+|--------------------------------------------------------------------------
+| Date Posted
+|--------------------------------------------------------------------------
+*/
+
+if ($datePosted) {
+
+    $jobPostingSchema['datePosted'] = $datePosted;
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Hiring Organization
+|--------------------------------------------------------------------------
+*/
+
+if (!empty($job->company)) {
+
+    $organization = [
+
+        '@type' => 'Organization',
+
+        'name' => trim($job->company),
+
+    ];
+
+
+    if (!empty($job->logo)) {
+
+        $organization['logo'] = $job->logo;
+
+    }
+
+
+    $jobPostingSchema['hiringOrganization'] = $organization;
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Job Location Schema
+|--------------------------------------------------------------------------
+*/
+
+$jobLocation = null;
+
+if (!empty($job->location)) {
+
+    $postalAddress = [
+        '@type' => 'PostalAddress',
+        'addressLocality' => trim($job->location),
+        'addressCountry' => 'IN',
+    ];
+
+    /*
+    |--------------------------------------------------------------------------
+    | Postal Code
+    |--------------------------------------------------------------------------
+    */
+
+    if (!empty($job->postcode)) {
+        $postalAddress['postalCode'] = trim($job->postcode);
+    }
+
+    $jobLocation = [
+        '@type' => 'Place',
+        'address' => $postalAddress,
+    ];
+
+    //dd($jobLocation);
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Employment Type
+|--------------------------------------------------------------------------
+*/
+
+if (!empty($job->job_type)) {
+
+    $jobPostingSchema['employmentType'] = $job->job_type;
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Original Job URL
+|--------------------------------------------------------------------------
+*/
+
+if (!empty($job->job_url)) {
+
+    $jobPostingSchema['sameAs'] = $job->job_url;
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Optional Base Salary
+|--------------------------------------------------------------------------
+|
+| Add baseSalary only when salary_min or salary_max
+| contains a valid positive numeric value.
+|
+*/
+
+if (
+    $salaryMin !== null ||
+    $salaryMax !== null
+) {
+
+    $baseSalary = [
+
+        '@type' => 'MonetaryAmount',
+
+    ];
+
+
+    /*
+    | Currency only if available.
+    */
+
+    if (
+        $salaryCurrency !== null &&
+        $salaryCurrency !== ''
+    ) {
+
+        $baseSalary['currency'] = $salaryCurrency;
+
+    }
+
+
+    $salaryValue = [
+
+        '@type' => 'QuantitativeValue',
+
+    ];
+
+
+    if ($salaryMin !== null) {
+
+        $salaryValue['minValue'] = $salaryMin;
+
+    }
+
+
+    if ($salaryMax !== null) {
+
+        $salaryValue['maxValue'] = $salaryMax;
+
     }
 
 
     /*
-    |--------------------------------------------------------------------------
-    | Hiring Organization
-    |--------------------------------------------------------------------------
+    | Salary unit only if available.
     */
 
-    if (!empty($job->company)) {
+    if (
+        $salaryUnit !== null &&
+        $salaryUnit !== ''
+    ) {
 
-        $organization = [
+        $salaryValue['unitText'] = strtoupper(
+            $salaryUnit
+        );
 
-            '@type' => 'Organization',
-
-            'name' => trim($job->company),
-
-        ];
-
-        if (!empty($job->logo)) {
-
-            $organization['logo'] = $job->logo;
-        }
-
-        $jobPostingSchema['hiringOrganization'] = $organization;
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Job Location
-    |--------------------------------------------------------------------------
-    */
+    $baseSalary['value'] = $salaryValue;
 
-    if ($jobLocation) {
+    $jobPostingSchema['baseSalary'] = $baseSalary;
 
-        $jobPostingSchema['jobLocation'] = $jobLocation;
-    }
+}
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Employment Type
-    |--------------------------------------------------------------------------
-    */
-
-    if (!empty($job->job_type)) {
-
-        $jobPostingSchema['employmentType'] = $job->job_type;
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Original Job URL
-    |--------------------------------------------------------------------------
-    */
-
-    if (!empty($job->job_url)) {
-
-        $jobPostingSchema['sameAs'] = $job->job_url;
-    }
 
 @endphp
-
 
 @section('title', $pageTitle)
 
@@ -348,220 +542,189 @@
 
 @section('canonical', $canonicalUrl)
 
-
 @section('content')
 
-
 {{-- =========================================================
-     COMPACT JOB HEADER
+COMPACT JOB HEADER
 ========================================================= --}}
 
 <section class="bg-light-subtle border-bottom">
 
-    <div class="container py-4">
 
-        <div class="bg-white border rounded-4 shadow-sm">
+<div class="container py-4">
 
-            <div class="p-4 p-lg-4">
+    <div class="bg-white border rounded-4 shadow-sm">
 
-                <div class="row align-items-center g-4">
+        <div class="p-4 p-lg-4">
 
-
-                    {{-- =================================================
-                         JOB INFORMATION
-                    ================================================== --}}
-
-                    <div class="col-lg-8">
-
-                        {{-- Badges --}}
-
-                        <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
-
-                            @if($isExpired)
-
-                                <span class="badge text-bg-secondary px-3 py-2">
-
-                                    <i class="bi bi-x-circle me-1"></i>
-
-                                    Job Expired
-
-                                </span>
-
-                            @else
-
-                                <span class="badge text-bg-primary px-3 py-2">
-
-                                    <i class="bi bi-briefcase me-1"></i>
-
-                                    Job Opportunity
-
-                                </span>
-
-                            @endif
+            <div class="row align-items-center g-4">
 
 
-                            @if(!is_null($job->age_days))
+                {{-- =================================================
+                     JOB INFORMATION
+                ================================================== --}}
 
-                                <span class="badge bg-light text-dark border px-3 py-2">
+                <div class="col-lg-8">
 
-                                    <i class="bi bi-clock me-1"></i>
 
-                                    @if($job->age_days === 0)
+                    {{-- Badges --}}
 
-                                        Posted today
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
 
-                                    @elseif($job->age_days === 1)
+                        <span class="badge text-bg-primary px-3 py-2">
 
-                                        Posted yesterday
+                            <i class="bi bi-briefcase me-1"></i>
 
-                                    @else
+                            Job Opportunity
 
-                                        Posted {{ $job->age_days }} days ago
+                        </span>
 
-                                    @endif
 
-                                </span>
+                        @if(!is_null($job->age_days))
 
-                            @endif
+                            <span class="badge bg-light text-dark border px-3 py-2">
+
+                                <i class="bi bi-clock me-1"></i>
+
+                                @if($job->age_days === 0)
+
+                                    Posted today
+
+                                @elseif($job->age_days === 1)
+
+                                    Posted yesterday
+
+                                @else
+
+                                    Posted {{ $job->age_days }} days ago
+
+                                @endif
+
+                            </span>
+
+                        @endif
+
+                    </div>
+
+
+                    {{-- Job Title --}}
+
+                    <h1 class="h2 fw-bold mb-3">
+
+                        {{ $jobTitle }}
+
+                    </h1>
+
+
+                    {{-- Company --}}
+
+                    @if($job->company)
+
+                        <div class="d-flex align-items-center mb-3">
+
+                            <i class="bi bi-building text-primary fs-5 me-2"></i>
+
+                            <span class="fw-semibold">
+
+                                {{ $job->company }}
+
+                            </span>
 
                         </div>
 
-
-                        {{-- Job Title --}}
-
-                        <h1 class="h2 fw-bold mb-3">
-
-                            {{ $jobTitle }}
-
-                        </h1>
+                    @endif
 
 
-                        {{-- Company --}}
+                    {{-- Location / Job Type --}}
 
-                        @if($job->company)
+                    <div class="d-flex flex-wrap gap-3 text-muted small">
 
-                            <div class="d-flex align-items-center mb-3">
 
-                                <i class="bi bi-building text-primary fs-5 me-2"></i>
+                        @if($job->location)
 
-                                <span class="fw-semibold">
+                            <span class="d-inline-flex align-items-center">
 
-                                    {{ $job->company }}
+                                <i class="bi bi-geo-alt text-primary me-2"></i>
 
-                                </span>
+                                {{ $job->location }}
+
+                            </span>
+
+                        @endif
+
+                        @if($job->employment_type !='')
+
+                            <span class="d-inline-flex align-items-center">
+
+                                <i class="bi bi-briefcase text-primary me-2"></i>
+
+                                {{ $job->employment_type }}
+
+                            </span>
+                        @endif                
+
+                    </div>
+                    
+                    
+                </div>
+
+
+                {{-- =================================================
+                     LOGO + APPLY
+                ================================================== --}}
+
+                <div class="col-lg-4">
+
+                    <div class="d-flex flex-column flex-sm-row flex-lg-column align-items-center align-items-lg-end justify-content-center gap-3">
+
+
+                        {{-- COMPANY LOGO --}}
+
+                        @if($job->logo)
+
+                            <div class="border rounded-3 bg-white p-2">
+
+                                <img
+                                    src="{{ $job->logo }}"
+                                    alt="{{ $job->company ?: $jobTitle }}"
+                                    class="img-fluid"
+                                    width="90"
+                                    height="70"
+                                >
+
+                            </div>
+
+                        @elseif($job->company)
+
+                            <div class="bg-light border rounded-3 d-flex align-items-center justify-content-center fw-bold fs-3 text-primary px-4 py-3">
+
+                                {{ strtoupper(substr(trim($job->company), 0, 1)) }}
 
                             </div>
 
                         @endif
 
 
-                        {{-- Location / Job Type --}}
+                        {{-- HEADER APPLY BUTTON --}}
 
-                        <div class="d-flex flex-wrap gap-3 text-muted small">
+                        @if($job->job_url)
 
-                            @if($job->location)
+                            <a
+                                href="{{ $job->job_url }}"
+                                target="_blank"
+                                rel="nofollow sponsored"
+                                class="btn btn-primary btn-lg fw-semibold px-4"
+                            >
 
-                                <span class="d-inline-flex align-items-center">
+                                <i class="bi bi-send me-2"></i>
 
-                                    <i class="bi bi-geo-alt text-primary me-2"></i>
+                                Apply Now
 
-                                    {{ $job->location }}
+                                <i class="bi bi-box-arrow-up-right ms-2"></i>
 
-                                </span>
+                            </a>
 
-                            @endif
-
-
-                            @if($job->job_type)
-
-                                <span class="d-inline-flex align-items-center">
-
-                                    <i class="bi bi-briefcase text-primary me-2"></i>
-
-                                    {{ $job->job_type }}
-
-                                </span>
-
-                            @endif
-
-                        </div>
-
-                    </div>
-
-
-
-                    {{-- =================================================
-                         LOGO + APPLY
-                    ================================================== --}}
-
-                    <div class="col-lg-4">
-
-                        <div class="d-flex flex-column flex-sm-row flex-lg-column align-items-center align-items-lg-end justify-content-center gap-3">
-
-
-                            {{-- COMPANY LOGO --}}
-
-                            @if($job->logo)
-
-                                <div class="border rounded-3 bg-white p-2">
-
-                                    <img
-                                        src="{{ $job->logo }}"
-                                        alt="{{ $job->company ?: $jobTitle }}"
-                                        class="img-fluid"
-                                        width="90"
-                                        height="70"
-                                    >
-
-                                </div>
-
-                            @elseif($job->company)
-
-                                <div class="bg-light border rounded-3 d-flex align-items-center justify-content-center fw-bold fs-3 text-primary px-4 py-3">
-
-                                    {{ strtoupper(substr(trim($job->company), 0, 1)) }}
-
-                                </div>
-
-                            @endif
-
-
-                            {{-- HEADER APPLY / EXPIRED BUTTON --}}
-
-                            @if($isExpired)
-
-                                <button
-                                    type="button"
-                                    class="btn btn-secondary btn-lg fw-semibold px-4"
-                                    disabled
-                                >
-
-                                    <i class="bi bi-x-circle me-2"></i>
-
-                                    Expired
-
-                                </button>
-
-                            @elseif($job->job_url)
-
-                                <a
-                                    href="{{ $job->job_url }}"
-                                    target="_blank"
-                                    rel="nofollow sponsored"
-                                    class="btn btn-primary btn-lg fw-semibold px-4"
-                                >
-
-                                    <i class="bi bi-send me-2"></i>
-
-                                    Apply Now
-
-                                    <i class="bi bi-box-arrow-up-right ms-2"></i>
-
-                                </a>
-
-                            @endif
-
-                        </div>
+                        @endif
 
                     </div>
 
@@ -573,37 +736,85 @@
 
     </div>
 
+</div>
+
+
 </section>
 
-
-
 {{-- =========================================================
-     EXPIRED JOB NOTICE
+MAIN JOB CONTENT
 ========================================================= --}}
 
-@if($isExpired)
+<main class="container py-5">
 
-    <div class="container pt-4">
 
-        <div class="alert alert-secondary border rounded-4 mb-0">
+<div class="row g-4 g-lg-5">
+
+
+    {{-- =================================================
+         JOB DESCRIPTION
+    ================================================== --}}
+
+    <article class="col-lg-8">
+
+
+        {{-- DESCRIPTION CARD --}}
+
+        <div class="bg-white border rounded-4 shadow-sm p-4 p-lg-5">
+
+            <h2 class="h4 fw-bold mb-4">
+
+                <i class="bi bi-file-text text-primary me-2"></i>
+
+                Job Description
+
+            </h2>
+
+
+            @if($job->snippet)
+
+                <div class="job-description">
+
+                    {!! $job->snippet !!}
+
+                </div>
+
+            @else
+
+                <p class="text-muted mb-0">
+
+                    Job description is available on the employer's
+                    application page.
+
+                </p>
+
+            @endif
+
+        </div>
+
+
+        {{-- EXTERNAL JOB NOTICE --}}
+
+        <div class="alert alert-light border rounded-4 mt-4 mb-0">
 
             <div class="d-flex align-items-start">
 
-                <i class="bi bi-exclamation-circle fs-5 me-3"></i>
+                <i class="bi bi-info-circle text-primary fs-5 me-3"></i>
 
                 <div>
 
                     <div class="fw-semibold mb-1">
 
-                        This job has expired
+                        About this job listing
 
                     </div>
 
-                    <div class="small">
+                    <div class="text-muted small">
 
-                        This job opportunity is no longer available
-                        for applications. You can continue browsing
-                        other job opportunities on MyJobAlerts.
+                        This job opportunity is provided through our
+                        external job listing network. MyJobAlerts helps
+                        you discover job opportunities and redirects you
+                        to the original listing to apply.
 
                     </div>
 
@@ -613,86 +824,161 @@
 
         </div>
 
-    </div>
-
-@endif
+    </article>
 
 
+    {{-- =================================================
+         SIDEBAR
+    ================================================== --}}
 
-{{-- =========================================================
-     MAIN JOB CONTENT
-========================================================= --}}
-
-<main class="container py-5">
-
-    <div class="row g-4 g-lg-5">
+    <aside class="col-lg-4">
 
 
-        {{-- =================================================
-             JOB DESCRIPTION
-        ================================================== --}}
+        {{-- APPLY / OVERVIEW CARD --}}
 
-        <article class="col-lg-8">
+        <div class="bg-white border rounded-4 shadow-sm p-4 sticky-lg-top">          
 
 
-            {{-- DESCRIPTION CARD --}}
+            {{-- MINIMUM SALARY --}}
 
-            <div class="bg-white border rounded-4 shadow-sm p-4 p-lg-5">
+            @if($salaryMin !== null)
 
-                <h2 class="h4 fw-bold mb-4">
+                <div class="mb-4">
 
-                    <i class="bi bi-file-text text-primary me-2"></i>
+                    <div class="small text-muted mb-1">
 
-                    Job Description
-
-                </h2>
-
-
-                @if($job->snippet)
-
-                    <div class="job-description">
-
-                        {!! $job->snippet !!}
+                        Minimum Salary
 
                     </div>
 
-                @else
+                    <div class="fw-semibold">
 
-                    <p class="text-muted mb-0">
+                        <i class="bi bi-cash-stack text-success me-2"></i>
 
-                        Job description is available on the employer's
-                        application page.
+                        {{ $salaryMin }}
 
-                    </p>
+                        @if($salaryCurrency)
 
-                @endif
+                            {{ $salaryCurrency }}
 
-            </div>
+                        @endif
+
+                    </div>
+
+                </div>
+
+            @endif
 
 
+            {{-- MAXIMUM SALARY --}}
 
-            {{-- EXTERNAL JOB NOTICE --}}
+            @if($salaryMax !== null)
 
-            <div class="alert alert-light border rounded-4 mt-4 mb-0">
+                <div class="mb-4">
 
-                <div class="d-flex align-items-start">
+                    <div class="small text-muted mb-1">
 
-                    <i class="bi bi-info-circle text-primary fs-5 me-3"></i>
+                        Maximum Salary
+
+                    </div>
+
+                    <div class="fw-semibold">
+
+                        <i class="bi bi-cash-stack text-success me-2"></i>
+
+                        {{ $salaryMax }}
+
+                        @if($salaryCurrency)
+
+                            {{ $salaryCurrency }}
+
+                        @endif
+
+                    </div>
+
+                </div>
+
+            @endif
+
+
+            {{-- SALARY UNIT --}}
+
+            @if($salaryUnit !== null)
+
+                <div class="mb-4">
+
+                    <div class="small text-muted mb-1">
+
+                        Salary Unit
+
+                    </div>
+
+                    <div class="fw-semibold">
+
+                        {{ $salaryUnit }}
+
+                    </div>
+
+                </div>
+
+            @endif
+
+
+            {{-- APPLY BUTTON --}}
+
+            @if($job->job_url)
+
+                <a
+                    href="{{ $job->job_url }}"
+                    target="_blank"
+                    rel="nofollow sponsored"
+                    class="btn btn-primary btn-lg w-100 fw-semibold"
+                >
+
+                    Apply for this job
+
+                    <i class="bi bi-box-arrow-up-right ms-2"></i>
+
+                </a>
+
+            @endif
+
+
+            <hr class="my-4">
+
+
+            {{-- JOB OVERVIEW --}}
+
+            <h2 class="h5 fw-bold mb-4">
+
+                Job Overview
+
+            </h2>
+
+
+            {{-- COMPANY --}}
+
+            @if($job->company)
+
+                <div class="d-flex align-items-start gap-3 mb-4">
+
+                    <div class="text-primary fs-5">
+
+                        <i class="bi bi-building"></i>
+
+                    </div>
 
                     <div>
 
-                        <div class="fw-semibold mb-1">
+                        <div class="small text-muted">
 
-                            About this job listing
+                            Company
 
                         </div>
 
-                        <div class="text-muted small">
+                        <div class="fw-semibold">
 
-                            This job opportunity is provided through our
-                            external job listing network. MyJobAlerts helps
-                            you discover job opportunities and redirects you
-                            to the original listing to apply.
+                            {{ $job->company }}
 
                         </div>
 
@@ -700,334 +986,197 @@
 
                 </div>
 
-            </div>
+            @endif
 
-        </article>
 
+            {{-- LOCATION --}}
+
+            @if($job->location)
+
+                <div class="d-flex align-items-start gap-3 mb-4">
+
+                    <div class="text-primary fs-5">
+
+                        <i class="bi bi-geo-alt"></i>
+
+                    </div>
+
+                    <div>
+
+                        <div class="small text-muted">
+
+                            Location
+
+                        </div>
+
+                        <div class="fw-semibold">
+
+                            {{ $job->location }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            @endif
+
+
+            {{-- POSTAL CODE --}}
+
+            @if($postalCode !== null)
+
+                <div class="d-flex align-items-start gap-3 mb-4">
+
+                    <div class="text-primary fs-5">
+
+                        <i class="bi bi-mailbox"></i>
+
+                    </div>
+
+                    <div>
+
+                        <div class="small text-muted">
+
+                            Postal Code
+
+                        </div>
+
+                        <div class="fw-semibold">
+
+                            {{ $postalCode }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            @endif
+
+
+            {{-- JOB TYPE --}}
+
+            @if($job->job_type)
+
+                <div class="d-flex align-items-start gap-3 mb-4">
+
+                    <div class="text-primary fs-5">
+
+                        <i class="bi bi-briefcase"></i>
+
+                    </div>
+
+                    <div>
+
+                        <div class="small text-muted">
+
+                            Job Type
+
+                        </div>
+
+                        <div class="fw-semibold">
+
+                            {{ $job->job_type }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            @endif
+
+
+            {{-- POSTED --}}
+
+            @if(!is_null($job->age_days))
+
+                <div class="d-flex align-items-start gap-3">
+
+                    <div class="text-primary fs-5">
+
+                        <i class="bi bi-clock"></i>
+
+                    </div>
+
+                    <div>
+
+                        <div class="small text-muted">
+
+                            Posted
+
+                        </div>
+
+                        <div class="fw-semibold">
+
+                            @if($job->age_days === 0)
+
+                                Today
+
+                            @elseif($job->age_days === 1)
+
+                                Yesterday
+
+                            @else
+
+                                {{ $job->age_days }} days ago
+
+                            @endif
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            @endif
+
+        </div>
 
 
         {{-- =================================================
-             SIDEBAR
+             ORIGINAL LISTING CARD
         ================================================== --}}
 
-        <aside class="col-lg-4">
+        <div class="bg-white border rounded-4 shadow-sm p-4 mt-4">
 
+            <h2 class="h5 fw-bold mb-3">
 
-            {{-- APPLY / OVERVIEW CARD --}}
+                <i class="bi bi-globe2 text-primary me-2"></i>
 
-            <div class="bg-white border rounded-4 shadow-sm p-4 sticky-lg-top">
+                Original Job Listing
 
+            </h2>
 
-                {{-- SALARY --}}
 
-                @if($salary)
+            <p class="text-muted small mb-3">
 
-                    <div class="mb-4">
+                View the original job posting and complete your
+                application on the external job platform.
 
-                        <div class="small text-muted mb-1">
+            </p>
 
-                            Salary
 
-                        </div>
+            @if($job->job_url)
 
-                        <div class="h5 fw-bold mb-0">
+                <a
+                    href="{{ $job->job_url }}"
+                    target="_blank"
+                    rel="nofollow sponsored"
+                    class="fw-semibold text-decoration-none"
+                >
 
-                            <i class="bi bi-cash-stack text-success me-2"></i>
+                    View original job
 
-                            {{ $salary }}
+                    <i class="bi bi-arrow-right ms-1"></i>
 
-                        </div>
+                </a>
 
-                    </div>
-
-                @endif
-
-
-
-                {{-- APPLY / EXPIRED BUTTON --}}
-
-                @if($isExpired)
-
-                    <button
-                        type="button"
-                        class="btn btn-secondary btn-lg w-100 fw-semibold"
-                        disabled
-                    >
-
-                        <i class="bi bi-x-circle me-2"></i>
-
-                        Job Expired
-
-                    </button>
-
-                @elseif($job->job_url)
-
-                    <a
-                        href="{{ $job->job_url }}"
-                        target="_blank"
-                        rel="nofollow sponsored"
-                        class="btn btn-primary btn-lg w-100 fw-semibold"
-                    >
-
-                        Apply for this job
-
-                        <i class="bi bi-box-arrow-up-right ms-2"></i>
-
-                    </a>
-
-                @endif
-
-
-                <hr class="my-4">
-
-
-
-                {{-- JOB OVERVIEW --}}
-
-                <h2 class="h5 fw-bold mb-4">
-
-                    Job Overview
-
-                </h2>
-
-
-                {{-- COMPANY --}}
-
-                @if($job->company)
-
-                    <div class="d-flex align-items-start gap-3 mb-4">
-
-                        <div class="text-primary fs-5">
-
-                            <i class="bi bi-building"></i>
-
-                        </div>
-
-                        <div>
-
-                            <div class="small text-muted">
-
-                                Company
-
-                            </div>
-
-                            <div class="fw-semibold">
-
-                                {{ $job->company }}
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                @endif
-
-
-                {{-- LOCATION --}}
-
-                @if($job->location)
-
-                    <div class="d-flex align-items-start gap-3 mb-4">
-
-                        <div class="text-primary fs-5">
-
-                            <i class="bi bi-geo-alt"></i>
-
-                        </div>
-
-                        <div>
-
-                            <div class="small text-muted">
-
-                                Location
-
-                            </div>
-
-                            <div class="fw-semibold">
-
-                                {{ $job->location }}
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                @endif
-
-
-                {{-- JOB TYPE --}}
-
-                @if($job->job_type)
-
-                    <div class="d-flex align-items-start gap-3 mb-4">
-
-                        <div class="text-primary fs-5">
-
-                            <i class="bi bi-briefcase"></i>
-
-                        </div>
-
-                        <div>
-
-                            <div class="small text-muted">
-
-                                Job Type
-
-                            </div>
-
-                            <div class="fw-semibold">
-
-                                {{ $job->job_type }}
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                @endif
-
-
-                {{-- POSTED --}}
-
-                @if(!is_null($job->age_days))
-
-                    <div class="d-flex align-items-start gap-3">
-
-                        <div class="text-primary fs-5">
-
-                            <i class="bi bi-clock"></i>
-
-                        </div>
-
-                        <div>
-
-                            <div class="small text-muted">
-
-                                Posted
-
-                            </div>
-
-                            <div class="fw-semibold">
-
-                                @if($job->age_days === 0)
-
-                                    Today
-
-                                @elseif($job->age_days === 1)
-
-                                    Yesterday
-
-                                @else
-
-                                    {{ $job->age_days }} days ago
-
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                @endif
-            </div>
-            {{-- =================================================
-                 ORIGINAL LISTING CARD
-            ================================================== --}}
-
-            <div class="bg-white border rounded-4 shadow-sm p-4 mt-4">
-
-                <h2 class="h5 fw-bold mb-3">
-
-                    <i class="bi bi-globe2 text-primary me-2"></i>
-
-                    Original Job Listing
-
-                </h2>
-
-
-                @if($isExpired)
-
-                    <p class="text-muted small mb-0">
-
-                        This job listing has expired and is no longer
-                        available for applications.
-
-                    </p>
-
-                @else
-
-                    <p class="text-muted small mb-3">
-
-                        View the original job posting and complete your
-                        application on the external job platform.
-
-                    </p>
-
-
-                    @if($job->job_url)
-
-                        <a
-                            href="{{ $job->job_url }}"
-                            target="_blank"
-                            rel="nofollow sponsored"
-                            class="fw-semibold text-decoration-none"
-                        >
-                            View original job
-
-                            <i class="bi bi-arrow-right ms-1"></i>
-                        </a>
-                    @endif
-                @endif
-            </div>
-        </aside>
-    </div>
+            @endif
+        </div>
+    </aside>
+</div>
 </main>
-{{-- =========================================================
-     ADDED: MOBILE STICKY APPLY
-     Existing code above is unchanged.
-========================================================= --}}
-
-@if(!$isExpired && $job->job_url)
-
-    <div class="d-lg-none fixed-bottom bg-white border-top shadow-lg p-2">
-
-        <a
-            href="{{ $job->job_url }}"
-            target="_blank"
-            rel="nofollow sponsored"
-            class="btn btn-primary btn-lg w-100 fw-semibold"
-        >
-
-            <i class="bi bi-send me-2"></i>
-
-            Apply Now
-
-            <i class="bi bi-box-arrow-up-right ms-2"></i>
-
-        </a>
-
-    </div>
-
-@endif
-
-
-
-{{-- =========================================================
-     JOBPOSTING STRUCTURED DATA
-========================================================= --}}
-
-@if(!$isExpired)
-
-    <script type="application/ld+json">
-    {!! json_encode(
-        $jobPostingSchema,
-        JSON_UNESCAPED_SLASHES |
-        JSON_UNESCAPED_UNICODE |
-        JSON_PRETTY_PRINT
-    ) !!}
-    </script>
-
-@endif
-
 
 @endsection
