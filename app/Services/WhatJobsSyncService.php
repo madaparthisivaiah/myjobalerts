@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use RuntimeException;
 use App\Services\WhatJobs\HomePageJobService;
-use App\Services\Whatjobs\WhatJobsSearchPageCacheService;
+use App\Services\WhatJobs\WhatJobsSearchPageCacheService;
 
 class WhatJobsSyncService
 {
