@@ -1,21 +1,15 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>
         {{ $metaTitle ?? View::yieldContent('title', 'MyJobAlerts - Find Your Dream Job') }}
     </title>
-
     <meta
         name="description"
         content="{{ $metaDescription ?? View::yieldContent('meta_description', 'Find the latest jobs in India by job title, company, city and state. Search and discover job opportunities from leading employers and job platforms on MyJobAlerts.in.') }}"
     >
-
     <link
         rel="canonical"
         href="@yield('canonical', url()->current())"
@@ -73,21 +67,14 @@
 
     @endif
 
-
     {{-- =========================================================
          JOBPOSTING JSON-LD
          Used only on active job detail pages
     ========================================================== --}}
 
-    @if (
-        request()->segment(1) === 'viewjob' &&
-        isset($job) &&
-        $job &&
-        $job->is_active == 1
-    )
+    @if (request()->segment(1) === 'viewjob' && isset($job) && $job->is_active == true)
 
         @php
-
             /*
             |--------------------------------------------------------------------------
             | Clean Description

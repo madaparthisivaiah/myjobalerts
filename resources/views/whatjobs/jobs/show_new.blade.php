@@ -571,13 +571,27 @@ COMPACT JOB HEADER
 
                     <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
 
-                        <span class="badge text-bg-primary px-3 py-2">
+                        @if($isExpired)
 
-                            <i class="bi bi-briefcase me-1"></i>
+                                <span class="badge text-bg-secondary px-3 py-2">
 
-                            Job Opportunity
+                                    <i class="bi bi-x-circle me-1"></i>
 
-                        </span>
+                                    Job Expired
+
+                                </span>
+
+                            @else
+
+                                <span class="badge text-bg-primary px-3 py-2">
+
+                                    <i class="bi bi-briefcase me-1"></i>
+
+                                    Job Opportunity
+
+                                </span>
+
+                            @endif
 
 
                         @if(!is_null($job->age_days))
@@ -707,7 +721,21 @@ COMPACT JOB HEADER
 
                         {{-- HEADER APPLY BUTTON --}}
 
-                        @if($job->job_url)
+                         @if($isExpired)
+
+                                <button
+                                    type="button"
+                                    class="btn btn-secondary btn-lg fw-semibold px-4"
+                                    disabled
+                                >
+
+                                    <i class="bi bi-x-circle me-2"></i>
+
+                                    Expired
+
+                                </button>
+
+                            @elseif($job->job_url)
 
                             <a
                                 href="{{ $job->job_url }}"
@@ -740,6 +768,46 @@ COMPACT JOB HEADER
 
 
 </section>
+
+{{-- =========================================================
+     EXPIRED JOB NOTICE
+========================================================= --}}
+
+@if($isExpired)
+
+    <div class="container pt-4">
+
+        <div class="alert alert-secondary border rounded-4 mb-0">
+
+            <div class="d-flex align-items-start">
+
+                <i class="bi bi-exclamation-circle fs-5 me-3"></i>
+
+                <div>
+
+                    <div class="fw-semibold mb-1">
+
+                        This job has expired
+
+                    </div>
+
+                    <div class="small">
+
+                        This job opportunity is no longer available
+                        for applications. You can continue browsing
+                        other job opportunities on MyJobAlerts.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+@endif
 
 {{-- =========================================================
 MAIN JOB CONTENT
@@ -921,12 +989,25 @@ MAIN JOB CONTENT
 
                 </div>
 
-            @endif
+            @endif          
 
+            {{-- APPLY / EXPIRED BUTTON --}}
 
-            {{-- APPLY BUTTON --}}
+                @if($isExpired)
 
-            @if($job->job_url)
+                    <button
+                        type="button"
+                        class="btn btn-secondary btn-lg w-100 fw-semibold"
+                        disabled
+                    >
+
+                        <i class="bi bi-x-circle me-2"></i>
+
+                        Job Expired
+
+                    </button>
+
+                @elseif($job->job_url)
 
                 <a
                     href="{{ $job->job_url }}"
@@ -1158,7 +1239,23 @@ MAIN JOB CONTENT
             </p>
 
 
-            @if($job->job_url)
+            {{-- APPLY / EXPIRED BUTTON --}}
+
+                @if($isExpired)
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary btn-lg w-100 fw-semibold"
+                        disabled
+                    >
+
+                        <i class="bi bi-x-circle me-2"></i>
+
+                        Job Expired
+
+                    </button>
+
+                @elseif($job->job_url)
 
                 <a
                     href="{{ $job->job_url }}"
