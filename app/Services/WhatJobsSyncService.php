@@ -8,13 +8,15 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use RuntimeException;
 use App\Services\WhatJobs\HomePageJobService;
+use App\Services\whatjobs\WhatJobsSearchPageCacheService;
 
 class WhatJobsSyncService
 {
     public function __construct(
         protected WhatJobsService $whatJobs,
         protected SitemapService $sitemapService,
-        protected HomePageJobService $homePageJobService 
+        protected HomePageJobService $homePageJobService ,
+        protected WhatJobsSearchPageCacheService $searchPageCache
     ) {
     }
 
@@ -142,6 +144,20 @@ class WhatJobsSyncService
 
         //Refresh the cache
         $this->homePageJobService->refreshHomepageCache();
+
+        // Refresh the cache
+        $this->homePageJobService->refreshHomepageCache();
+
+        // Refresh WhatJobs search-page cache version.
+        //
+        // IMPORTANT:
+        // This happens only after the complete WhatJobs sync
+        // has successfully processed all pages.
+        $searchCacheVersion = $this->searchPageCache->newVersion();
+
+        Log::info('WhatJobs search cache version refreshed', [
+            'version' => $searchCacheVersion,
+        ]);
 
         /*
         |--------------------------------------------------------------------------
