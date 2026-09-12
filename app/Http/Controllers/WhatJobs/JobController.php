@@ -455,7 +455,6 @@ class JobController extends Controller
         */
 
         $isExpired = ((int) $job->is_active === 1);
-dd($isExpired);
         /*
         |--------------------------------------------------------------------------
         | Expired Job
