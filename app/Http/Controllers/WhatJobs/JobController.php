@@ -176,6 +176,8 @@ class JobController extends Controller
             ->paginate(20)
             ->withQueryString();
 
+        /*****No jobs with pagainations iw ll show 404**** */
+        $httpStatus = $jobs->isEmpty() ? 404 : 200;
         /*
         |--------------------------------------------------------------------------
         | Sidebar Companies
@@ -295,24 +297,16 @@ class JobController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        return view('whatjobs.jobs.index', [
-
+        return response()->view('whatjobs.jobs.index', [
             'jobs' => $jobs,
-
             'companies' => $companies,
-
             'keyword' => $keyword,
-
             'location' => $location,
-
             'company' => $company,
-
             'sort' => $sort,
-
             'pageTitle' => $pageTitle,
-
             'metaDescription' => $metaDescription,
-        ]);
+        ], $httpStatus);
     }
 
     /**
