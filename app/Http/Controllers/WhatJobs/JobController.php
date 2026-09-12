@@ -450,8 +450,8 @@ class JobController extends Controller
         |--------------------------------------------------------------------------
         |
         | WhatJobs:
-        | is_active = 0 → Active
-        | is_active = 1 → Inactive / Expired
+        | is_active = 1 → Active
+        | is_active = 0 → Inactive / Expired
         |
         */
 

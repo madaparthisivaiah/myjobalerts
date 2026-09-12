@@ -58,7 +58,7 @@ class HomePageJobService
     /**
      * Get active WhatJobs jobs only.
      *
-     * is_active = 0 means active.
+     * is_active = 1 means active.
      */
     protected function getActiveWhatJobs(): Collection
     {

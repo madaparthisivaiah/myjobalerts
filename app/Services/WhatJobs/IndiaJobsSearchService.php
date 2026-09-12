@@ -71,7 +71,7 @@ class IndiaJobsSearchService
          * Your existing WhatJobs convention uses:
          *
          * provider = whatjobs
-         * is_active = 0
+         * is_active = 1
          *
          * We preserve that exactly.
          */

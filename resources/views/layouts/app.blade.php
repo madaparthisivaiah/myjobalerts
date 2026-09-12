@@ -31,7 +31,7 @@
     @endif 
     
     {{-- JobPosting JSON-LD --}}
-    @if (request()->segment(1) === 'viewjob' && isset($job) && $job && $job->is_active == 0)
+    @if (request()->segment(1) === 'viewjob' && isset($job) && $job && $job->is_active == 1)
         @php
         $description = trim(
             preg_replace(
