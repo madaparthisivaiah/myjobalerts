@@ -13,14 +13,14 @@ Search and explore job opportunities from across India on MyJobAlerts.
      HERO
 ========================================================= --}}
 
-<section class="whatjobs-hero">
-    <div class="container">
+<section class="bg-primary bg-gradient bg-opacity-10 py-5">
+    <div class="container py-4">
 
         <div class="row align-items-center">
 
             <div class="col-lg-8 mx-auto text-center">
 
-                <span class="section-label">
+                <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis px-3 py-2 fw-semibold text-uppercase small">
                     <i class="bi bi-briefcase-fill me-1"></i>
                     WHATJOBS JOBS
                 </span>
@@ -36,7 +36,7 @@ Search and explore job opportunities from across India on MyJobAlerts.
 
                 <div class="mt-4">
 
-                    <a href="{{ route('jobs.index') }}" class="btn btn-primary btn-lg px-4">
+                    <a href="{{ route('jobs.index') }}" class="btn btn-primary btn-lg rounded-pill px-4 shadow-sm">
 
                         <i class="bi bi-search me-2"></i>
 
@@ -50,7 +50,7 @@ Search and explore job opportunities from across India on MyJobAlerts.
 
                 <div class="mt-3 text-muted">
 
-                    <strong>
+                    <strong class="text-primary-emphasis">
                         {{ number_format($totalJobs) }}
                     </strong>
 
@@ -72,18 +72,18 @@ Search and explore job opportunities from across India on MyJobAlerts.
      LATEST JOBS
 ========================================================= --}}
 
-<section class="section-padding">
+<section class="py-5">
 
     <div class="container">
 
-        <div class="section-heading text-center mb-5">
+        <div class="text-center mb-5">
 
-            <span class="section-label">
+            <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis px-3 py-2 fw-semibold text-uppercase small">
                 <i class="bi bi-clock-history me-1"></i>
                 LATEST JOBS
             </span>
 
-            <h2 class="mt-2">
+            <h2 class="fw-bold mt-3">
                 Latest Job Opportunities
             </h2>
 
@@ -100,20 +100,20 @@ Search and explore job opportunities from across India on MyJobAlerts.
 
             <div class="col-lg-4 col-md-6">
 
-                <div class="card h-100 border-0 shadow-sm job-card">
+                <div class="card h-100 border-0 rounded-4 shadow-sm">
 
-                    <div class="card-body">
+                    <div class="card-body p-4">
 
                         <div class="d-flex align-items-start">
 
                             @if(!empty($job->logo))
 
                             <img src="{{ $job->logo }}" alt="{{ $job->company ?? 'Company' }}"
-                                class="job-company-logo me-3" width="50" height="50" loading="lazy">
+                                class="rounded-3 border object-fit-contain bg-light p-1 me-3" width="50" height="50" loading="lazy">
 
                             @else
 
-                            <div class="job-logo-placeholder me-3">
+                            <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary-emphasis rounded-3 fs-4 p-3 me-3">
 
                                 <i class="bi bi-building"></i>
 
@@ -124,9 +124,9 @@ Search and explore job opportunities from across India on MyJobAlerts.
 
                             <div class="flex-grow-1">
 
-                                <h5 class="mb-1">
+                                <h5 class="fw-bold mb-1">
 
-                                    <a href="{{ url('job/' . $job->slug) }}" class="text-decoration-none text-dark">
+                                    <a href="{{ url('job/' . $job->slug) }}" class="text-decoration-none text-dark stretched-link">
                                         {{ $job->title }}
                                     </a>
 
@@ -150,11 +150,11 @@ Search and explore job opportunities from across India on MyJobAlerts.
                         </div>
 
 
-                        <div class="job-meta mt-3">
+                        <div class="d-flex flex-wrap gap-3 text-muted small mt-3">
 
                             @if($job->location)
 
-                            <span class="me-3">
+                            <span>
 
                                 <i class="bi bi-geo-alt me-1"></i>
 
@@ -203,7 +203,7 @@ Search and explore job opportunities from across India on MyJobAlerts.
 
             <div class="col-12">
 
-                <div class="alert alert-light text-center">
+                <div class="alert alert-light border-0 rounded-4 shadow-sm text-center">
 
                     No jobs are currently available.
 
@@ -220,7 +220,7 @@ Search and explore job opportunities from across India on MyJobAlerts.
 
         <div class="text-center mt-5">
 
-            <a href="{{ route('jobs.index') }}" class="btn btn-outline-primary px-4">
+            <a href="{{ route('jobs.index') }}" class="btn btn-outline-primary rounded-pill px-4">
 
                 View All Jobs
 
@@ -242,13 +242,13 @@ Search and explore job opportunities from across India on MyJobAlerts.
      JOBS BY STATE
 ========================================================= --}}
 
-<section class="section-padding bg-light-subtle">
+<section class="py-5 bg-light-subtle">
 
     <div class="container">
 
-        <div class="section-heading text-center mb-5">
+        <div class="text-center mb-5">
 
-            <span class="section-label">
+            <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis px-3 py-2 fw-semibold text-uppercase small">
 
                 <i class="bi bi-map me-1"></i>
 
@@ -256,7 +256,7 @@ Search and explore job opportunities from across India on MyJobAlerts.
 
             </span>
 
-            <h2 class="mt-2">
+            <h2 class="fw-bold mt-3">
 
                 Find Jobs by State
 
@@ -283,32 +283,36 @@ Search and explore job opportunities from across India on MyJobAlerts.
                             ['state' => $state['slug']]
                         ) }}" class="text-decoration-none">
 
-                    <div class="browse-card h-100">
+                    <div class="card h-100 border-0 rounded-4 shadow-sm">
 
-                        <div class="browse-icon">
+                        <div class="card-body d-flex align-items-center p-3">
 
-                            <i class="bi bi-geo-alt-fill"></i>
+                            <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary-emphasis rounded-circle fs-4 p-3 flex-shrink-0 me-3">
+
+                                <i class="bi bi-geo-alt-fill"></i>
+
+                            </div>
+
+                            <div class="flex-grow-1">
+
+                                <h5 class="fw-bold mb-1 text-truncate text-dark">
+
+                                    {{ $state['name'] }}
+
+                                </h5>
+
+                                <span class="text-muted small">
+
+                                    {{ number_format($state['count']) }}
+                                    {{ Str::plural('job', $state['count']) }}
+
+                                </span>
+
+                            </div>
+
+                            <i class="bi bi-arrow-right text-primary-emphasis ms-2"></i>
 
                         </div>
-
-                        <div class="browse-content">
-
-                            <h5 class="mb-1">
-
-                                {{ $state['name'] }}
-
-                            </h5>
-
-                            <span class="text-muted small">
-
-                                {{ number_format($state['count']) }}
-                                {{ Str::plural('job', $state['count']) }}
-
-                            </span>
-
-                        </div>
-
-                        <i class="bi bi-arrow-right browse-arrow"></i>
 
                     </div>
 
@@ -330,13 +334,13 @@ Search and explore job opportunities from across India on MyJobAlerts.
      JOBS BY CITY
 ========================================================= --}}
 
-<section class="section-padding">
+<section class="py-5">
 
     <div class="container">
 
-        <div class="section-heading text-center mb-5">
+        <div class="text-center mb-5">
 
-            <span class="section-label">
+            <span class="badge rounded-pill bg-info-subtle text-info-emphasis px-3 py-2 fw-semibold text-uppercase small">
 
                 <i class="bi bi-buildings me-1"></i>
 
@@ -344,7 +348,7 @@ Search and explore job opportunities from across India on MyJobAlerts.
 
             </span>
 
-            <h2 class="mt-2">
+            <h2 class="fw-bold mt-3">
 
                 Find Jobs by City
 
@@ -371,32 +375,36 @@ Search and explore job opportunities from across India on MyJobAlerts.
                             ['city' => $city['slug']]
                         ) }}" class="text-decoration-none">
 
-                    <div class="browse-card h-100">
+                    <div class="card h-100 border-0 rounded-4 shadow-sm">
 
-                        <div class="browse-icon">
+                        <div class="card-body d-flex align-items-center p-3">
 
-                            <i class="bi bi-buildings-fill"></i>
+                            <div class="d-inline-flex align-items-center justify-content-center bg-info-subtle text-info-emphasis rounded-circle fs-4 p-3 flex-shrink-0 me-3">
+
+                                <i class="bi bi-buildings-fill"></i>
+
+                            </div>
+
+                            <div class="flex-grow-1">
+
+                                <h5 class="fw-bold mb-1 text-truncate text-dark">
+
+                                    {{ $city['name'] }}
+
+                                </h5>
+
+                                <span class="text-muted small">
+
+                                    {{ number_format($city['count']) }}
+                                    {{ Str::plural('job', $city['count']) }}
+
+                                </span>
+
+                            </div>
+
+                            <i class="bi bi-arrow-right text-info-emphasis ms-2"></i>
 
                         </div>
-
-                        <div class="browse-content">
-
-                            <h5 class="mb-1">
-
-                                {{ $city['name'] }}
-
-                            </h5>
-
-                            <span class="text-muted small">
-
-                                {{ number_format($city['count']) }}
-                                {{ Str::plural('job', $city['count']) }}
-
-                            </span>
-
-                        </div>
-
-                        <i class="bi bi-arrow-right browse-arrow"></i>
 
                     </div>
 
@@ -418,13 +426,13 @@ Search and explore job opportunities from across India on MyJobAlerts.
      JOBS BY COMPANY
 ========================================================= --}}
 
-<section class="section-padding bg-light-subtle">
+<section class="py-5 bg-light-subtle">
 
     <div class="container">
 
-        <div class="section-heading text-center mb-5">
+        <div class="text-center mb-5">
 
-            <span class="section-label">
+            <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis px-3 py-2 fw-semibold text-uppercase small">
 
                 <i class="bi bi-building me-1"></i>
 
@@ -432,7 +440,7 @@ Search and explore job opportunities from across India on MyJobAlerts.
 
             </span>
 
-            <h2 class="mt-2">
+            <h2 class="fw-bold mt-3">
 
                 Explore Jobs by Company
 
@@ -459,32 +467,36 @@ Search and explore job opportunities from across India on MyJobAlerts.
                             ['company' => $company['slug']]
                         ) }}" class="text-decoration-none">
 
-                    <div class="browse-card h-100">
+                    <div class="card h-100 border-0 rounded-4 shadow-sm">
 
-                        <div class="browse-icon">
+                        <div class="card-body d-flex align-items-center p-3">
 
-                            <i class="bi bi-building-fill"></i>
+                            <div class="d-inline-flex align-items-center justify-content-center bg-warning-subtle text-warning-emphasis rounded-circle fs-4 p-3 flex-shrink-0 me-3">
+
+                                <i class="bi bi-building-fill"></i>
+
+                            </div>
+
+                            <div class="flex-grow-1">
+
+                                <h5 class="fw-bold mb-1 text-truncate text-dark">
+
+                                    {{ $company['name'] }}
+
+                                </h5>
+
+                                <span class="text-muted small">
+
+                                    {{ number_format($company['count']) }}
+                                    {{ Str::plural('job', $company['count']) }}
+
+                                </span>
+
+                            </div>
+
+                            <i class="bi bi-arrow-right text-warning-emphasis ms-2"></i>
 
                         </div>
-
-                        <div class="browse-content">
-
-                            <h5 class="mb-1">
-
-                                {{ $company['name'] }}
-
-                            </h5>
-
-                            <span class="text-muted small">
-
-                                {{ number_format($company['count']) }}
-                                {{ Str::plural('job', $company['count']) }}
-
-                            </span>
-
-                        </div>
-
-                        <i class="bi bi-arrow-right browse-arrow"></i>
 
                     </div>
 
@@ -506,7 +518,7 @@ Search and explore job opportunities from across India on MyJobAlerts.
      FINAL CTA
 ========================================================= --}}
 
-<section class="section-padding">
+<section class="py-5">
 
     <div class="container">
 
@@ -514,9 +526,9 @@ Search and explore job opportunities from across India on MyJobAlerts.
 
             <div class="col-lg-9 mx-auto">
 
-                <div class="browse-jobs-cta text-center">
+                <div class="bg-primary bg-gradient bg-opacity-10 rounded-5 shadow-lg text-center p-5">
 
-                    <span class="section-label">
+                    <span class="badge rounded-pill bg-white text-primary-emphasis px-3 py-2 fw-semibold text-uppercase small shadow-sm">
 
                         <i class="bi bi-search me-1"></i>
 
@@ -524,7 +536,7 @@ Search and explore job opportunities from across India on MyJobAlerts.
 
                     </span>
 
-                    <h2 class="mt-3">
+                    <h2 class="fw-bold mt-3">
 
                         Ready to Find Your Next Opportunity?
 
@@ -537,7 +549,7 @@ Search and explore job opportunities from across India on MyJobAlerts.
 
                     </p>
 
-                    <a href="{{ route('jobs.index') }}" class="btn btn-primary btn-lg px-4 mt-2">
+                    <a href="{{ route('jobs.index') }}" class="btn btn-primary btn-lg rounded-pill px-4 mt-2 shadow-sm">
 
                         Browse Jobs
 
@@ -557,184 +569,3 @@ Search and explore job opportunities from across India on MyJobAlerts.
 
 
 @endsection
-
-
-
-@push('styles')
-
-<style>
-.whatjobs-hero {
-    padding: 90px 0;
-    background: linear-gradient(180deg,
-            #f8faff 0%,
-            #ffffff 100%);
-}
-
-
-.section-padding {
-    padding: 70px 0;
-}
-
-
-.section-label {
-    display: inline-block;
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-}
-
-
-.job-card {
-    transition:
-        transform 0.25s ease,
-        box-shadow 0.25s ease;
-}
-
-
-.job-card:hover {
-    transform: translateY(-5px);
-    box-shadow:
-        0 12px 30px rgba(0, 0, 0, 0.10) !important;
-}
-
-
-.job-company-logo {
-    object-fit: contain;
-    border-radius: 8px;
-    background: #f8f9fa;
-}
-
-
-.job-logo-placeholder {
-    width: 50px;
-    height: 50px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 8px;
-
-    background: #f1f3f5;
-
-    font-size: 1.25rem;
-}
-
-
-.job-meta {
-    font-size: 0.85rem;
-    color: #6c757d;
-}
-
-
-.browse-card {
-    display: flex;
-    align-items: center;
-
-    position: relative;
-
-    padding: 20px;
-
-    background: #ffffff;
-
-    border: 1px solid #e9ecef;
-
-    border-radius: 12px;
-
-    transition:
-        transform 0.25s ease,
-        box-shadow 0.25s ease,
-        border-color 0.25s ease;
-}
-
-
-.browse-card:hover {
-    transform: translateY(-6px);
-
-    border-color: #dee2e6;
-
-    box-shadow:
-        0 12px 30px rgba(0, 0, 0, 0.08);
-}
-
-
-.browse-icon {
-    width: 48px;
-    height: 48px;
-
-    flex-shrink: 0;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    margin-right: 15px;
-
-    border-radius: 10px;
-
-    background: #f1f3f5;
-
-    font-size: 1.2rem;
-}
-
-
-.browse-content {
-    min-width: 0;
-    padding-right: 25px;
-}
-
-
-.browse-content h5 {
-    color: #212529;
-
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-
-.browse-arrow {
-    position: absolute;
-
-    right: 18px;
-
-    color: #adb5bd;
-
-    transition:
-        transform 0.25s ease,
-        color 0.25s ease;
-}
-
-
-.browse-card:hover .browse-arrow {
-    transform: translateX(5px);
-    color: #212529;
-}
-
-
-.browse-jobs-cta {
-    padding: 60px 30px;
-
-    border-radius: 16px;
-
-    background: #f8f9fa;
-
-    border: 1px solid #e9ecef;
-}
-
-
-@media (max-width: 767px) {
-
-    .whatjobs-hero {
-        padding: 60px 0;
-    }
-
-    .section-padding {
-        padding: 50px 0;
-    }
-
-}
-</style>
-
-@endpush

@@ -1,38 +1,32 @@
 @extends('layouts.app')
-
 @section('title', 'Jobs in India - Latest Job Vacancies and Careers | MyJobAlerts')
-
-@section('meta_description', 'Discover the latest jobs in India by company, location and job title. Search thousands of
-job opportunities and apply directly through the original job listing.')
-
+@section('meta_description', 'Discover the latest jobs in India by company, location, and job title. Search thousands of job opportunities and apply directly through the original job listing.')
 @section('content')
-
-
 {{-- =========================================================
      HERO
 ========================================================= --}}
 
-<section class="home-hero">
+<section class="home-hero py-5">
 
-    <div class="container">
+    <div class="container py-4">
 
         <div class="row justify-content-center">
 
             <div class="col-xl-9 text-center">
 
-                <span class="hero-label">
+                <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis px-3 py-2 fw-semibold text-uppercase small">
                     FIND YOUR NEXT OPPORTUNITY
                 </span>
 
-                <h1 class="hero-title">
+                <h1 class="display-4 fw-bold mt-3">
 
                     Find a job that
 
-                    <span>fits your life.</span>
+                    <span class="text-primary">fits your life.</span>
 
                 </h1>
 
-                <p class="hero-description">
+                <p class="hero-description mt-3">
 
                     Discover thousands of jobs from companies hiring
                     talented people like you.
@@ -42,60 +36,68 @@ job opportunities and apply directly through the original job listing.')
 
                 {{-- SEARCH --}}
 
-                <form action="{{ route('jobs.index') }}" method="GET" class="hero-search">
+                <div class="bg-white border-0 rounded-5 shadow-lg p-3 p-lg-4 mt-4">
 
-                    <div class="row g-2">
+                    <form action="{{ route('jobs.index') }}" method="GET">
+
+                        <div class="row g-2">
 
 
-                        {{-- KEYWORD --}}
+                            {{-- KEYWORD --}}
 
-                        <div class="col-lg-5">
+                            <div class="col-lg-5">
 
-                            <div class="search-input">
+                                <div class="input-group rounded-pill overflow-hidden shadow-sm">
 
-                                <i class="bi bi-search"></i>
+                                    <span class="input-group-text bg-primary-subtle text-primary-emphasis border-0">
+                                        <i class="bi bi-search"></i>
+                                    </span>
 
-                                <input type="text" name="keyword" class="form-control"
-                                    placeholder="Job title, keyword or company" value="{{ request('keyword') }}">
+                                    <input type="text" name="keyword" class="form-control border-0 bg-light"
+                                        placeholder="Job title, keyword or company" value="{{ request('keyword') }}">
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- LOCATION --}}
+
+                            <div class="col-lg-4">
+
+                                <div class="input-group rounded-pill overflow-hidden shadow-sm">
+
+                                    <span class="input-group-text bg-primary-subtle text-primary-emphasis border-0">
+                                        <i class="bi bi-geo-alt"></i>
+                                    </span>
+
+                                    <input type="text" name="location" class="form-control border-0 bg-light"
+                                        placeholder="City, state or remote" value="{{ request('location') }}">
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- SEARCH BUTTON --}}
+
+                            <div class="col-lg-3">
+
+                                <button type="submit" class="btn btn-primary rounded-pill shadow-sm w-100 h-100">
+
+                                    <i class="bi bi-search me-1"></i>
+
+                                    Search Jobs
+
+                                </button>
 
                             </div>
 
                         </div>
 
+                    </form>
 
-                        {{-- LOCATION --}}
-
-                        <div class="col-lg-4">
-
-                            <div class="search-input">
-
-                                <i class="bi bi-geo-alt"></i>
-
-                                <input type="text" name="location" class="form-control"
-                                    placeholder="City, state or remote" value="{{ request('location') }}">
-
-                            </div>
-
-                        </div>
-
-
-                        {{-- SEARCH BUTTON --}}
-
-                        <div class="col-lg-3">
-
-                            <button type="submit" class="btn btn-primary search-btn w-100">
-
-                                <i class="bi bi-search me-1"></i>
-
-                                Search Jobs
-
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                </form>
+                </div>
 
             </div>
 
@@ -111,7 +113,7 @@ job opportunities and apply directly through the original job listing.')
      LATEST JOBS
 ========================================================= --}}
 
-<section class="section-padding">
+<section class="py-5">
 
     <div class="container">
 
@@ -122,7 +124,7 @@ job opportunities and apply directly through the original job listing.')
 
             <div class="col-lg-8">
 
-                <span class="section-label">
+                <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis px-3 py-2 fw-semibold text-uppercase small">
 
                     <i class="bi bi-lightning-charge-fill me-1"></i>
 
@@ -130,7 +132,7 @@ job opportunities and apply directly through the original job listing.')
 
                 </span>
 
-                <h2 class="fw-bold mt-2 mb-2">
+                <h2 class="fw-bold mt-3 mb-2">
 
                     Latest Job Opportunities
 
@@ -148,7 +150,7 @@ job opportunities and apply directly through the original job listing.')
 
             <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
 
-                <a href="{{ route('jobs.index') }}" class="btn btn-outline-primary">
+                <a href="{{ route('jobs.index') }}" class="btn btn-outline-primary rounded-pill">
 
                     Explore All Jobs
 
@@ -173,73 +175,77 @@ job opportunities and apply directly through the original job listing.')
             {{-- TWO JOBS PER ROW --}}
             <div class="col-12 col-md-6">
 
-                <article class="search-job-card h-100">
+                <article class="card h-100 border-0 rounded-4 shadow-sm">
+
+                    <div class="card-body d-flex flex-column p-4">
 
 
-                    {{-- LOGO --}}
-                    <div class="job-logo-wrapper">
+                        {{-- LOGO + TITLE --}}
+                        <div class="d-flex align-items-start gap-3 mb-3">
 
-                        @if($job->logo)
+                            {{-- LOGO --}}
+                            @if($job->logo)
 
-                        <img src="{{ $job->logo }}" alt="{{ $job->company }}" class="job-company-logo" loading="lazy">
+                            <img src="{{ $job->logo }}" alt="{{ $job->company }}"
+                                class="rounded-3 border shadow-sm" width="56" height="56" loading="lazy">
 
-                        @else
+                            @else
 
-                        <div class="job-company-logo-placeholder">
+                            <div class="bg-primary-subtle text-primary-emphasis rounded-3 d-flex align-items-center justify-content-center fw-bold fs-4 p-3">
 
-                            {{ strtoupper(
-                                            substr(
-                                                $job->company ?: $job->title,
-                                                0,
-                                                1
-                                            )
-                                        ) }}
+                                {{ strtoupper(
+                                                substr(
+                                                    $job->company ?: $job->title,
+                                                    0,
+                                                    1
+                                                )
+                                            ) }}
+
+                            </div>
+
+                            @endif
+
+
+                            <div class="flex-grow-1">
+
+                                {{-- JOB TITLE --}}
+                                <h3 class="h6 fw-bold mb-1">
+
+                                    <a href="{{ url('viewjob/' . $job->slug) }}" class="text-decoration-none text-dark stretched-link">
+                                        {{ $job->title }}
+                                    </a>
+
+                                </h3>
+
+
+                                {{-- COMPANY --}}
+                                @if($job->company)
+
+                                <div class="small text-muted">
+
+                                    <i class="bi bi-building me-1"></i>
+
+                                    {{ $job->company }}
+
+                                </div>
+
+                                @endif
+
+                            </div>
 
                         </div>
-
-                        @endif
-
-                    </div>
-
-
-                    {{-- JOB CONTENT --}}
-                    <div class="search-job-content">
-
-
-                        {{-- JOB TITLE --}}
-                        <h3 class="mb-2">
-
-                            <a href="{{ url('viewjob/' . $job->slug) }}" class="text-decoration-none text-dark">
-                                {{ $job->title }}
-                            </a>
-
-                        </h3>
-
-
-                        {{-- COMPANY --}}
-                        @if($job->company)
-
-                        <div class="company-name mb-2">
-
-                            <i class="bi bi-building me-1"></i>
-
-                            {{ $job->company }}
-
-                        </div>
-
-                        @endif
 
 
                         {{-- JOB META --}}
-                        <div class="job-meta">
+                        <div class="d-flex flex-wrap gap-2 mb-3">
 
 
                             {{-- LOCATION --}}
                             @if($job->location)
 
-                            <span>
+                            <span class="badge rounded-pill bg-info-subtle text-info-emphasis fw-normal px-3 py-2">
 
-                                <i class="bi bi-geo-alt"></i>
+                                <i class="bi bi-geo-alt me-1"></i>
 
                                 {{ $job->location }}
 
@@ -251,9 +257,9 @@ job opportunities and apply directly through the original job listing.')
                             {{-- JOB TYPE --}}
                             @if($job->job_type)
 
-                            <span>
+                            <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis fw-normal px-3 py-2">
 
-                                <i class="bi bi-briefcase"></i>
+                                <i class="bi bi-briefcase me-1"></i>
 
                                 {{ $job->job_type }}
 
@@ -279,9 +285,9 @@ job opportunities and apply directly through the original job listing.')
                             $salary !== '0 - 0'
                             )
 
-                            <span>
+                            <span class="badge rounded-pill bg-success-subtle text-success-emphasis fw-normal px-3 py-2">
 
-                                <i class="bi bi-currency-rupee"></i>
+                                <i class="bi bi-currency-rupee me-1"></i>
 
                                 {{ $salary }}
 
@@ -297,14 +303,14 @@ job opportunities and apply directly through the original job listing.')
                         {{-- JOB SNIPPET --}}
                         @if($job->snippet)
 
-                        <div class="mt-2 text-muted small">
+                        <p class="text-muted small mb-3">
 
                             {!! Str::limit(
                             strip_tags($job->snippet),
                             180
                             ) !!}
 
-                        </div>
+                        </p>
 
                         @endif
 
@@ -312,9 +318,9 @@ job opportunities and apply directly through the original job listing.')
                         {{-- POSTED DATE --}}
                         @if(!is_null($job->age_days))
 
-                        <div class="job-tags mt-2">
+                        <div class="mb-3">
 
-                            <span class="posted-badge">
+                            <span class="badge rounded-pill bg-body-secondary text-body-secondary border px-3 py-2 fw-normal">
 
                                 @if($job->age_days === 0)
 
@@ -337,14 +343,31 @@ job opportunities and apply directly through the original job listing.')
                         </div>
 
                         @endif
-                        {{-- VIEW JOB + QUICK APPLY --}} <div class="d-flex gap-2 mt-3"> {{-- VIEW JOB --}} <a
-                                href="{{ url('viewjob/' . $job->slug) }}"
-                                class="btn btn-primary btn-sm flex-grow-1 fw-semibold"> <i class="bi bi-eye me-1"></i>
-                                View Job </a> {{-- QUICK APPLY --}}
-                            @if(!empty($job->job_url)) <a href="{{ $job->job_url }}" target="_blank"
-                                rel="nofollow sponsored" class="btn btn-success btn-sm flex-grow-1 fw-semibold">
-                                <i class="bi bi-send me-1"></i> Quick Apply <i
-                                    class="bi bi-box-arrow-up-right ms-1"></i> </a> @endif </div>
+
+
+                        {{-- VIEW JOB + QUICK APPLY --}}
+                        <div class="d-flex gap-2 mt-auto pt-2">
+
+                            {{-- VIEW JOB --}}
+                            <a href="{{ url('viewjob/' . $job->slug) }}"
+                                class="btn btn-primary rounded-pill btn-sm flex-grow-1 fw-semibold shadow-sm position-relative z-2">
+                                <i class="bi bi-eye me-1"></i>
+                                View Job
+                            </a>
+
+                            {{-- QUICK APPLY --}}
+                            @if(!empty($job->job_url))
+
+                            <a href="{{ $job->job_url }}" target="_blank" rel="nofollow sponsored"
+                                class="btn btn-success rounded-pill btn-sm flex-grow-1 fw-semibold shadow-sm position-relative z-2">
+                                <i class="bi bi-send me-1"></i>
+                                Quick Apply
+                                <i class="bi bi-box-arrow-up-right ms-1"></i>
+                            </a>
+
+                            @endif
+
+                        </div>
 
                     </div>
 
@@ -358,21 +381,21 @@ job opportunities and apply directly through the original job listing.')
             {{-- NO JOBS --}}
             <div class="col-12">
 
-                <div class="job-alert-card">
+                <div class="bg-white border-0 rounded-5 shadow-lg text-center p-5">
 
-                    <div class="job-alert-icon">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary-emphasis rounded-circle p-4 mb-3">
 
-                        <i class="bi bi-search"></i>
+                        <i class="bi bi-search fs-1"></i>
 
                     </div>
 
 
-                    <h4>
+                    <h4 class="fw-bold mb-2">
                         No jobs found
                     </h4>
 
 
-                    <p>
+                    <p class="text-muted mb-4">
 
                         We couldn't find jobs matching your search.
 
@@ -381,7 +404,7 @@ job opportunities and apply directly through the original job listing.')
                     </p>
 
 
-                    <a href="{{ route('jobs.index') }}" class="btn btn-primary">
+                    <a href="{{ route('jobs.index') }}" class="btn btn-primary rounded-pill px-4 shadow-sm">
                         Browse All Jobs
                     </a>
 
@@ -400,7 +423,7 @@ job opportunities and apply directly through the original job listing.')
      JOBS BY LOCATION
 ========================================================= --}}
 
-<section class="mt-1 bg-light-subtle">
+<section class="py-5 bg-light-subtle">
 
     <div class="container">
 
@@ -411,7 +434,7 @@ job opportunities and apply directly through the original job listing.')
 
             <div class="col-lg-8">
 
-                <span class="section-label">
+                <span class="badge rounded-pill bg-success-subtle text-success-emphasis px-3 py-2 fw-semibold text-uppercase small">
 
                     <i class="bi bi-geo-alt-fill me-1"></i>
 
@@ -419,7 +442,7 @@ job opportunities and apply directly through the original job listing.')
 
                 </span>
 
-                <h2 class="fw-bold mt-2 mb-2">
+                <h2 class="fw-bold mt-3 mb-2">
 
                     Find Jobs by Popular Location in India
 
@@ -437,7 +460,7 @@ job opportunities and apply directly through the original job listing.')
 
             <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
 
-                <a href="{{ route('jobs.index') }}" class="btn btn-outline-primary">
+                <a href="{{ route('jobs.index') }}" class="btn btn-outline-primary rounded-pill">
 
                     Explore All Jobs
 
@@ -480,10 +503,10 @@ job opportunities and apply directly through the original job listing.')
 
 
             $icons = [
-            'text-primary',
-            'text-info',
-            'text-success',
-            'text-warning',
+            'text-primary-emphasis',
+            'text-info-emphasis',
+            'text-success-emphasis',
+            'text-warning-emphasis',
             ];
 
 
@@ -501,15 +524,15 @@ job opportunities and apply directly through the original job listing.')
 
             <div class="col-xl-3 col-lg-4 col-md-6">
 
-                <a href="{{ $locationUrl }}" class="state-card h-100 d-flex align-items-center
+                <a href="{{ $locationUrl }}" class="h-100 d-flex align-items-center
                                text-decoration-none p-3
-                               bg-white bg-opacity-75
-                               border rounded-4 shadow-sm">
+                               bg-white
+                               border-0 rounded-4 shadow-sm">
 
 
                     {{-- ICON --}}
 
-                    <div class="{{ $bgClass }} rounded-4 p-2 flex-shrink-0">
+                    <div class="{{ $bgClass }} rounded-circle p-3 flex-shrink-0">
 
                         <i class="bi bi-geo-alt-fill {{ $iconClass }}"></i>
 
@@ -518,7 +541,7 @@ job opportunities and apply directly through the original job listing.')
 
                     {{-- INFO --}}
 
-                    <div class="ms-3 flex-grow-1 min-w-0">
+                    <div class="ms-3 flex-grow-1">
 
                         <h3 class="h6 mb-1 fw-bold text-dark text-truncate">
 
@@ -542,7 +565,7 @@ job opportunities and apply directly through the original job listing.')
                     <div class="ms-2 flex-shrink-0">
 
                         <span class="d-inline-flex align-items-center gap-1
-                                         text-primary fw-semibold small">
+                                         text-primary-emphasis fw-semibold small">
 
                             View
 
@@ -566,7 +589,7 @@ job opportunities and apply directly through the original job listing.')
 
             <div class="col-12">
 
-                <div class="alert alert-light border text-center rounded-4 py-4">
+                <div class="alert alert-light border-0 text-center rounded-4 shadow-sm py-4">
 
                     <i class="bi bi-geo-alt fs-3 d-block mb-2 text-secondary"></i>
 
@@ -594,16 +617,16 @@ job opportunities and apply directly through the original job listing.')
      TOP COMPANIES
 ========================================================= --}}
 
-<section class="section-padding" id="companies">
+<section class="py-5" id="companies">
 
     <div class="container">
 
 
         {{-- SECTION HEADER --}}
 
-        <div class="text-center section-heading">
+        <div class="text-center mb-5">
 
-            <span class="section-label">
+            <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis px-3 py-2 fw-semibold text-uppercase small">
 
                 <i class="bi bi-buildings-fill me-1"></i>
 
@@ -611,7 +634,7 @@ job opportunities and apply directly through the original job listing.')
 
             </span>
 
-            <h2>
+            <h2 class="fw-bold mt-3">
 
                 Companies hiring now
 
@@ -653,95 +676,100 @@ job opportunities and apply directly through the original job listing.')
 
             <div class="col-lg-3 col-md-6">
 
-                <div class="company-card h-100 d-flex flex-column">
+                <div class="card h-100 border-0 rounded-4 shadow-sm">
+
+                    <div class="card-body d-flex flex-column p-4 text-center">
 
 
-                    {{-- COMPANY LOGO --}}
+                        {{-- COMPANY LOGO --}}
 
-                    <div class="company-logo d-flex align-items-center
-                                    justify-content-center mb-3">
+                        <div class="bg-light-subtle rounded-4 d-flex align-items-center
+                                        justify-content-center mb-3 p-3">
 
-                        @if($logo)
+                            @if($logo)
 
-                        <img src="{{ $logo }}" alt="{{ $companyName }} logo" class="img-fluid w-auto h-auto"
-                            loading="lazy"
-                            onerror="this.style.display='none'; this.nextElementSibling.classList.remove('d-none');">
+                            <img src="{{ $logo }}" alt="{{ $companyName }} logo" class="img-fluid w-auto h-auto"
+                                loading="lazy"
+                                onerror="this.style.display='none'; this.nextElementSibling.classList.remove('d-none');">
 
-                        <span class="fw-bold text-primary fs-4 d-none">
+                            <span class="fw-bold text-primary-emphasis fs-4 d-none">
 
-                            {{ $initial ?: 'C' }}
-
-                        </span>
-
-                        @else
-
-                        <span class="fw-bold text-primary fs-4">
-
-                            {{ $initial ?: 'C' }}
-
-                        </span>
-
-                        @endif
-
-                    </div>
-
-
-
-                    {{-- COMPANY NAME --}}
-
-                    <h3 class="company-name mb-2">
-
-                        {{ $companyName }}
-
-                    </h3>
-
-
-
-                    {{-- JOB COUNT --}}
-
-                    <div class="company-jobs mb-4">
-
-                        <span class="badge rounded-pill text-bg-light px-3 py-2">
-
-                            <i class="bi bi-briefcase-fill me-1"></i>
-
-                            {{ number_format($companyJobs) }}
-
-                            {{ $companyJobs == 1 ? 'Job' : 'Jobs' }}
-
-                        </span>
-
-                    </div>
-
-
-
-                    {{-- VIEW JOBS --}}
-
-                    <div class="mt-auto">
-
-                        <a href="{{ $companyUrl }}" class="state-card d-flex align-items-center
-                                       justify-content-between
-                                       text-decoration-none px-3 py-2">
-
-                            <span class="fw-semibold">
-
-                                View Jobs
+                                {{ $initial ?: 'C' }}
 
                             </span>
 
-                            <span class="d-flex align-items-center gap-2">
+                            @else
 
-                                <span class="small text-secondary">
+                            <span class="fw-bold text-primary-emphasis fs-4">
 
-                                    Explore
+                                {{ $initial ?: 'C' }}
+
+                            </span>
+
+                            @endif
+
+                        </div>
+
+
+
+                        {{-- COMPANY NAME --}}
+
+                        <h3 class="h6 fw-bold mb-2">
+
+                            {{ $companyName }}
+
+                        </h3>
+
+
+
+                        {{-- JOB COUNT --}}
+
+                        <div class="mb-4">
+
+                            <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis px-3 py-2">
+
+                                <i class="bi bi-briefcase-fill me-1"></i>
+
+                                {{ number_format($companyJobs) }}
+
+                                {{ $companyJobs == 1 ? 'Job' : 'Jobs' }}
+
+                            </span>
+
+                        </div>
+
+
+
+                        {{-- VIEW JOBS --}}
+
+                        <div class="mt-auto">
+
+                            <a href="{{ $companyUrl }}" class="bg-primary-subtle text-primary-emphasis rounded-pill
+                                           d-flex align-items-center
+                                           justify-content-between
+                                           text-decoration-none px-3 py-2 fw-semibold">
+
+                                <span>
+
+                                    View Jobs
 
                                 </span>
 
-                                <i class="bi bi-arrow-right"></i>
+                                <span class="d-flex align-items-center gap-2">
 
-                            </span>
+                                    <span class="small">
 
-                        </a>
+                                        Explore
+
+                                    </span>
+
+                                    <i class="bi bi-arrow-right"></i>
+
+                                </span>
+
+                            </a>
+
+                        </div>
 
                     </div>
 
@@ -753,7 +781,7 @@ job opportunities and apply directly through the original job listing.')
 
             <div class="col-12">
 
-                <div class="alert alert-light border text-center rounded-4 py-4">
+                <div class="alert alert-light border-0 text-center rounded-4 shadow-sm py-4">
 
                     <i class="bi bi-building fs-3 d-block mb-2 text-secondary"></i>
 
@@ -781,23 +809,23 @@ job opportunities and apply directly through the original job listing.')
      CTA
 ========================================================= --}}
 
-<section class="main-cta">
+<section class="main-cta py-5">
 
     <div class="container text-center">
 
-        <h2>
+        <h2 class="fw-bold">
 
             Ready for your next opportunity?
 
         </h2>
 
-        <p>
+        <p class="text-white mb-4">
 
             Start exploring jobs and take the next step in your career.
 
         </p>
 
-        <a href="{{ route('jobs.index') }}" class="btn btn-light btn-lg px-4">
+        <a href="{{ route('jobs.index') }}" class="btn btn-primary btn-lg rounded-pill px-4 shadow-sm">
 
             <i class="bi bi-search me-1"></i>
 

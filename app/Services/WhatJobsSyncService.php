@@ -320,11 +320,24 @@ class WhatJobsSyncService
             |
             */
 
-            $snippetText = strip_tags($jobData['snippet'] ?? '');
+            $snippetText = html_entity_decode(
+                strip_tags($jobData['snippet'] ?? ''),
+                ENT_QUOTES | ENT_HTML5,
+                'UTF-8'
+            );
+
+            $titleText = html_entity_decode(
+                strip_tags($jobData['title'] ?? ''),
+                ENT_QUOTES | ENT_HTML5,
+                'UTF-8'
+            );
 
             $rawJobType = $this->extractJobType($snippetText);
 
-            $salaryData = $this->extractSalary($snippetText);
+            $salaryData = $this->extractSalary(
+                $snippetText,
+                $titleText
+            );
 
             /*
             |--------------------------------------------------------------------------
@@ -496,9 +509,8 @@ class WhatJobsSyncService
      *
      * 241776915
      */
-    protected function extractProviderJobId(
-        string $url
-    ): ?string {
+    protected function extractProviderJobId(string $url): ?string
+    {
         if (
             preg_match(
                 '/pub_api__cpl__(\d+)__/i',
@@ -571,7 +583,7 @@ class WhatJobsSyncService
 
         $pattern = '/\b'
             . preg_quote($label, '/')
-            . ':\s*(.*?)(?=\s*(?:' . $stopPattern . '):|$)/is';
+            . ':\s*(.*?)(?=\s*(?:' . $stopPattern . '):|$)/isu';
 
         if (preg_match($pattern, $snippetText, $matches)) {
             $value = trim($matches[1]);
@@ -634,9 +646,39 @@ class WhatJobsSyncService
      */
     protected function extractJobType(string $snippetText): ?string
     {
-        return $this->extractLabeledValue($snippetText, 'Employment Type')
-            ?? $this->extractLabeledValue($snippetText, 'Job Type')
-            ?? $this->extractLabeledValue($snippetText, 'Type');
+        $jobType = $this->extractLabeledValue(
+            $snippetText,
+            'Employment Type'
+        )
+            ?? $this->extractLabeledValue(
+                $snippetText,
+                'Job Type'
+            )
+            ?? $this->extractLabeledValue(
+                $snippetText,
+                'Type'
+            );
+
+        if ($jobType !== null) {
+            return $jobType;
+        }
+
+        $location = $this->extractLabeledValue(
+            $snippetText,
+            'Location'
+        );
+
+        if (
+            $location !== null &&
+            preg_match(
+                '/\b(remote|work from home|wfh|hybrid)\b/i',
+                $location
+            )
+        ) {
+            return $location;
+        }
+
+        return null;
     }
 
     /**
@@ -655,6 +697,19 @@ class WhatJobsSyncService
         $normalized = strtolower(trim($rawType));
 
         return match (true) {
+            str_contains($normalized, 'fully remote'),
+            str_contains($normalized, '100% remote'),
+            str_contains($normalized, 'remote job'),
+            str_contains($normalized, 'remote position'),
+            str_contains($normalized, 'remote-first'),
+            str_contains($normalized, 'telecommute'),
+            str_contains($normalized, 'remote') => 'REMOTE',
+
+            str_contains($normalized, 'work from home'),
+            str_contains($normalized, 'wfh') => 'REMOTE',
+
+            str_contains($normalized, 'hybrid') => 'HYBRID',
+
             str_contains($normalized, 'full') => 'FULL_TIME',
             str_contains($normalized, 'part') => 'PART_TIME',
             str_contains($normalized, 'contract') => 'CONTRACTOR',
@@ -662,6 +717,7 @@ class WhatJobsSyncService
             str_contains($normalized, 'intern') => 'INTERN',
             str_contains($normalized, 'volunteer') => 'VOLUNTEER',
             str_contains($normalized, 'per diem') => 'PER_DIEM',
+
             default => 'OTHER',
         };
     }
@@ -686,57 +742,121 @@ class WhatJobsSyncService
      *
      * $snippetText is expected to already be stripped of HTML tags.
      */
-    protected function extractSalary(string $snippetText): ?array
-    {
-        $raw = $this->extractLabeledValue($snippetText, 'Salary Range')
-            ?? $this->extractLabeledValue($snippetText, 'Compensation')
-            ?? $this->extractLabeledValue($snippetText, 'Salary')
-            ?? $this->extractLabeledValue($snippetText, 'Pay Range')
-            ?? $this->extractLabeledValue($snippetText, 'Pay')
-            ?? $this->extractLabeledValue($snippetText, 'Wage')
-            ?? $this->extractLabeledValue($snippetText, 'Remuneration')
-            ?? $this->extractLabeledValue($snippetText, 'CTC')
-            ?? $this->extractLabeledValue($snippetText, 'Rate');
+    protected function extractSalary(
+        string $snippetText,
+        string $titleText = ''
+    ): ?array {
+        $text = $snippetText . ' ' . $titleText;
 
-        if ($raw === null) {
+        $text = html_entity_decode(
+            preg_replace('/<[^>]+>/u', ' ', $text),
+            ENT_QUOTES | ENT_HTML5,
+            'UTF-8'
+        );
+
+        $text = preg_replace('/\s+/u', ' ', $text);
+        $text = trim($text);
+
+        if ($text === '') {
             return null;
         }
 
-        if (
-            !preg_match(
-                '/([\$₹])\s?([\d,]+(?:\.\d+)?)\s*(?:-|–|to)\s*([\$₹]?)\s?([\d,]+(?:\.\d+)?)\s*\/?\s*(?:per\s*)?(hour|hr|year|yr|annum|month|mo|week|wk|day)?/i',
-                $raw,
-                $m
-            )
-        ) {
+        /*
+        * WhatJobs commonly provides:
+        *
+        * Salary: ₹35,000–₹50,000/month
+        * Salary: $70/hr
+        * Salary: ₹50,000/month
+        *
+        * Extract only the value after "Salary:".
+        */
+        if (preg_match(
+            '/Salary\s*:\s*(.*?)(?=Job\s*Type\s*:|Employment\s*Type\s*:|Location\s*:|Work\s*Mode\s*:|$)/iu',
+            $text,
+            $salaryMatch
+        )) {
+            $salaryText = trim($salaryMatch[1]);
+        } else {
+            $salaryText = $text;
+        }
+
+        /*
+        * Parse:
+        *
+        * ₹35,000–₹50,000/month
+        * ₹35,000-₹50,000/month
+        * ₹35,000 to ₹50,000/month
+        * $70/hr
+        * Upto $70/hr
+        * $100,000-$150,000/year
+        */
+        if (!preg_match(
+            '/
+                (?:upto|up\s*to|up-to|maximum|max)?\s*
+                ([₹$])\s*
+                ([\d,]+(?:\.\d+)?)
+
+                (?:
+                    \s*(?:-|–|—|to)\s*
+                    (?:[₹$])?\s*
+                    ([\d,]+(?:\.\d+)?)
+                )?
+
+                \s*
+                (?:\/|\bper\s*)
+                (hour|hr|year|yr|annum|month|mo|week|wk|day)
+                \b
+            /ixu',
+            $salaryText,
+            $matches
+        )) {
             return null;
         }
 
-        $currencySymbol = $m[1];
-        $minValue = (float) str_replace(',', '', $m[2]);
-        $maxValue = (float) str_replace(',', '', $m[4]);
-        $unitRaw = strtolower($m[5] ?? '');
-
-        if ($minValue <= 0 && $maxValue <= 0) {
-            return null;
-        }
-
-        $currency = $currencySymbol === '₹' ? 'INR' : 'USD';
-
-        $unitTime = match (true) {
-            str_starts_with($unitRaw, 'hour'), $unitRaw === 'hr' => 'HOUR',
-            str_starts_with($unitRaw, 'year'), $unitRaw === 'yr', $unitRaw === 'annum' => 'YEAR',
-            str_starts_with($unitRaw, 'month'), $unitRaw === 'mo' => 'MONTH',
-            str_starts_with($unitRaw, 'week'), $unitRaw === 'wk' => 'WEEK',
-            $unitRaw === 'day' => 'DAY',
-            default => 'HOUR',
+        $currency = match ($matches[1]) {
+            '₹' => 'INR',
+            '$' => 'USD',
+            default => null,
         };
+
+        if ($currency === null) {
+            return null;
+        }
+
+        $min = (float) str_replace(',', '', $matches[2]);
+
+        $max = !empty($matches[3])
+            ? (float) str_replace(',', '', $matches[3])
+            : $min;
+
+        if ($min <= 0 || $max <= 0) {
+            return null;
+        }
+
+        if ($max < $min) {
+            [$min, $max] = [$max, $min];
+        }
+
+        $unitRaw = strtolower(trim($matches[4]));
+
+        $unit = match (true) {
+            in_array($unitRaw, ['hour', 'hr'], true) => 'HOUR',
+            in_array($unitRaw, ['year', 'yr', 'annum'], true) => 'YEAR',
+            in_array($unitRaw, ['month', 'mo'], true) => 'MONTH',
+            in_array($unitRaw, ['week', 'wk'], true) => 'WEEK',
+            $unitRaw === 'day' => 'DAY',
+            default => null,
+        };
+
+        if ($unit === null) {
+            return null;
+        }
 
         return [
             'currency' => $currency,
-            'min' => $minValue,
-            'max' => $maxValue,
-            'unit' => $unitTime,
+            'min' => $min,
+            'max' => $max,
+            'unit' => $unit,
         ];
     }
 }

@@ -548,14 +548,14 @@ if (
 COMPACT JOB HEADER
 ========================================================= --}}
 
-<section class="bg-light-subtle border-bottom">
+<section class="bg-primary bg-gradient bg-opacity-10 border-bottom">
 
 
-<div class="container py-4">
+<div class="container py-5">
 
-    <div class="bg-white border rounded-4 shadow-sm">
+    <div class="bg-white border-0 rounded-5 shadow-lg">
 
-        <div class="p-4 p-lg-4">
+        <div class="p-4 p-lg-5">
 
             <div class="row align-items-center g-4">
 
@@ -573,7 +573,7 @@ COMPACT JOB HEADER
 
                         @if($isExpired)
 
-                                <span class="badge text-bg-secondary px-3 py-2">
+                                <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis px-3 py-2 fw-semibold">
 
                                     <i class="bi bi-x-circle me-1"></i>
 
@@ -583,7 +583,7 @@ COMPACT JOB HEADER
 
                             @else
 
-                                <span class="badge text-bg-primary px-3 py-2">
+                                <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis px-3 py-2 fw-semibold">
 
                                     <i class="bi bi-briefcase me-1"></i>
 
@@ -596,7 +596,7 @@ COMPACT JOB HEADER
 
                         @if(!is_null($job->age_days))
 
-                            <span class="badge bg-light text-dark border px-3 py-2">
+                            <span class="badge rounded-pill bg-body-secondary text-body-secondary border px-3 py-2 fw-semibold">
 
                                 <i class="bi bi-clock me-1"></i>
 
@@ -623,63 +623,166 @@ COMPACT JOB HEADER
 
                     {{-- Job Title --}}
 
-                    <h1 class="h2 fw-bold mb-3">
+                    <h1 class="display-6 fw-bold mb-3 text-body-emphasis">
 
                         {{ $jobTitle }}
 
                     </h1>
 
 
-                    {{-- Company --}}
+                    {{-- =================================================
+                         COMPANY / LOCATION / EMPLOYMENT / SALARY
+                    ================================================== --}}
 
-                    @if($job->company)
+                    <div class="d-flex flex-wrap gap-3 mb-3">
 
-                        <div class="d-flex align-items-center mb-3">
+                        {{-- COMPANY --}}
 
-                            <i class="bi bi-building text-primary fs-5 me-2"></i>
+                        @if($job->company)
 
-                            <span class="fw-semibold">
+                            <div class="d-inline-flex align-items-center bg-primary-subtle border-0 rounded-pill px-3 py-2 shadow-sm">
 
-                                {{ $job->company }}
+                                <i class="bi bi-building text-primary-emphasis fs-5 me-2"></i>
 
-                            </span>
+                                <div>
 
-                        </div>
+                                    <div class="small text-primary-emphasis opacity-75 lh-1 mb-1">
+                                        Company
+                                    </div>
 
-                    @endif
+                                    <div class="fw-bold text-primary-emphasis">
+                                        {{ $job->company }}
+                                    </div>
 
+                                </div>
 
-                    {{-- Location / Job Type --}}
-
-                    <div class="d-flex flex-wrap gap-3 text-muted small">
-
-
-                        @if($job->location)
-
-                            <span class="d-inline-flex align-items-center">
-
-                                <i class="bi bi-geo-alt text-primary me-2"></i>
-
-                                {{ $job->location }}
-
-                            </span>
+                            </div>
 
                         @endif
 
-                        @if($job->employment_type !='')
 
-                            <span class="d-inline-flex align-items-center">
+                        {{-- LOCATION --}}
 
-                                <i class="bi bi-briefcase text-primary me-2"></i>
+                        @if($job->location)
 
-                                {{ $job->employment_type }}
+                            <div class="d-inline-flex align-items-center bg-info-subtle border-0 rounded-pill px-3 py-2 shadow-sm">
 
-                            </span>
-                        @endif                
+                                <i class="bi bi-geo-alt text-info-emphasis fs-5 me-2"></i>
+
+                                <div>
+
+                                    <div class="small text-info-emphasis opacity-75 lh-1 mb-1">
+                                        Location
+                                    </div>
+
+                                    <div class="fw-bold text-info-emphasis">
+                                        {{ $job->location }}
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        @endif
+
+
+                        {{-- EMPLOYMENT TYPE --}}
+
+                        @if($job->employment_type != '')
+
+                            <div class="d-inline-flex align-items-center bg-warning-subtle border-0 rounded-pill px-3 py-2 shadow-sm">
+
+                                <i class="bi bi-briefcase text-warning-emphasis fs-5 me-2"></i>
+
+                                <div>
+
+                                    <div class="small text-warning-emphasis opacity-75 lh-1 mb-1">
+                                        Employment Type
+                                    </div>
+
+                                    <div class="fw-bold text-warning-emphasis">
+                                        {{ $job->employment_type }}
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        @endif
+
+
+                        {{-- SALARY --}}
+
+                        @if($salaryMin !== null || $salaryMax !== null)
+
+                            <div class="d-inline-flex align-items-center bg-success-subtle border-0 rounded-pill px-3 py-2 shadow-sm">
+
+                                <i class="bi bi-cash-stack text-success-emphasis fs-5 me-2"></i>
+
+                                <div>
+
+                                    <div class="small text-success-emphasis opacity-75 lh-1 mb-1">
+                                        Salary
+                                    </div>
+
+                                    <div class="fw-bold text-success-emphasis">
+
+                                        @if($salaryMin !== null && $salaryMax !== null)
+
+                                            {{ number_format($salaryMin, 0) }}
+                                            -
+                                            {{ number_format($salaryMax, 0) }}
+
+                                        @elseif($salaryMin !== null)
+
+                                            {{ number_format($salaryMin, 0) }}
+
+                                        @elseif($salaryMax !== null)
+
+                                            {{ number_format($salaryMax, 0) }}
+
+                                        @endif
+
+                                        @if($salaryCurrency)
+                                            {{ $salaryCurrency }}
+                                        @endif
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        @endif
+
+
+                        {{-- PAY PERIOD --}}
+
+                        @if($salaryUnit !== null)
+
+                            <div class="d-inline-flex align-items-center bg-primary-subtle border-0 rounded-pill px-3 py-2 shadow-sm">
+
+                                <i class="bi bi-calendar3 text-primary-emphasis fs-5 me-2"></i>
+
+                                <div>
+
+                                    <div class="small text-primary-emphasis opacity-75 lh-1 mb-1">
+                                        Pay Period
+                                    </div>
+
+                                    <div class="fw-bold text-primary-emphasis">
+                                        {{ $salaryUnit }}
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        @endif
 
                     </div>
-                    
-                    
+
+
                 </div>
 
 
@@ -689,19 +792,19 @@ COMPACT JOB HEADER
 
                 <div class="col-lg-4">
 
-                    <div class="d-flex flex-column flex-sm-row flex-lg-column align-items-center align-items-lg-end justify-content-center gap-3">
-
+                    <div
+                        class="d-flex flex-column flex-sm-row flex-lg-column align-items-center align-items-lg-end justify-content-center gap-3">
 
                         {{-- COMPANY LOGO --}}
 
                         @if($job->logo)
 
-                            <div class="border rounded-3 bg-white p-2">
+                            <div class="border-0 rounded-4 bg-white shadow p-2">
 
                                 <img
                                     src="{{ $job->logo }}"
                                     alt="{{ $job->company ?: $jobTitle }}"
-                                    class="img-fluid"
+                                    class="img-fluid rounded-3"
                                     width="90"
                                     height="70"
                                 >
@@ -710,7 +813,8 @@ COMPACT JOB HEADER
 
                         @elseif($job->company)
 
-                            <div class="bg-light border rounded-3 d-flex align-items-center justify-content-center fw-bold fs-3 text-primary px-4 py-3">
+                            <div
+                                class="bg-primary bg-gradient bg-opacity-75 border-0 rounded-4 shadow d-flex align-items-center justify-content-center fw-bold fs-3 text-white px-4 py-3">
 
                                 {{ strtoupper(substr(trim($job->company), 0, 1)) }}
 
@@ -721,27 +825,27 @@ COMPACT JOB HEADER
 
                         {{-- HEADER APPLY BUTTON --}}
 
-                         @if($isExpired)
+                        @if($isExpired)
 
-                                <button
-                                    type="button"
-                                    class="btn btn-secondary btn-lg fw-semibold px-4"
-                                    disabled
-                                >
+                            <button
+                                type="button"
+                                class="btn btn-secondary rounded-pill btn-lg fw-semibold px-4"
+                                disabled
+                            >
 
-                                    <i class="bi bi-x-circle me-2"></i>
+                                <i class="bi bi-x-circle me-2"></i>
 
-                                    Expired
+                                Expired
 
-                                </button>
+                            </button>
 
-                            @elseif($job->job_url)
+                        @elseif($job->job_url)
 
                             <a
                                 href="{{ $job->job_url }}"
                                 target="_blank"
                                 rel="nofollow sponsored"
-                                class="btn btn-primary btn-lg fw-semibold px-4"
+                                class="btn btn-primary rounded-pill btn-lg fw-semibold px-4 shadow-sm"
                             >
 
                                 <i class="bi bi-send me-2"></i>
@@ -777,7 +881,7 @@ COMPACT JOB HEADER
 
     <div class="container pt-4">
 
-        <div class="alert alert-secondary border rounded-4 mb-0">
+        <div class="alert alert-secondary bg-secondary-subtle border-0 rounded-4 shadow-sm mb-0">
 
             <div class="d-flex align-items-start">
 
@@ -828,9 +932,9 @@ MAIN JOB CONTENT
 
         {{-- DESCRIPTION CARD --}}
 
-        <div class="bg-white border rounded-4 shadow-sm p-4 p-lg-5">
+        <div class="bg-white border-0 rounded-5 shadow-lg p-4 p-lg-5">
 
-            <h2 class="h4 fw-bold mb-4">
+            <h2 class="h4 fw-bold mb-4 pb-3 border-bottom">
 
                 <i class="bi bi-file-text text-primary me-2"></i>
 
@@ -863,11 +967,11 @@ MAIN JOB CONTENT
 
         {{-- EXTERNAL JOB NOTICE --}}
 
-        <div class="alert alert-light border rounded-4 mt-4 mb-0">
+        <div class="alert alert-primary bg-primary-subtle border-0 rounded-4 mt-4 mb-0">
 
             <div class="d-flex align-items-start">
 
-                <i class="bi bi-info-circle text-primary fs-5 me-3"></i>
+                <i class="bi bi-info-circle text-primary-emphasis fs-5 me-3"></i>
 
                 <div>
 
@@ -904,24 +1008,24 @@ MAIN JOB CONTENT
 
         {{-- APPLY / OVERVIEW CARD --}}
 
-        <div class="bg-white border rounded-4 shadow-sm p-4 sticky-lg-top">          
+        <div class="bg-white border-0 rounded-5 shadow-lg p-4 sticky-lg-top">          
 
 
             {{-- MINIMUM SALARY --}}
 
             @if($salaryMin !== null)
 
-                <div class="mb-4">
+                <div class="mb-3 p-3 rounded-4 bg-success-subtle">
 
-                    <div class="small text-muted mb-1">
+                    <div class="small text-success-emphasis opacity-75 mb-1">
 
                         Minimum Salary
 
                     </div>
 
-                    <div class="fw-semibold">
+                    <div class="fw-bold text-success-emphasis fs-5">
 
-                        <i class="bi bi-cash-stack text-success me-2"></i>
+                        <i class="bi bi-cash-stack me-2"></i>
 
                         {{ $salaryMin }}
 
@@ -942,17 +1046,17 @@ MAIN JOB CONTENT
 
             @if($salaryMax !== null)
 
-                <div class="mb-4">
+                <div class="mb-3 p-3 rounded-4 bg-success-subtle">
 
-                    <div class="small text-muted mb-1">
+                    <div class="small text-success-emphasis opacity-75 mb-1">
 
                         Maximum Salary
 
                     </div>
 
-                    <div class="fw-semibold">
+                    <div class="fw-bold text-success-emphasis fs-5">
 
-                        <i class="bi bi-cash-stack text-success me-2"></i>
+                        <i class="bi bi-cash-stack me-2"></i>
 
                         {{ $salaryMax }}
 
@@ -973,15 +1077,15 @@ MAIN JOB CONTENT
 
             @if($salaryUnit !== null)
 
-                <div class="mb-4">
+                <div class="mb-4 p-3 rounded-4 bg-primary-subtle">
 
-                    <div class="small text-muted mb-1">
+                    <div class="small text-primary-emphasis opacity-75 mb-1">
 
                         Salary Unit
 
                     </div>
 
-                    <div class="fw-semibold">
+                    <div class="fw-bold text-primary-emphasis fs-5">
 
                         {{ $salaryUnit }}
 
@@ -997,7 +1101,7 @@ MAIN JOB CONTENT
 
                     <button
                         type="button"
-                        class="btn btn-secondary btn-lg w-100 fw-semibold"
+                        class="btn btn-secondary rounded-pill btn-lg w-100 fw-semibold"
                         disabled
                     >
 
@@ -1013,7 +1117,7 @@ MAIN JOB CONTENT
                     href="{{ $job->job_url }}"
                     target="_blank"
                     rel="nofollow sponsored"
-                    class="btn btn-primary btn-lg w-100 fw-semibold"
+                    class="btn btn-primary rounded-pill btn-lg w-100 fw-semibold shadow-sm"
                 >
 
                     Apply for this job
@@ -1030,7 +1134,7 @@ MAIN JOB CONTENT
 
             {{-- JOB OVERVIEW --}}
 
-            <h2 class="h5 fw-bold mb-4">
+            <h2 class="h5 fw-bold mb-4 pb-2 border-bottom">
 
                 Job Overview
 
@@ -1043,7 +1147,7 @@ MAIN JOB CONTENT
 
                 <div class="d-flex align-items-start gap-3 mb-4">
 
-                    <div class="text-primary fs-5">
+                    <div class="bg-primary-subtle text-primary-emphasis fs-5 rounded-circle p-2 lh-1">
 
                         <i class="bi bi-building"></i>
 
@@ -1051,7 +1155,7 @@ MAIN JOB CONTENT
 
                     <div>
 
-                        <div class="small text-muted">
+                        <div class="small text-body-secondary text-uppercase">
 
                             Company
 
@@ -1076,7 +1180,7 @@ MAIN JOB CONTENT
 
                 <div class="d-flex align-items-start gap-3 mb-4">
 
-                    <div class="text-primary fs-5">
+                    <div class="bg-info-subtle text-info-emphasis fs-5 rounded-circle p-2 lh-1">
 
                         <i class="bi bi-geo-alt"></i>
 
@@ -1084,7 +1188,7 @@ MAIN JOB CONTENT
 
                     <div>
 
-                        <div class="small text-muted">
+                        <div class="small text-body-secondary text-uppercase">
 
                             Location
 
@@ -1109,7 +1213,7 @@ MAIN JOB CONTENT
 
                 <div class="d-flex align-items-start gap-3 mb-4">
 
-                    <div class="text-primary fs-5">
+                    <div class="bg-secondary-subtle text-secondary-emphasis fs-5 rounded-circle p-2 lh-1">
 
                         <i class="bi bi-mailbox"></i>
 
@@ -1117,7 +1221,7 @@ MAIN JOB CONTENT
 
                     <div>
 
-                        <div class="small text-muted">
+                        <div class="small text-body-secondary text-uppercase">
 
                             Postal Code
 
@@ -1142,7 +1246,7 @@ MAIN JOB CONTENT
 
                 <div class="d-flex align-items-start gap-3 mb-4">
 
-                    <div class="text-primary fs-5">
+                    <div class="bg-warning-subtle text-warning-emphasis fs-5 rounded-circle p-2 lh-1">
 
                         <i class="bi bi-briefcase"></i>
 
@@ -1150,7 +1254,7 @@ MAIN JOB CONTENT
 
                     <div>
 
-                        <div class="small text-muted">
+                        <div class="small text-body-secondary text-uppercase">
 
                             Job Type
 
@@ -1175,7 +1279,7 @@ MAIN JOB CONTENT
 
                 <div class="d-flex align-items-start gap-3">
 
-                    <div class="text-primary fs-5">
+                    <div class="bg-success-subtle text-success-emphasis fs-5 rounded-circle p-2 lh-1">
 
                         <i class="bi bi-clock"></i>
 
@@ -1183,7 +1287,7 @@ MAIN JOB CONTENT
 
                     <div>
 
-                        <div class="small text-muted">
+                        <div class="small text-body-secondary text-uppercase">
 
                             Posted
 
@@ -1220,11 +1324,11 @@ MAIN JOB CONTENT
              ORIGINAL LISTING CARD
         ================================================== --}}
 
-        <div class="bg-white border rounded-4 shadow-sm p-4 mt-4">
+        <div class="bg-white border-0 rounded-5 shadow-lg p-4 mt-4">
 
             <h2 class="h5 fw-bold mb-3">
 
-                <i class="bi bi-globe2 text-primary me-2"></i>
+                <i class="bi bi-globe2 text-primary-emphasis bg-primary-subtle rounded-circle p-2 me-2"></i>
 
                 Original Job Listing
 
@@ -1245,7 +1349,7 @@ MAIN JOB CONTENT
 
                     <button
                         type="button"
-                        class="btn btn-secondary btn-lg w-100 fw-semibold"
+                        class="btn btn-secondary rounded-pill btn-lg w-100 fw-semibold"
                         disabled
                     >
 
@@ -1261,7 +1365,7 @@ MAIN JOB CONTENT
                     href="{{ $job->job_url }}"
                     target="_blank"
                     rel="nofollow sponsored"
-                    class="fw-semibold text-decoration-none"
+                    class="fw-semibold text-decoration-none link-primary"
                 >
 
                     View original job
