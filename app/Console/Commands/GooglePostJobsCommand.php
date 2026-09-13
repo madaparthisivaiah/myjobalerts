@@ -9,18 +9,22 @@ use Throwable;
 
 class GooglePostJobsCommand extends Command
 {
-    protected $signature = 'google:post-jobs';
+    protected $signature = 'google:post-jobs
+                            {--limit=10 : Number of jobs to submit to Google}';
 
     protected $description = 'Submit active pending WhatJobs jobs to Google Indexing API';
 
     public function handle(
         GoogleIndexingService $googleIndexingService
     ): int {
+        $limit = max(1, (int) $this->option('limit'));
+
         $this->info('Starting Google Indexing API job posting...');
+        $this->line("Limit: {$limit}");
         $this->newLine();
 
         /*
-         * Only process jobs that are:
+         * Only process jobs where:
          *
          * provider = whatjobs
          * is_active = 1
@@ -33,6 +37,7 @@ class GooglePostJobsCommand extends Command
             ->whereNotNull('slug')
             ->where('slug', '!=', '')
             ->orderBy('id')
+            ->limit($limit)
             ->get([
                 'id',
                 'title',
@@ -44,7 +49,7 @@ class GooglePostJobsCommand extends Command
         $total = $jobs->count();
 
         if ($total === 0) {
-            $this->info('No jobs found for Google posting.');
+            $this->info('No pending active WhatJobs jobs found.');
             $this->line('Required conditions:');
             $this->line('provider = whatjobs');
             $this->line('is_active = 1');
@@ -91,7 +96,9 @@ class GooglePostJobsCommand extends Command
                     );
                 } else {
                     /*
-                     * Failure is recorded once.
+                     * Failure:
+                     * 1 → 2
+                     *
                      * No automatic retry.
                      */
                     $job->job_gfj_status = 2;
@@ -122,8 +129,10 @@ class GooglePostJobsCommand extends Command
                 }
             } catch (Throwable $e) {
                 /*
-                 * Any unexpected exception is also treated as
-                 * a failed submission.
+                 * Unexpected exception:
+                 * 1 → 2
+                 *
+                 * No automatic retry.
                  */
                 $job->job_gfj_status = 2;
                 $job->save();
@@ -147,12 +156,14 @@ class GooglePostJobsCommand extends Command
 
         $this->table(
             [
-                'Total',
+                'Requested',
+                'Found',
                 'Successful',
                 'Failed',
             ],
             [
                 [
+                    $limit,
                     $total,
                     $success,
                     $failed,
