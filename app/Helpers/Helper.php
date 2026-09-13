@@ -4,10 +4,11 @@ if (! function_exists('companyLogo')) {
 
     function companyLogo(string $companyName): ?string
     {
+
         $logos = [
 
             "Lowe's" => asset('images/company-logos/lowes.webp'),
-            'TCS' => asset('images/company-logos/tcs.png'),
+            'Tata Consultancy Services' => asset('images/company-logos/tcs.jpg'),
             'Infosys' => asset('images/company-logos/infosys.png'),
             'Accenture' => asset('images/company-logos/accenture.png'),
             'Axis Bank' => asset('images/company-logos/axis-bank.jpg'),
@@ -19,6 +20,8 @@ if (! function_exists('companyLogo')) {
             'GE Vernova' => asset('images/company-logos/ge-vernova.png'),
             'Jones Lang LaSalle' => asset('images/company-logos/jll.png'),
             'HCLTech' => asset('images/company-logos/hcltech.jpg'),
+            'CIBC India' => asset('images/company-logos/CIBC-Symbol.png'),
+            'Mercor' => asset('images/company-logos/mecor-logo.png'),
 
         ];
 

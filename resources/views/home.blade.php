@@ -667,7 +667,7 @@
             'company' => $company['slug']
             ]
             );
-
+            //echo $companyName;
 
             $logo = companyLogo($companyName);
 
