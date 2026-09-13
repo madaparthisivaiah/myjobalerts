@@ -52,6 +52,8 @@ return [
         'sync_ip' => env('WHATJOBS_SYNC_IP'),
     ],
 
+    'google_indexing' => [ 'credentials' => env( 'GOOGLE_INDEXING_CREDENTIALS' ), ],
+
 ];
 
 //'https://search.api.careerjet.net/v4/query'
