@@ -32,6 +32,13 @@ if (! function_exists('companyLogo')) {
             'ASSPL - Karnataka' => asset('images/company-logos/aurem.jpg'),
             'ASSPL - Gujarat - D34' => asset('images/company-logos/aurem.jpg'),
             'ASSPL - Telangana' => asset('images/company-logos/aurem.jpg'),
+            'MUFG Global Service (MGS)' => asset('images/company-logos/MUFG.png'),
+            'Persistent Systems' => asset('images/company-logos/persistent.png'),
+            'Morgan Stanley' => asset('images/company-logos/morgan.jpg'),
+            'Albertsons Companies India' => asset('images/company-logos/albertsons.jpg'),
+            'ACL Digital' => asset('images/company-logos/acl-digital.jpg'),
+            'UST' => asset('images/company-logos/ust.jpg'),
+            'GyanSys Inc.' => asset('images/company-logos/gyansys.jpg'),
         ];
 
         return $logos[$companyName] ?? null;
