@@ -279,9 +279,11 @@
                                 <div class="d-flex align-items-start gap-3 mb-3">
 
                                     {{-- LOGO --}}
-                                    @if($job->logo)
-
-                                    <img src="{{ $job->logo }}" alt="{{ $job->company }}"
+                                    @php
+                                    $logo = companyLogo($job->company);
+                                    @endphp
+                                    @if($logo)
+                                    <img src="{{ $logo }}" alt="{{ $job->company }}"
                                         class="rounded-3 border shadow-sm" width="56" height="56" loading="lazy">
 
                                     @else

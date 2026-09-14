@@ -797,12 +797,15 @@ COMPACT JOB HEADER
 
                         {{-- COMPANY LOGO --}}
 
-                        @if($job->logo)
+                        @php
+                        $logo = companyLogo($job->company);
+                        @endphp
+                        @if($logo)
 
                             <div class="border-0 rounded-4 bg-white shadow p-2">
 
                                 <img
-                                    src="{{ $job->logo }}"
+                                    src="{{ $logo }}"
                                     alt="{{ $job->company ?: $jobTitle }}"
                                     class="img-fluid rounded-3"
                                     width="90"

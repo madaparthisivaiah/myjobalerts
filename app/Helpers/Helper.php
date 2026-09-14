@@ -22,7 +22,16 @@ if (! function_exists('companyLogo')) {
             'HCLTech' => asset('images/company-logos/hcltech.jpg'),
             'CIBC India' => asset('images/company-logos/CIBC-Symbol.png'),
             'Mercor' => asset('images/company-logos/mecor-logo.png'),
-
+            'ADCI - Karnataka' => asset('images/company-logos/adic.jpg'),
+            'ADCI - BLR 14 SEZ' => asset('images/company-logos/adic.jpg'),
+            'ADCI - BLR - DTA' => asset('images/company-logos/adic.jpg'),
+            'Amazon Healthcare Services Private Limited - R62' => asset('images/company-logos/amazon.png'),
+            'Amazon Dev Center India - Hyderabad - A85' => asset('images/company-logos/amazon.png'),
+            'Amazon Development Centre (India) Private Limited - S55' => asset('images/company-logos/amazon.png'),
+            'ASSPL - Maharashtra - C32' => asset('images/company-logos/aurem.jpg'),
+            'ASSPL - Karnataka' => asset('images/company-logos/aurem.jpg'),
+            'ASSPL - Gujarat - D34' => asset('images/company-logos/aurem.jpg'),
+            'ASSPL - Telangana' => asset('images/company-logos/aurem.jpg'),
         ];
 
         return $logos[$companyName] ?? null;

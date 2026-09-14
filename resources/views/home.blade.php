@@ -184,13 +184,12 @@
                         <div class="d-flex align-items-start gap-3 mb-3">
 
                             {{-- LOGO --}}
-                            @if($job->logo)
-
-                            <img src="{{ $job->logo }}" alt="{{ $job->company }}"
-                                class="rounded-3 border shadow-sm" width="56" height="56" loading="lazy">
-
+                            @php
+                            $logo = companyLogo($job->company);
+                            @endphp
+                            @if($logo)                            
+                            <img src="{{ $logo }}" alt="{{ $job->company }}" class="rounded-3 border shadow-sm" width="56" height="56" loading="lazy">
                             @else
-
                             <div class="bg-primary-subtle text-primary-emphasis rounded-3 d-flex align-items-center justify-content-center fw-bold fs-4 p-3">
 
                                 {{ strtoupper(
@@ -690,7 +689,7 @@
 
                             <img src="{{ $logo }}" alt="{{ $companyName }} logo" class="img-fluid w-auto h-auto"
                                 loading="lazy"
-                                onerror="this.style.display='none'; this.nextElementSibling.classList.remove('d-none');">
+                                onerror="this.style.display='none'; this.nextElementSibling.classList.remove('d-none');" width="55" height="55">
 
                             <span class="fw-bold text-primary-emphasis fs-4 d-none">
 
