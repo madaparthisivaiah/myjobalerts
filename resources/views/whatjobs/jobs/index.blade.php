@@ -284,7 +284,7 @@
                                     @endphp
                                     @if($logo)
                                     <img src="{{ $logo }}" alt="{{ $job->company }}"
-                                        class="rounded-3 border shadow-sm" width="56" height="56" loading="lazy">
+                                        class="rounded-3 border shadow-sm img-fluid" width="56" height="56" loading="lazy">
 
                                     @else
 

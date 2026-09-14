@@ -188,7 +188,7 @@
                             $logo = companyLogo($job->company);
                             @endphp
                             @if($logo)                            
-                            <img src="{{ $logo }}" alt="{{ $job->company }}" class="rounded-3 border shadow-sm" width="56" height="56" loading="lazy">
+                            <img src="{{ $logo }}" alt="{{ $job->company }}" class="rounded-3 border shadow-sm img-fluid" width="56" height="56" loading="lazy">
                             @else
                             <div class="bg-primary-subtle text-primary-emphasis rounded-3 d-flex align-items-center justify-content-center fw-bold fs-4 p-3">
 
@@ -540,9 +540,9 @@
 
                     {{-- INFO --}}
 
-                    <div class="ms-3 flex-grow-1">
+                    <div class="ms-3 flex-grow-1 text-truncate">
 
-                        <h3 class="h6 mb-1 fw-bold text-dark text-truncate">
+                        <h3 class="h6 mb-1 fw-bold text-dark">
 
                             {{ $locationName }}
 
@@ -687,7 +687,7 @@
 
                             @if($logo)
 
-                            <img src="{{ $logo }}" alt="{{ $companyName }} logo" class="img-fluid w-auto h-auto"
+                            <img src="{{ $logo }}" alt="{{ $companyName }} logo" class="img-fluid"
                                 loading="lazy"
                                 onerror="this.style.display='none'; this.nextElementSibling.classList.remove('d-none');" width="55" height="55">
 
