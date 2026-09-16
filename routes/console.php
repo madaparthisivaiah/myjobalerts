@@ -17,5 +17,5 @@ Artisan::command('inspire', function () {
     
 
 Schedule::command('whatjobs:sync-india')
-    ->everySixHours()
+    ->everyTwoHours()
     ->withoutOverlapping();
