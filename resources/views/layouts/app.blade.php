@@ -85,7 +85,7 @@
                 preg_replace(
                     '/\s+/',
                     ' ',
-                    strip_tags($job->snippet ?? $job->title)
+                    trim($job->snippet ?? $job->title)
                 )
             );
 
