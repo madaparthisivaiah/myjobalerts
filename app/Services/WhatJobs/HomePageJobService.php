@@ -64,7 +64,7 @@ class HomePageJobService
     {
         return Job::query()
             ->where('provider', 'whatjobs')
-            ->where('is_active', true)
+            ->where('is_active', 1)
             ->get();
     }
 
@@ -74,6 +74,7 @@ class HomePageJobService
     protected function latestJobs(Collection $jobs): Collection
     {
         return $jobs
+            ->where('is_active', 1)
             ->sortByDesc(function ($job) {
                 return $job->published_at
                     ?? $job->created_at
@@ -89,6 +90,7 @@ class HomePageJobService
     protected function jobsByCompany(Collection $jobs): Collection
     {
         return $jobs
+            ->where('is_active', 1)
             ->filter(fn ($job) => filled($job->company))
             ->groupBy(fn ($job) => $this->normaliseGroupValue($job->company))
             ->map(function (Collection $companyJobs) {
@@ -111,6 +113,7 @@ class HomePageJobService
     protected function jobsByLocation(Collection $jobs): Collection
     {
         return $jobs
+            ->where('is_active', 1)
             ->filter(fn ($job) => filled($job->location))
             ->groupBy(fn ($job) => $this->normaliseGroupValue($job->location))
             ->map(function (Collection $locationJobs) {
