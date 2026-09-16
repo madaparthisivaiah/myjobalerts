@@ -11,8 +11,8 @@ class HomePageJobService
 {
     protected string $cacheKey = 'whatjobs:homepage';
 
-    // 7 hours. WhatJobs sync runs every 6 hours.
-    protected int $cacheTtl = 25200;
+    // 2 hours. WhatJobs sync runs every 2 hours.
+    protected int $cacheTtl = 7200;
 
     /**
      * Get all data required by the WhatJobs homepage.
