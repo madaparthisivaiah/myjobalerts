@@ -110,6 +110,10 @@
 
             }
 
+            if($validThrough){
+                $jobPosting["validThrough"] = $validThrough->toIso8601String();
+            }
+
 
             /*
             |--------------------------------------------------------------------------

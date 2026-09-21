@@ -269,6 +269,10 @@ if (!empty($job->date_posted)) {
 
 }
 
+$validThrough = $job->published_at
+    ? $job->published_at->copy()->addDays(29)
+    : null;
+
 
 /*
 |--------------------------------------------------------------------------
