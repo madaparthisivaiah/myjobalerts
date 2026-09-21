@@ -54,7 +54,7 @@
          Used only on active job detail pages
     ========================================================== --}}
 
-    @if (request()->segment(1) === 'viewjob' && isset($job) && $job->is_active == true)
+    @if (request()->segment(1) === 'viewjob' && isset($job) && $job->is_active == 1 && !empty($job->location))
 
         @php
             /*
