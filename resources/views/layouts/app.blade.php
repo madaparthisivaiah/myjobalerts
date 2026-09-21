@@ -3,44 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>
-        {{ $metaTitle ?? View::yieldContent('title', 'MyJobAlerts - Find Your Dream Job') }}
-    </title>
-    <meta
-        name="description"
-        content="{{ $metaDescription ?? View::yieldContent('meta_description', 'Find the latest jobs in India by job title, company, city and state. Search and discover job opportunities from leading employers and job platforms on MyJobAlerts.in.') }}"
-    >
-    <link
-        rel="canonical"
-        href="@yield('canonical', url()->current())"
-    >
-
-    <link
-        rel="icon"
-        type="image/x-icon"
-        href="{{ asset('favicon.ico') }}"
-    >
-
+    <title>{{ $metaTitle ?? View::yieldContent('title', 'MyJobAlerts - Find Your Dream Job') }}</title>
+    <meta name="description" content="{{ $metaDescription ?? View::yieldContent('meta_description', 'Find the latest jobs in India by job title, company, city and state. Search and discover job opportunities from leading employers and job platforms on MyJobAlerts.in.') }}">
+    <link rel="canonical" href="@yield('canonical', url()->current())">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <!-- Bootstrap 5 -->
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
-        rel="stylesheet"
-    >
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <!-- JobBoard CSS -->
-    <link
-        href="{{ asset('css/jobboard.css') }}"
-        rel="stylesheet"
-    >
-
+    <link href="{{ asset('css/jobboard.css') }}" rel="stylesheet">
     @yield('styles')
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EH7EN7MNQ5"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
 
+    gtag('config', 'G-EH7EN7MNQ5');
+    </script>
 
     {{-- =========================================================
          WEBSITE JSON-LD

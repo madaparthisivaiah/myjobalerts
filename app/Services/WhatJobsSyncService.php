@@ -107,39 +107,39 @@ class WhatJobsSyncService
 
         /*
         |--------------------------------------------------------------------------
-        | Deactivate jobs that were not seen
+        | Deactivate jobs that have not been seen for 48 hours
         |--------------------------------------------------------------------------
         |
-        | IMPORTANT:
+        | A job can temporarily disappear from the WhatJobs feed because of:
         |
-        | This runs ONLY after every WhatJobs page has been processed.
+        | - pagination/result changes
+        | - temporary feed/API issues
+        | - provider-side feed changes
+        |
+        | Therefore, do NOT deactivate a job simply because it was missing
+        | from the current sync.
         |
         | is_active:
         |
-        | true  = ACTIVE
-        | false = INACTIVE / EXPIRED
+        | 1 = ACTIVE
+        | 0 = INACTIVE / EXPIRED
         |
-        | Therefore:
-        |
-        | Find active jobs that were not seen during this sync
-        | and mark them inactive.
+        | A WhatJobs job is deactivated only when it has not been seen
+        | for at least 48 hours.
         |
         */
 
         $deactivated = Job::query()
             ->where('provider', 'whatjobs')
-            ->where('is_active', true)
-            ->where(function ($query) use ($syncStartedAt) {
-                $query
-                    ->whereNull('last_seen_at')
-                    ->orWhere(
-                        'last_seen_at',
-                        '<',
-                        $syncStartedAt
-                    );
-            })
+            ->where('is_active', 1)
+            ->whereNotNull('last_seen_at')
+            ->where(
+                'last_seen_at',
+                '<',
+                $syncStartedAt->copy()->subHours(48)
+            )
             ->update([
-                'is_active' => false,
+                'is_active' => 0,
                 'updated_at' => now(),
             ]);
 
