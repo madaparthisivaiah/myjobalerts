@@ -54,6 +54,18 @@ return [
 
     'google_indexing' => [ 'credentials' => env( 'GOOGLE_INDEXING_CREDENTIALS' ), ],
 
+        'attb' => [
+        'api_url' => env(
+            'ATTB_API_URL',
+            'https://api-partner.allthetopbananas.com'
+        ),
+
+        'partner' => env('ATTB_PARTNER'),
+        'guid' => env('ATTB_GUID'),
+
+        'page_size' => (int) env('ATTB_PAGE_SIZE', 100),
+    ],
+
 ];
 
 //'https://search.api.careerjet.net/v4/query'

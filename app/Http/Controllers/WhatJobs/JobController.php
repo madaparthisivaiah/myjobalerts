@@ -10,7 +10,16 @@ use Illuminate\Support\Str;
 class JobController extends Controller
 {
     /**
-     * Display WhatJobs listings.
+     * Providers included on these listing/detail pages.
+     *
+     * Both WhatJobs and ATTB jobs are shown together here. If you
+     * ever need a provider-specific page again, swap the relevant
+     * whereIn(...) back to a single where('provider', '...').
+     */
+    protected const PROVIDERS = ['whatjobs', 'attb'];
+
+    /**
+     * Display job listings across all supported providers.
      */
     public function index(Request $request, ?string $value = null)
     {
@@ -93,10 +102,14 @@ class JobController extends Controller
         |--------------------------------------------------------------------------
         | Base Query
         |--------------------------------------------------------------------------
+        |
+        | Includes jobs from every provider in self::PROVIDERS
+        | (currently WhatJobs and ATTB) rather than a single one.
+        |
         */
 
         $query = Job::query()
-            ->where('provider', 'whatjobs')
+            ->whereIn('provider', self::PROVIDERS)
             ->where('is_active', true);
 
         /*
@@ -310,12 +323,19 @@ class JobController extends Controller
     }
 
     /**
-     * Display a single WhatJobs job.
+     * Display a single job (any supported provider) by provider_job_id.
+     *
+     * NOTE: provider_job_id is only guaranteed unique *within* a
+     * provider. WhatJobs IDs are numeric (e.g. "241776915") and ATTB
+     * IDs are 32-character hex strings (e.g. "104D4BC7800863AA..."),
+     * so a real collision between the two formats is effectively
+     * impossible in practice. If a third provider is ever added with
+     * a similarly numeric ID scheme, this should be revisited.
      */
     public function show(string $id)
     {
         $job = Job::query()
-            ->where('provider', 'whatjobs')
+            ->whereIn('provider', self::PROVIDERS)
             ->where('provider_job_id', $id)
             ->first();
 
@@ -334,9 +354,10 @@ class JobController extends Controller
         | Expired / Inactive Job
         |--------------------------------------------------------------------------
         |
-        | WhatJobs:
-        | is_active = true → Active
+        | is_active = true  → Active
         | is_active = false → Inactive / Expired
+        |
+        | Convention is shared across providers.
         |
         */
 
@@ -375,12 +396,13 @@ class JobController extends Controller
         | Hubli-Dharwad  -> hubli-dharwad
         |
         | We compare the slug but query the database using the
-        | original location value.
+        | original location value. Locations are matched across
+        | every supported provider.
         |
         */
 
         $locationName = Job::query()
-            ->where('provider', 'whatjobs')
+            ->whereIn('provider', self::PROVIDERS)
             ->where('is_active', true)
             ->whereNotNull('location')
             ->pluck('location')
@@ -405,7 +427,7 @@ class JobController extends Controller
         */
 
         $jobs = Job::query()
-            ->where('provider', 'whatjobs')
+            ->whereIn('provider', self::PROVIDERS)
             ->where('is_active', true)
             ->where('location', $locationName)
             ->latest()
@@ -425,11 +447,17 @@ class JobController extends Controller
         ]);
     }
 
-
+    /**
+     * Display a single job (any supported provider) by slug.
+     *
+     * Safe to match on slug alone across providers: every slug ends
+     * in that provider's unique provider_job_id, so two different
+     * providers can never legitimately produce the same slug value.
+     */
     public function showjob(string $slug)
     {
         $job = Job::query()
-            ->where('provider', 'whatjobs')
+            ->whereIn('provider', self::PROVIDERS)
             ->where('slug', $slug)
             ->first();
             //dd($job);
@@ -449,9 +477,10 @@ class JobController extends Controller
         | Check Job Status
         |--------------------------------------------------------------------------
         |
-        | WhatJobs:
         | is_active = 1 → Active
         | is_active = 0 → Inactive / Expired
+        |
+        | Convention is shared across providers.
         |
         */
 

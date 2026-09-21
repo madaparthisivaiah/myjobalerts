@@ -68,3 +68,15 @@ Route::get('/jobs/{location}', [JobController::class, 'index'])->name('jobs.loca
 Route::get('/company/{company}', [JobController::class, 'index'])->name('jobs.company');
 
 Route::get('/viewjob/{slug}', [JobController::class, 'showjob']);
+
+
+use App\Services\AllTheTopBananas\AllTheTopBananasService;
+
+Route::get('/test-attb', function (AllTheTopBananasService $service) {
+    return $service->search(
+        null,   // keywords
+        null,   // location
+        0,      // start
+        5       // size - only get 5 jobs for testing
+    );
+});
