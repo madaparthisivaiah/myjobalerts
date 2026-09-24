@@ -352,13 +352,13 @@
 
 
                                     {{-- JOB TYPE --}}
-                                    @if($job->job_type)
+                                    @if($job->employment_type)
 
                                     <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis fw-normal px-3 py-2">
 
                                         <i class="bi bi-briefcase me-1"></i>
 
-                                        {{ $job->job_type }}
+                                        {{ $job->employment_type }}
 
                                     </span>
 
