@@ -84,7 +84,6 @@ class WhatJobsSyncService
         */
 
         for ($page = 2; $page <= $lastPage; $page++) {
-
             Log::info(
                 "WhatJobs sync page {$page}/{$lastPage}"
             );
@@ -231,7 +230,6 @@ class WhatJobsSyncService
         $updated = 0;
 
         foreach ($jobs as $jobData) {
-
             /*
             |--------------------------------------------------------------------------
             | Skip invalid records
@@ -256,7 +254,6 @@ class WhatJobsSyncService
             );
 
             if (!$providerJobId) {
-
                 Log::warning(
                     'Could not extract WhatJobs job ID',
                     [
@@ -397,7 +394,15 @@ class WhatJobsSyncService
 
                 'last_seen_at' => $syncStartedAt,
 
-                'is_active' => true,
+                /*
+                |--------------------------------------------------------------------------
+                | IMPORTANT:
+                |
+                | Do NOT set is_active here.
+                |
+                | Existing inactive jobs must remain inactive.
+                |--------------------------------------------------------------------------
+                */
             ];
 
             /*
@@ -407,7 +412,6 @@ class WhatJobsSyncService
             */
 
             if (isset($jobData['age_days'])) {
-
                 $attributes['published_at'] =
                     $syncStartedAt
                         ->copy()
@@ -429,7 +433,6 @@ class WhatJobsSyncService
             */
 
             if ($job) {
-
                 /*
                 |--------------------------------------------------------------------------
                 | If a previously inactive job comes back
@@ -451,6 +454,16 @@ class WhatJobsSyncService
                 ) {
                     $attributes['job_gfj_status'] = 1;
                 }
+
+                /*
+                |--------------------------------------------------------------------------
+                | IMPORTANT CHANGE:
+                |
+                | is_active is NOT updated here.
+                |
+                | Existing active/inactive state is preserved.
+                |--------------------------------------------------------------------------
+                */
 
                 $job->update($attributes);
 
@@ -474,13 +487,18 @@ class WhatJobsSyncService
             */
 
             else {
-
                 Job::create([
                     'provider' => 'whatjobs',
                     'provider_job_id' => $providerJobId,
-
                     ...$attributes,
 
+                    /*
+                    |--------------------------------------------------------------------------
+                    | New jobs are active.
+                    |--------------------------------------------------------------------------
+                    */
+
+                    'is_active' => true,
                     'job_gfj_status' => 1,
                 ]);
 
@@ -502,8 +520,7 @@ class WhatJobsSyncService
      *
      * Example:
      *
-     * https://en-in.whatjobs.com/
-     * pub_api__cpl__241776915__7202?...
+     * https://en-in.whatjobs.com/pub_api__cpl__241776915__7202?...
      *
      * Result:
      *
@@ -620,7 +637,10 @@ class WhatJobsSyncService
         );
 
         if ($locationValue !== null) {
-            return (bool) preg_match('/\bremote\b/i', $locationValue);
+            return (bool) preg_match(
+                '/\bremote\b/i',
+                $locationValue
+            );
         }
 
         $haystack = strtolower(
@@ -711,11 +731,17 @@ class WhatJobsSyncService
             str_contains($normalized, 'hybrid') => 'HYBRID',
 
             str_contains($normalized, 'full') => 'FULL_TIME',
+
             str_contains($normalized, 'part') => 'PART_TIME',
+
             str_contains($normalized, 'contract') => 'CONTRACTOR',
+
             str_contains($normalized, 'temp') => 'TEMPORARY',
+
             str_contains($normalized, 'intern') => 'INTERN',
+
             str_contains($normalized, 'volunteer') => 'VOLUNTEER',
+
             str_contains($normalized, 'per diem') => 'PER_DIEM',
 
             default => 'OTHER',
@@ -755,6 +781,7 @@ class WhatJobsSyncService
         );
 
         $text = preg_replace('/\s+/u', ' ', $text);
+
         $text = trim($text);
 
         if ($text === '') {
@@ -762,54 +789,58 @@ class WhatJobsSyncService
         }
 
         /*
-        * WhatJobs commonly provides:
-        *
-        * Salary: ₹35,000–₹50,000/month
-        * Salary: $70/hr
-        * Salary: ₹50,000/month
-        *
-        * Extract only the value after "Salary:".
-        */
-        if (preg_match(
-            '/Salary\s*:\s*(.*?)(?=Job\s*Type\s*:|Employment\s*Type\s*:|Location\s*:|Work\s*Mode\s*:|$)/iu',
-            $text,
-            $salaryMatch
-        )) {
+         * WhatJobs commonly provides:
+         *
+         * Salary: ₹35,000–₹50,000/month
+         * Salary: $70/hr
+         * Salary: ₹50,000/month
+         *
+         * Extract only the value after "Salary:".
+         */
+
+        if (
+            preg_match(
+                '/Salary\s*:\s*(.*?)(?=Job\s*Type\s*:|Employment\s*Type\s*:|Location\s*:|Work\s*Mode\s*:|$)/iu',
+                $text,
+                $salaryMatch
+            )
+        ) {
             $salaryText = trim($salaryMatch[1]);
         } else {
             $salaryText = $text;
         }
 
         /*
-        * Parse:
-        *
-        * ₹35,000–₹50,000/month
-        * ₹35,000-₹50,000/month
-        * ₹35,000 to ₹50,000/month
-        * $70/hr
-        * Upto $70/hr
-        * $100,000-$150,000/year
-        */
-        if (!preg_match(
-            '/
-                (?:upto|up\s*to|up-to|maximum|max)?\s*
-                ([₹$])\s*
-                ([\d,]+(?:\.\d+)?)
+         * Parse:
+         *
+         * ₹35,000–₹50,000/month
+         * ₹35,000-₹50,000/month
+         * ₹35,000 to ₹50,000/month
+         * $70/hr
+         * Upto $70/hr
+         * $100,000-$150,000/year
+         */
 
-                (?:
-                    \s*(?:-|–|—|to)\s*
-                    (?:[₹$])?\s*
+        if (
+            !preg_match(
+                '/
+                    (?:upto|up\s*to|up-to|maximum|max)?\s*
+                    ([₹$])\s*
                     ([\d,]+(?:\.\d+)?)
-                )?
-
-                \s*
-                (?:\/|\bper\s*)
-                (hour|hr|year|yr|annum|month|mo|week|wk|day)
-                \b
-            /ixu',
-            $salaryText,
-            $matches
-        )) {
+                    (?:
+                        \s*(?:-|–|—|to)\s*
+                        (?:[₹$])?\s*
+                        ([\d,]+(?:\.\d+)?)
+                    )?
+                    \s*
+                    (?:\/|\bper\s*)
+                    (hour|hr|year|yr|annum|month|mo|week|wk|day)
+                    \b
+                /ixu',
+                $salaryText,
+                $matches
+            )
+        ) {
             return null;
         }
 
