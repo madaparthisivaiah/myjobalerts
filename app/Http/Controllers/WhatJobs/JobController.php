@@ -291,13 +291,8 @@ class JobController extends Controller
         | Company search
         |--------------------------------------------------------------------------
         |
-        | company_normalized should contain a normalized version such as:
-        |
-        | "MUFG Global Service" -> "mufgglobalservice"
-        | "Artech L.L.C."       -> "artechllc"
-        |
-        | This avoids running LOWER()/REPLACE() against the company column
-        | for every database row.
+        | Normalize the search value in PHP, then normalize the database
+        | company value during comparison.
         |
         */
 
@@ -311,10 +306,19 @@ class JobController extends Controller
 
             if ($normalizedCompany !== '') {
 
-                $query->where(
-                    'company_normalized',
-                    'like',
-                    "%{$normalizedCompany}%"
+                $query->whereRaw(
+                    "LOWER(
+                        REPLACE(
+                            REPLACE(
+                                REPLACE(company, '.', ''),
+                                ' ',
+                                ''
+                            ),
+                            '-',
+                            ''
+                        )
+                    ) LIKE ?",
+                    ["%{$normalizedCompany}%"]
                 );
             }
         }
