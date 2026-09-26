@@ -269,8 +269,8 @@ if (!empty($job->date_posted)) {
 
 }
 
-$validThrough = $job->published_at
-    ? $job->published_at->copy()->addDays(29)
+$validThrough = $job->last_seen_at
+    ? $job->last_seen_at->copy()->addDays(29)
     : null;
 
 
@@ -599,41 +599,29 @@ COMPACT JOB HEADER
 
 
                        @if($job->is_active == 1 && !is_null($job->age_days))
-
                         <span class="badge rounded-pill bg-body-secondary text-body-secondary border px-3 py-2 fw-semibold">
-
                             <i class="bi bi-clock me-1"></i>
-
                             @if($job->age_days === 0)
-
                                 Posted today
-
                             @elseif($job->age_days === 1)
-
                                 Posted yesterday
-
                             @else
-
                                 Posted {{ $job->age_days }} days ago
-
                             @endif
-
                         </span>
-
-                    @elseif($job->is_active == 0 && !is_null($job->created_at))
-
+                        @elseif($job->is_active == 0 && !is_null($job->created_at))
                         <span class="badge rounded-pill bg-body-secondary text-body-secondary border px-3 py-2 fw-semibold">
-
                             <i class="bi bi-clock me-1"></i>
-
                             Posted {{ $job->created_at->format('d M Y') }}
-
                         </span>
-
-                    @endif
-
+                        @endif
+                        @if(!is_null($job->updated_at))
+                        <span class="badge rounded-pill bg-body-secondary text-body-secondary border px-3 py-2 fw-semibold">
+                            <i class="bi bi-arrow-repeat me-1"></i>
+                            Updated {{ $job->updated_at->format('d M Y') }}
+                        </span>
+                        @endif
                     </div>
-
 
                     {{-- Job Title --}}
 
