@@ -259,9 +259,11 @@ if (!empty($job->salary_unit)) {
 
 $datePosted = null;
 
-if (!empty($job->last_seen_at)) {
-    $datePosted = $job->date_posted;
-} 
+if (!empty($job->published_at)) {
+
+    $datePosted = $job->published_at;
+
+}
 
 $validThrough = $job->last_seen_at
     ? $job->last_seen_at->copy()->addDays(29)
@@ -616,6 +618,7 @@ COMPACT JOB HEADER
                         </span>
                         @endif
                     </div>
+
 
                     {{-- Job Title --}}
 
