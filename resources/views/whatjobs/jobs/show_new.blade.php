@@ -259,15 +259,9 @@ if (!empty($job->salary_unit)) {
 
 $datePosted = null;
 
-if (!empty($job->date_posted)) {
-
+if (!empty($job->last_seen_at)) {
     $datePosted = $job->date_posted;
-
-} elseif (!empty($job->posted_at)) {
-
-    $datePosted = $job->posted_at;
-
-}
+} 
 
 $validThrough = $job->last_seen_at
     ? $job->last_seen_at->copy()->addDays(29)
