@@ -448,11 +448,12 @@ class WhatJobsSyncService
                 |
                 */
 
-                if (
-                    $job->is_active === false &&
-                    (int) $job->job_gfj_status === 3
-                ) {
-                    $attributes['job_gfj_status'] = 1;
+                if ($job->is_active === 0 ) {
+                    
+                    if ((int) $job->job_gfj_status === 3) {
+                        $attributes['job_gfj_status'] = 1;
+                    }
+                    $attributes['is_active'] = 1;
                 }
 
                 /*
@@ -498,7 +499,7 @@ class WhatJobsSyncService
                     |--------------------------------------------------------------------------
                     */
 
-                    'is_active' => true,
+                    'is_active' => 1,
                     'job_gfj_status' => 1,
                 ]);
 

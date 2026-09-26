@@ -598,29 +598,39 @@ COMPACT JOB HEADER
                             @endif
 
 
-                        @if(!is_null($job->age_days))
+                       @if($job->is_active == 1 && !is_null($job->age_days))
 
-                            <span class="badge rounded-pill bg-body-secondary text-body-secondary border px-3 py-2 fw-semibold">
+                        <span class="badge rounded-pill bg-body-secondary text-body-secondary border px-3 py-2 fw-semibold">
 
-                                <i class="bi bi-clock me-1"></i>
+                            <i class="bi bi-clock me-1"></i>
 
-                                @if($job->age_days === 0)
+                            @if($job->age_days === 0)
 
-                                    Posted today
+                                Posted today
 
-                                @elseif($job->age_days === 1)
+                            @elseif($job->age_days === 1)
 
-                                    Posted yesterday
+                                Posted yesterday
 
-                                @else
+                            @else
 
-                                    Posted {{ $job->age_days }} days ago
+                                Posted {{ $job->age_days }} days ago
 
-                                @endif
+                            @endif
 
-                            </span>
+                        </span>
 
-                        @endif
+                    @elseif($job->is_active == 0 && !is_null($job->created_at))
+
+                        <span class="badge rounded-pill bg-body-secondary text-body-secondary border px-3 py-2 fw-semibold">
+
+                            <i class="bi bi-clock me-1"></i>
+
+                            Posted {{ $job->created_at->format('d M Y') }}
+
+                        </span>
+
+                    @endif
 
                     </div>
 
