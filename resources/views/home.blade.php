@@ -23,9 +23,11 @@
                 </h1>
 
                 <p class="hero-description mt-3">
-                    Find the latest job vacancies and career opportunities across India,
-    including jobs in Bangalore, Hyderabad, Mumbai, Delhi, Chennai, Pune, Kolkata, Ahmedabad, Gurgaon and Noida.</p>
-
+    Find the latest job vacancies and career opportunities across India,
+    including jobs in Bangalore, Hyderabad, Mumbai, Delhi, Chennai, Pune,
+    Kolkata, Ahmedabad, Gurgaon and Noida. Search jobs by city, company
+    and job title and apply through the original job listing.
+</p>
 
                 {{-- SEARCH --}}
 

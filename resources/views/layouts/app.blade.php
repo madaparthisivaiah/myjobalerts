@@ -38,7 +38,7 @@
                 "@type" => "WebSite",
                 "name" => "MyJobAlerts",
                 "url" => url('/'),
-                "description" => "Find the latest jobs in India by job title, company, city and state.",
+                "description" => "Find the latest jobs in India across Bangalore, Hyderabad, Mumbai, Delhi, Chennai, Pune, Kolkata, Ahmedabad, Gurgaon and Noida. Search jobs by city, company and job title.",
             ]);
 
         @endphp
