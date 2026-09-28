@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title', 'Latest Jobs in India - Jobs in Top Cities and Companies | MyJobAlerts')
-@section('meta_description', 'Discover the latest jobs in India by company, location, and job title. Search thousands of job opportunities and apply directly through the original job listing.')
+@section('meta_description', 'Find the latest jobs in India across Bangalore, Hyderabad, Mumbai, Delhi, Chennai, Pune, Kolkata, Ahmedabad, Gurgaon and Noida. Search jobs by city, company and job title.')
 @section('content')
 {{-- =========================================================
      HERO
