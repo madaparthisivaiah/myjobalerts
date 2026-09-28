@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Jobs in India - Latest Job Vacancies and Careers | MyJobAlerts')
+@section('title', 'Latest Jobs in India - Jobs in Top Cities and Companies | MyJobAlerts')
 @section('meta_description', 'Discover the latest jobs in India by company, location, and job title. Search thousands of job opportunities and apply directly through the original job listing.')
 @section('content')
 {{-- =========================================================
@@ -19,19 +19,12 @@
                 </span>
 
                 <h1 class="display-4 fw-bold mt-3">
-
-                    Find a job that
-
-                    <span class="text-primary">fits your life.</span>
-
+                    Latest Jobs in India                    
                 </h1>
 
                 <p class="hero-description mt-3">
-
-                    Discover thousands of jobs from companies hiring
-                    talented people like you.
-
-                </p>
+                    Find the latest job vacancies and career opportunities across India,
+    including jobs in Bangalore, Hyderabad, Mumbai, Delhi, Chennai, Pune, Kolkata, Ahmedabad, Gurgaon and Noida.</p>
 
 
                 {{-- SEARCH --}}
@@ -133,9 +126,7 @@
                 </span>
 
                 <h2 class="fw-bold mt-3 mb-2">
-
-                    Latest Job Opportunities
-
+                    Jobs by Popular Cities in India
                 </h2>
 
                 <p class="text-secondary mb-0">
