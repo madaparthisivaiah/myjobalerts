@@ -92,7 +92,7 @@ class JobController extends Controller
 
         $keyword = trim((string) $request->input('keyword', ''));
         $location = trim((string) $request->input('location', ''));
-        $company = trim((string) $request->input('company', ''));
+        $company = trim((string) $request->input('company', ''));        
 
         /*
         |--------------------------------------------------------------------------
@@ -277,13 +277,17 @@ class JobController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        if ($location !== '') {
+        // if ($location !== '') {
 
-            $query->where(
-                'location',
-                'like',
-                "%{$location}%"
-            );
+        //     $query->where(
+        //         'location',
+        //         'like',
+        //         "%{$location}%"
+        //     );
+        // }
+
+        if ($location !== '') {
+            $query->where('location', $location);
         }
 
         /*
@@ -296,7 +300,7 @@ class JobController extends Controller
         |
         */
 
-        if ($company !== '') {
+        /*if ($company !== '') {
 
             $normalizedCompany = preg_replace(
                 '/[^a-z0-9]/',
@@ -321,7 +325,10 @@ class JobController extends Controller
                     ["%{$normalizedCompany}%"]
                 );
             }
-        }
+        }*/
+            if ($company !== '') {
+                $query->where('company', $company);
+            }
 
         /*
         |--------------------------------------------------------------------------

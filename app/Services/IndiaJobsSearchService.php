@@ -21,7 +21,6 @@ class IndiaJobsSearchService
     ): array {
         $keyword = trim($keyword);
         $location = trim($location);
-
         $page = max($page, 1);
         $perPage = max($perPage, 1);
 

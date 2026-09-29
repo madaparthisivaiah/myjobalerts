@@ -21,7 +21,7 @@ class JobController extends Controller
         $keywords = trim(
             (string) $request->input('keyword', '')
         );
-      
+      dd($fdf);
 
         // Remove common filler/stopwords often appended to job searches
         $stopWords = ['jobs', 'job', 'near', 'me', 'vacancy', 'vacancies', 'openings', 'opening', 'hiring'];
