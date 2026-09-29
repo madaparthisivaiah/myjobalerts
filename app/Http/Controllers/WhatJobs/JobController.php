@@ -514,12 +514,18 @@ class JobController extends Controller
         |--------------------------------------------------------------------------
         |
         | Priority 1:
-        | Same location + related title keywords
+        | Same location + relevant title
         |
         | Priority 2:
-        | Related title keywords anywhere in India
+        | Relevant title anywhere in India
         |
-        | Maximum: 8 jobs
+        | Optimization:
+        | - Maximum 2 database queries
+        | - Only required columns selected
+        | - Generic title words removed before querying
+        | - Relevance calculated once as SQL alias
+        | - Maximum 8 results
+        | - No unnecessary collection/database processing
         |
         */
 
@@ -534,7 +540,7 @@ class JobController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Remove common words
+        | Common words
         |--------------------------------------------------------------------------
         */
 
@@ -557,21 +563,51 @@ class JobController extends Controller
             'jobs',
         ];
 
+        /*
+        |--------------------------------------------------------------------------
+        | Generic job-title words
+        |--------------------------------------------------------------------------
+        |
+        | These words are too broad to determine related-job relevance.
+        |
+        */
+
+        $genericTitleWords = [
+            'senior',
+            'junior',
+            'manager',
+            'management',
+            'executive',
+            'lead',
+            'leader',
+            'head',
+            'director',
+            'assistant',
+            'associate',
+            'officer',
+            'specialist',
+            'professional',
+            'trainee',
+            'intern',
+            'internship',
+        ];
+
+        /*
+        |--------------------------------------------------------------------------
+        | Extract useful title keywords
+        |--------------------------------------------------------------------------
+        */
+
         $titleWords = array_values(
             array_filter(
                 $titleWords,
-                function ($word) use ($stopWords) {
+                function ($word) use ($stopWords, $genericTitleWords) {
                     return !in_array($word, $stopWords, true)
+                        && !in_array($word, $genericTitleWords, true)
                         && strlen($word) >= 3;
                 }
             )
         );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Keep maximum 5 useful keywords
-        |--------------------------------------------------------------------------
-        */
 
         $titleWords = array_slice(
             array_values(array_unique($titleWords)),
@@ -583,28 +619,75 @@ class JobController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | 1. Same location + related title
+            | Require at least 2 meaningful words when possible
+            |--------------------------------------------------------------------------
+            |
+            | Example:
+            | Senior Customer Success Manager
+            |
+            | Useful words:
+            | customer, success
+            |
+            | A related job should preferably match both.
+            |
+            */
+
+            $minimumMatches = count($titleWords) >= 2 ? 2 : 1;
+
+            /*
+            |--------------------------------------------------------------------------
+            | Relevance score
+            |--------------------------------------------------------------------------
+            |
+            | Each matching meaningful title keyword = 1 point.
+            |
+            | Example:
+            |
+            | Customer Success Manager
+            | customer = 1
+            | success  = 1
+            | score    = 2
+            |
+            */
+
+            $scoreParts = [];
+
+            foreach ($titleWords as $word) {
+                $scoreParts[] = "CASE WHEN title LIKE ? THEN 1 ELSE 0 END";
+            }
+
+            $relevanceScore = implode(' + ', $scoreParts);
+
+            /*
+            |--------------------------------------------------------------------------
+            | 1. Same location + relevant title
             |--------------------------------------------------------------------------
             */
 
             if (!empty($job->location)) {
+
+                $bindings = [];
+
+                foreach ($titleWords as $word) {
+                    $bindings[] = '%' . $word . '%';
+                }
+
+                $bindings[] = $minimumMatches;
+
                 $relatedJobs = Job::query()
                     ->select(self::RELATED_JOB_COLUMNS)
+                    ->selectRaw(
+                        '(' . $relevanceScore . ') AS relevance_score',
+                        array_slice($bindings, 0, count($titleWords))
+                    )
                     ->where('provider', 'whatjobs')
                     ->where('is_active', 1)
                     ->where('id', '!=', $job->id)
                     ->whereNotNull('slug')
                     ->where('slug', '!=', '')
                     ->where('location', $job->location)
-                    ->where(function ($query) use ($titleWords) {
-                        foreach ($titleWords as $word) {
-                            $query->orWhere(
-                                'title',
-                                'like',
-                                '%' . $word . '%'
-                            );
-                        }
-                    })
+                    ->having('relevance_score', '>=', $minimumMatches)
+                    ->orderByDesc('relevance_score')
                     ->orderByDesc('published_at')
                     ->limit(6)
                     ->get();
@@ -612,7 +695,7 @@ class JobController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | 2. Related title anywhere in India
+            | 2. Relevant title anywhere in India
             |--------------------------------------------------------------------------
             */
 
@@ -623,25 +706,27 @@ class JobController extends Controller
                 $excludeIds = $relatedJobs
                     ->pluck('id')
                     ->push($job->id)
-                    ->values()
                     ->all();
 
+                $bindings = [];
+
+                foreach ($titleWords as $word) {
+                    $bindings[] = '%' . $word . '%';
+                }
+
                 $indiaRelatedJobs = Job::query()
-                    ->select(self::LIST_COLUMNS)
+                    ->select(self::RELATED_JOB_COLUMNS)
+                    ->selectRaw(
+                        '(' . $relevanceScore . ') AS relevance_score',
+                        $bindings
+                    )
                     ->where('provider', 'whatjobs')
                     ->where('is_active', 1)
                     ->whereNotIn('id', $excludeIds)
                     ->whereNotNull('slug')
                     ->where('slug', '!=', '')
-                    ->where(function ($query) use ($titleWords) {
-                        foreach ($titleWords as $word) {
-                            $query->orWhere(
-                                'title',
-                                'like',
-                                '%' . $word . '%'
-                            );
-                        }
-                    })
+                    ->having('relevance_score', '>=', $minimumMatches)
+                    ->orderByDesc('relevance_score')
                     ->orderByDesc('published_at')
                     ->limit($remaining)
                     ->get();
@@ -651,7 +736,7 @@ class JobController extends Controller
                 );
             }
         }
- //dd($relatedJobs);
+
         return view(
             'whatjobs.jobs.show_new',
             [
