@@ -478,11 +478,17 @@ class JobController extends Controller
      * Display a single job by slug.
      */
     public function showjob(string $slug)
-    {
-        $job = Job::query()
-            ->where('provider', 'whatjobs')
-            ->where('slug', $slug)
-            ->first();
+    {        
+        $job = Cache::remember(
+            'whatjobs_job:' . $slug,
+            now()->addHours(2),
+            function () use ($slug) {
+                return Job::query()
+                    ->where('provider', 'whatjobs')
+                    ->where('slug', $slug)
+                    ->first();
+            }
+        );
 
         if (!$job) {
             abort(404);
@@ -510,7 +516,7 @@ class JobController extends Controller
 
         $relatedJobs = Cache::remember(
             'related_jobs:' . $job->id,
-            now()->addHours(6),
+            now()->addHours(2),
             function () use ($job) {
 
                 $relatedJobs = collect();
