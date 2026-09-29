@@ -509,233 +509,180 @@ class JobController extends Controller
         }
 
         /*
-        |--------------------------------------------------------------------------
-        | Related jobs
-        |--------------------------------------------------------------------------
-        |
-        | Priority 1:
-        | Same location + relevant title
-        |
-        | Priority 2:
-        | Relevant title anywhere in India
-        |
-        | Optimization:
-        | - Maximum 2 database queries
-        | - Only required columns selected
-        | - Generic title words removed before querying
-        | - Relevance calculated once as SQL alias
-        | - Maximum 8 results
-        | - No unnecessary collection/database processing
-        |
-        */
+|--------------------------------------------------------------------------
+| Related jobs
+|--------------------------------------------------------------------------
+|
+| Priority 1:
+| Same location + related title/company
+|
+| Priority 2:
+| Related title/company anywhere in India
+|
+| Optimization:
+| - Uses existing FULLTEXT index:
+|   jobs_title_company_fulltext
+| - Maximum 2 database queries
+| - Maximum 8 results
+| - Only required columns selected
+| - No LIKE "%keyword%" scans
+| - No SQL CASE/relevance calculation
+|
+*/
 
-        $relatedJobs = collect();
+$relatedJobs = collect();
 
-        $titleWords = preg_split(
-            '/[^a-zA-Z0-9]+/',
-            strtolower((string) $job->title),
-            -1,
-            PREG_SPLIT_NO_EMPTY
-        );
+$titleWords = preg_split(
+    '/[^a-zA-Z0-9]+/',
+    strtolower((string) $job->title),
+    -1,
+    PREG_SPLIT_NO_EMPTY
+);
 
-        /*
-        |--------------------------------------------------------------------------
-        | Common words
-        |--------------------------------------------------------------------------
-        */
+/*
+|--------------------------------------------------------------------------
+| Remove common / generic title words
+|--------------------------------------------------------------------------
+*/
 
-        $stopWords = [
-            'a',
-            'an',
-            'and',
-            'at',
-            'for',
-            'from',
-            'in',
-            'is',
-            'of',
-            'on',
-            'or',
-            'the',
-            'to',
-            'with',
-            'job',
-            'jobs',
-        ];
+$stopWords = [
+    'a',
+    'an',
+    'and',
+    'at',
+    'for',
+    'from',
+    'in',
+    'is',
+    'of',
+    'on',
+    'or',
+    'the',
+    'to',
+    'with',
+    'job',
+    'jobs',
 
-        /*
-        |--------------------------------------------------------------------------
-        | Generic job-title words
-        |--------------------------------------------------------------------------
-        |
-        | These words are too broad to determine related-job relevance.
-        |
-        */
+    'senior',
+    'junior',
+    'manager',
+    'management',
+    'executive',
+    'lead',
+    'leader',
+    'head',
+    'director',
+    'assistant',
+    'associate',
+    'officer',
+    'specialist',
+    'professional',
+    'trainee',
+    'intern',
+    'internship',
+];
 
-        $genericTitleWords = [
-            'senior',
-            'junior',
-            'manager',
-            'management',
-            'executive',
-            'lead',
-            'leader',
-            'head',
-            'director',
-            'assistant',
-            'associate',
-            'officer',
-            'specialist',
-            'professional',
-            'trainee',
-            'intern',
-            'internship',
-        ];
-
-        /*
-        |--------------------------------------------------------------------------
-        | Extract useful title keywords
-        |--------------------------------------------------------------------------
-        */
-
-        $titleWords = array_values(
-            array_filter(
-                $titleWords,
-                function ($word) use ($stopWords, $genericTitleWords) {
-                    return !in_array($word, $stopWords, true)
-                        && !in_array($word, $genericTitleWords, true)
-                        && strlen($word) >= 3;
-                }
-            )
-        );
-
-        $titleWords = array_slice(
-            array_values(array_unique($titleWords)),
-            0,
-            5
-        );
-
-        if (!empty($titleWords)) {
-
-            /*
-            |--------------------------------------------------------------------------
-            | Require at least 2 meaningful words when possible
-            |--------------------------------------------------------------------------
-            |
-            | Example:
-            | Senior Customer Success Manager
-            |
-            | Useful words:
-            | customer, success
-            |
-            | A related job should preferably match both.
-            |
-            */
-
-            $minimumMatches = count($titleWords) >= 2 ? 2 : 1;
-
-            /*
-            |--------------------------------------------------------------------------
-            | Relevance score
-            |--------------------------------------------------------------------------
-            |
-            | Each matching meaningful title keyword = 1 point.
-            |
-            | Example:
-            |
-            | Customer Success Manager
-            | customer = 1
-            | success  = 1
-            | score    = 2
-            |
-            */
-
-            $scoreParts = [];
-
-            foreach ($titleWords as $word) {
-                $scoreParts[] = "CASE WHEN title LIKE ? THEN 1 ELSE 0 END";
-            }
-
-            $relevanceScore = implode(' + ', $scoreParts);
-
-            /*
-            |--------------------------------------------------------------------------
-            | 1. Same location + relevant title
-            |--------------------------------------------------------------------------
-            */
-
-            if (!empty($job->location)) {
-
-                $bindings = [];
-
-                foreach ($titleWords as $word) {
-                    $bindings[] = '%' . $word . '%';
-                }
-
-                $bindings[] = $minimumMatches;
-
-                $relatedJobs = Job::query()
-                    ->select(self::RELATED_JOB_COLUMNS)
-                    ->selectRaw(
-                        '(' . $relevanceScore . ') AS relevance_score',
-                        array_slice($bindings, 0, count($titleWords))
-                    )
-                    ->where('provider', 'whatjobs')
-                    ->where('is_active', 1)
-                    ->where('id', '!=', $job->id)
-                    ->whereNotNull('slug')
-                    ->where('slug', '!=', '')
-                    ->where('location', $job->location)
-                    ->having('relevance_score', '>=', $minimumMatches)
-                    ->orderByDesc('relevance_score')
-                    ->orderByDesc('published_at')
-                    ->limit(6)
-                    ->get();
-            }
-
-            /*
-            |--------------------------------------------------------------------------
-            | 2. Relevant title anywhere in India
-            |--------------------------------------------------------------------------
-            */
-
-            if ($relatedJobs->count() < 8) {
-
-                $remaining = 8 - $relatedJobs->count();
-
-                $excludeIds = $relatedJobs
-                    ->pluck('id')
-                    ->push($job->id)
-                    ->all();
-
-                $bindings = [];
-
-                foreach ($titleWords as $word) {
-                    $bindings[] = '%' . $word . '%';
-                }
-
-                $indiaRelatedJobs = Job::query()
-                    ->select(self::RELATED_JOB_COLUMNS)
-                    ->selectRaw(
-                        '(' . $relevanceScore . ') AS relevance_score',
-                        $bindings
-                    )
-                    ->where('provider', 'whatjobs')
-                    ->where('is_active', 1)
-                    ->whereNotIn('id', $excludeIds)
-                    ->whereNotNull('slug')
-                    ->where('slug', '!=', '')
-                    ->having('relevance_score', '>=', $minimumMatches)
-                    ->orderByDesc('relevance_score')
-                    ->orderByDesc('published_at')
-                    ->limit($remaining)
-                    ->get();
-
-                $relatedJobs = $relatedJobs->concat(
-                    $indiaRelatedJobs
-                );
-            }
+$titleWords = array_values(
+    array_filter(
+        array_unique($titleWords),
+        function ($word) use ($stopWords) {
+            return !in_array($word, $stopWords, true)
+                && strlen($word) >= 3;
         }
+    )
+);
+
+/*
+|--------------------------------------------------------------------------
+| Keep maximum 5 useful keywords
+|--------------------------------------------------------------------------
+*/
+
+$titleWords = array_slice($titleWords, 0, 5);
+
+if (!empty($titleWords)) {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Build FULLTEXT search string
+    |--------------------------------------------------------------------------
+    |
+    | Example:
+    |
+    | Senior Customer Success Manager
+    |
+    | becomes:
+    |
+    | +customer +success
+    |
+    | This prevents a result matching only "customer" or only "success".
+    |
+    */
+
+    $searchTerms = collect($titleWords)
+        ->map(fn ($word) => '+' . $word . '*')
+        ->implode(' ');
+
+    /*
+    |--------------------------------------------------------------------------
+    | 1. Same location + related title
+    |--------------------------------------------------------------------------
+    */
+
+    if (!empty($job->location)) {
+
+        $relatedJobs = Job::query()
+            ->select(self::RELATED_JOB_COLUMNS)
+            ->where('provider', 'whatjobs')
+            ->where('is_active', 1)
+            ->where('id', '!=', $job->id)
+            ->whereNotNull('slug')
+            ->where('slug', '!=', '')
+            ->where('location', $job->location)
+            ->whereFullText(
+                ['title', 'company'],
+                $searchTerms
+            )
+            ->orderByDesc('published_at')
+            ->limit(6)
+            ->get();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | 2. Related title anywhere in India
+    |--------------------------------------------------------------------------
+    */
+
+    if ($relatedJobs->count() < 8) {
+
+        $remaining = 8 - $relatedJobs->count();
+
+        $excludeIds = $relatedJobs
+            ->pluck('id')
+            ->push($job->id)
+            ->all();
+
+        $indiaRelatedJobs = Job::query()
+            ->select(self::RELATED_JOB_COLUMNS)
+            ->where('provider', 'whatjobs')
+            ->where('is_active', 1)
+            ->whereNotIn('id', $excludeIds)
+            ->whereNotNull('slug')
+            ->where('slug', '!=', '')
+            ->whereFullText(
+                ['title', 'company'],
+                $searchTerms
+            )
+            ->orderByDesc('published_at')
+            ->limit($remaining)
+            ->get();
+
+        $relatedJobs = $relatedJobs->concat(
+            $indiaRelatedJobs
+        );
+    }
+}
 
         return view(
             'whatjobs.jobs.show_new',
