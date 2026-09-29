@@ -252,23 +252,40 @@ class JobController extends Controller
         | Search in title and company.
         |
         */
+        // Remove common filler/stopwords often appended to job searches
+        $stopWords = ['jobs', 'job', 'near', 'me', 'vacancy', 'vacancies', 'openings', 'opening', 'hiring'];
+
+        $words = preg_split('/\s+/', strtolower($keyword), -1, PREG_SPLIT_NO_EMPTY);
+
+        $words = array_filter($words, function ($word) use ($stopWords) {
+            return !in_array($word, $stopWords, true);
+        }); 
+
+        $keyword = trim(implode(' ', $words));
+
+        // if ($keyword !== '') {
+
+        //     $search = "%{$keyword}%";
+
+        //     $query->where(function ($q) use ($search) {
+
+        //         $q->where(
+        //             'title',
+        //             'like',
+        //             $search
+        //         )->orWhere(
+        //             'company',
+        //             'like',
+        //             $search
+        //         );
+        //     });
+        // }
 
         if ($keyword !== '') {
-
-            $search = "%{$keyword}%";
-
-            $query->where(function ($q) use ($search) {
-
-                $q->where(
-                    'title',
-                    'like',
-                    $search
-                )->orWhere(
-                    'company',
-                    'like',
-                    $search
-                );
-            });
+            $query->whereFullText(
+                ['title', 'company'],
+                $keyword
+            );
         }
 
         /*
