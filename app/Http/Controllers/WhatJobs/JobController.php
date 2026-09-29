@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
+
 class JobController extends Controller
 {
     /**
@@ -28,6 +29,15 @@ class JobController extends Controller
         'location',
         'is_active',
         'employment_type',
+        'published_at',
+    ];
+
+    private const RELATED_JOB_COLUMNS = [
+        'id',
+        'slug',
+        'title',
+        'company',
+        'location',
         'published_at',
     ];
 
@@ -68,6 +78,7 @@ class JobController extends Controller
                 $companyMap = [
                     'mufg-global-service-mgs' => 'MUFG Global Service',
                     'artech-llc'              => 'Artech L.L.C.',
+                    'gyansys-inc'             => 'GyanSys Inc.',
                     // add more here
                 ];
 
@@ -304,7 +315,21 @@ class JobController extends Controller
         // }
 
         if ($location !== '') {
-            $query->where('location', $location);
+            $location = trim($location);
+
+            $parts = preg_split('/[\s,]+/', strtolower($location), -1, PREG_SPLIT_NO_EMPTY);
+
+            $parts = array_values(array_unique($parts));
+
+            $query->where(function ($q) use ($location, $parts) {
+                // Full location exact match
+                $q->whereRaw('LOWER(location) = ?', [strtolower($location)]);
+
+                // Individual words exact match
+                foreach ($parts as $part) {
+                    $q->orWhereRaw('LOWER(location) = ?', [$part]);
+                }
+            });
         }
 
         /*
@@ -447,101 +472,7 @@ class JobController extends Controller
             $pageTitle,
             $metaDescription,
         ];
-    }
-
-    /**
-     * Display a single WhatJobs job.
-     */
-    public function show(string $id)
-    {
-        $job = Job::query()
-            ->where('provider', 'whatjobs')
-            ->where('provider_job_id', $id)
-            ->first();
-
-        if (!$job) {
-            abort(404);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Expired job
-        |--------------------------------------------------------------------------
-        |
-        | is_active = 1 => ACTIVE
-        | is_active = 0 => INACTIVE / expired
-        |
-        */
-
-        $isExpired = ((int) $job->is_active === 0);
-
-        if ($isExpired) {
-
-            return response()->view(
-                'whatjobs.jobs.show',
-                [
-                    'job' => $job,
-                    'isExpired' => true,
-                ],
-                410
-            );
-        }
-
-        return view(
-            'whatjobs.jobs.show',
-            [
-                'job' => $job,
-                'isExpired' => false,
-            ]
-        );
-    }
-
-    /**
-     * Display jobs for a given location slug.
-     *
-     * Uses location_slug for a single indexed lookup.
-     */
-    public function location(string $location)
-    {
-        /*
-        |--------------------------------------------------------------------------
-        | Find location
-        |--------------------------------------------------------------------------
-        */
-
-        $job = Job::query()
-            ->where('provider', 'whatjobs')
-            ->where('is_active', 1)
-            ->where('location_slug', $location)
-            ->first();
-
-        abort_unless($job, 404);
-
-        $locationName = $job->location;
-
-        /*
-        |--------------------------------------------------------------------------
-        | Fetch active jobs for location
-        |--------------------------------------------------------------------------
-        */
-
-        $jobs = Job::query()
-            ->select(self::LIST_COLUMNS)
-            ->where('provider', 'whatjobs')
-            ->where('is_active', 1)
-            ->where('location', $locationName)
-            ->latest('published_at')
-            ->paginate(20)
-            ->withQueryString();
-
-        return view(
-            'whatjobs.jobs.location',
-            [
-                'jobs' => $jobs,
-                'location' => $locationName,
-            ]
-        );
-    }
+    }    
 
     /**
      * Display a single job by slug.
@@ -577,10 +508,155 @@ class JobController extends Controller
             );
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Related jobs
+        |--------------------------------------------------------------------------
+        |
+        | Priority 1:
+        | Same location + related title keywords
+        |
+        | Priority 2:
+        | Related title keywords anywhere in India
+        |
+        | Maximum: 8 jobs
+        |
+        */
+
+        $relatedJobs = collect();
+
+        $titleWords = preg_split(
+            '/[^a-zA-Z0-9]+/',
+            strtolower((string) $job->title),
+            -1,
+            PREG_SPLIT_NO_EMPTY
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Remove common words
+        |--------------------------------------------------------------------------
+        */
+
+        $stopWords = [
+            'a',
+            'an',
+            'and',
+            'at',
+            'for',
+            'from',
+            'in',
+            'is',
+            'of',
+            'on',
+            'or',
+            'the',
+            'to',
+            'with',
+            'job',
+            'jobs',
+        ];
+
+        $titleWords = array_values(
+            array_filter(
+                $titleWords,
+                function ($word) use ($stopWords) {
+                    return !in_array($word, $stopWords, true)
+                        && strlen($word) >= 3;
+                }
+            )
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Keep maximum 5 useful keywords
+        |--------------------------------------------------------------------------
+        */
+
+        $titleWords = array_slice(
+            array_values(array_unique($titleWords)),
+            0,
+            5
+        );
+
+        if (!empty($titleWords)) {
+
+            /*
+            |--------------------------------------------------------------------------
+            | 1. Same location + related title
+            |--------------------------------------------------------------------------
+            */
+
+            if (!empty($job->location)) {
+                $relatedJobs = Job::query()
+                    ->select(self::RELATED_JOB_COLUMNS)
+                    ->where('provider', 'whatjobs')
+                    ->where('is_active', 1)
+                    ->where('id', '!=', $job->id)
+                    ->whereNotNull('slug')
+                    ->where('slug', '!=', '')
+                    ->where('location', $job->location)
+                    ->where(function ($query) use ($titleWords) {
+                        foreach ($titleWords as $word) {
+                            $query->orWhere(
+                                'title',
+                                'like',
+                                '%' . $word . '%'
+                            );
+                        }
+                    })
+                    ->orderByDesc('published_at')
+                    ->limit(6)
+                    ->get();
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | 2. Related title anywhere in India
+            |--------------------------------------------------------------------------
+            */
+
+            if ($relatedJobs->count() < 8) {
+
+                $remaining = 8 - $relatedJobs->count();
+
+                $excludeIds = $relatedJobs
+                    ->pluck('id')
+                    ->push($job->id)
+                    ->values()
+                    ->all();
+
+                $indiaRelatedJobs = Job::query()
+                    ->select(self::LIST_COLUMNS)
+                    ->where('provider', 'whatjobs')
+                    ->where('is_active', 1)
+                    ->whereNotIn('id', $excludeIds)
+                    ->whereNotNull('slug')
+                    ->where('slug', '!=', '')
+                    ->where(function ($query) use ($titleWords) {
+                        foreach ($titleWords as $word) {
+                            $query->orWhere(
+                                'title',
+                                'like',
+                                '%' . $word . '%'
+                            );
+                        }
+                    })
+                    ->orderByDesc('published_at')
+                    ->limit($remaining)
+                    ->get();
+
+                $relatedJobs = $relatedJobs->concat(
+                    $indiaRelatedJobs
+                );
+            }
+        }
+ //dd($relatedJobs);
         return view(
             'whatjobs.jobs.show_new',
             [
                 'job' => $job,
+                'relatedJobs' => $relatedJobs,
                 'isExpired' => false,
             ]
         );

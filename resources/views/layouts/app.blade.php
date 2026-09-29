@@ -88,6 +88,12 @@
 
                 "url" => url('/viewjob/' . $job->slug),
 
+                "identifier" => [
+                    "@type" => "PropertyValue",
+                    "name" => "WhatJobs",
+                    "value" => $job->provider_job_id ?: "",
+                ],
+
                 "hiringOrganization" => [
                     "@type" => "Organization",
                     "name" => $job->company ?: "Company",
