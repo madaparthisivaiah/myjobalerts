@@ -508,181 +508,117 @@ class JobController extends Controller
             );
         }
 
-        /*
-|--------------------------------------------------------------------------
-| Related jobs
-|--------------------------------------------------------------------------
-|
-| Priority 1:
-| Same location + related title/company
-|
-| Priority 2:
-| Related title/company anywhere in India
-|
-| Optimization:
-| - Uses existing FULLTEXT index:
-|   jobs_title_company_fulltext
-| - Maximum 2 database queries
-| - Maximum 8 results
-| - Only required columns selected
-| - No LIKE "%keyword%" scans
-| - No SQL CASE/relevance calculation
-|
-*/
+        $relatedJobs = Cache::remember(
+            'related_jobs:' . $job->id,
+            now()->addHours(6),
+            function () use ($job) {
 
-$relatedJobs = collect();
+                $relatedJobs = collect();
 
-$titleWords = preg_split(
-    '/[^a-zA-Z0-9]+/',
-    strtolower((string) $job->title),
-    -1,
-    PREG_SPLIT_NO_EMPTY
-);
+                // Get one useful word from the job title.
+                $titleWords = preg_split(
+                    '/[^a-zA-Z0-9]+/',
+                    strtolower((string) $job->title),
+                    -1,
+                    PREG_SPLIT_NO_EMPTY
+                );
 
-/*
-|--------------------------------------------------------------------------
-| Remove common / generic title words
-|--------------------------------------------------------------------------
-*/
+                $stopWords = [
+                    'a',
+                    'an',
+                    'and',
+                    'at',
+                    'for',
+                    'from',
+                    'in',
+                    'is',
+                    'of',
+                    'on',
+                    'or',
+                    'the',
+                    'to',
+                    'with',
+                    'job',
+                    'jobs',
+                    'senior',
+                    'junior',
+                    'manager',
+                    'management',
+                    'executive',
+                    'lead',
+                    'leader',
+                    'head',
+                    'director',
+                    'assistant',
+                    'associate',
+                    'officer',
+                    'specialist',
+                ];
 
-$stopWords = [
-    'a',
-    'an',
-    'and',
-    'at',
-    'for',
-    'from',
-    'in',
-    'is',
-    'of',
-    'on',
-    'or',
-    'the',
-    'to',
-    'with',
-    'job',
-    'jobs',
+                $keyword = collect($titleWords)
+                    ->filter(function ($word) use ($stopWords) {
+                        return strlen($word) >= 4
+                            && !in_array($word, $stopWords, true);
+                    })
+                    ->first();
 
-    'senior',
-    'junior',
-    'manager',
-    'management',
-    'executive',
-    'lead',
-    'leader',
-    'head',
-    'director',
-    'assistant',
-    'associate',
-    'officer',
-    'specialist',
-    'professional',
-    'trainee',
-    'intern',
-    'internship',
-];
+                if (!$keyword) {
+                    return $relatedJobs;
+                }
 
-$titleWords = array_values(
-    array_filter(
-        array_unique($titleWords),
-        function ($word) use ($stopWords) {
-            return !in_array($word, $stopWords, true)
-                && strlen($word) >= 3;
-        }
-    )
-);
+                /*
+                |--------------------------------------------------------------------------
+                | Same location
+                |--------------------------------------------------------------------------
+                */
 
-/*
-|--------------------------------------------------------------------------
-| Keep maximum 5 useful keywords
-|--------------------------------------------------------------------------
-*/
+                if (!empty($job->location)) {
+                    $relatedJobs = Job::query()
+                        ->select(self::RELATED_JOB_COLUMNS)
+                        ->where('provider', 'whatjobs')
+                        ->where('is_active', 1)
+                        ->where('id', '!=', $job->id)
+                        ->whereNotNull('slug')
+                        ->where('slug', '!=', '')
+                        ->where('location', $job->location)
+                        ->where('title', 'like', '%' . $keyword . '%')
+                        ->orderByDesc('published_at')
+                        ->limit(6)
+                        ->get();
+                }
 
-$titleWords = array_slice($titleWords, 0, 5);
+                /*
+                |--------------------------------------------------------------------------
+                | India fallback
+                |--------------------------------------------------------------------------
+                */
 
-if (!empty($titleWords)) {
+                if ($relatedJobs->count() < 6) {
+                    $remaining = 6 - $relatedJobs->count();
 
-    /*
-    |--------------------------------------------------------------------------
-    | Build FULLTEXT search string
-    |--------------------------------------------------------------------------
-    |
-    | Example:
-    |
-    | Senior Customer Success Manager
-    |
-    | becomes:
-    |
-    | +customer +success
-    |
-    | This prevents a result matching only "customer" or only "success".
-    |
-    */
+                    $excludeIds = $relatedJobs
+                        ->pluck('id')
+                        ->push($job->id)
+                        ->all();
 
-    $searchTerms = collect($titleWords)
-        ->map(fn ($word) => '+' . $word . '*')
-        ->implode(' ');
+                    $indiaRelatedJobs = Job::query()
+                        ->select(self::RELATED_JOB_COLUMNS)
+                        ->where('provider', 'whatjobs')
+                        ->where('is_active', 1)
+                        ->whereNotIn('id', $excludeIds)
+                        ->whereNotNull('slug')
+                        ->where('slug', '!=', '')
+                        ->where('title', 'like', '%' . $keyword . '%')
+                        ->orderByDesc('published_at')
+                        ->limit($remaining)
+                        ->get();
 
-    /*
-    |--------------------------------------------------------------------------
-    | 1. Same location + related title
-    |--------------------------------------------------------------------------
-    */
+                    $relatedJobs = $relatedJobs->concat($indiaRelatedJobs);
+                }
 
-    if (!empty($job->location)) {
-
-        $relatedJobs = Job::query()
-            ->select(self::RELATED_JOB_COLUMNS)
-            ->where('provider', 'whatjobs')
-            ->where('is_active', 1)
-            ->where('id', '!=', $job->id)
-            ->whereNotNull('slug')
-            ->where('slug', '!=', '')
-            ->where('location', $job->location)
-            ->whereFullText(
-                ['title', 'company'],
-                $searchTerms
-            )
-            ->orderByDesc('published_at')
-            ->limit(6)
-            ->get();
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | 2. Related title anywhere in India
-    |--------------------------------------------------------------------------
-    */
-
-    if ($relatedJobs->count() < 8) {
-
-        $remaining = 8 - $relatedJobs->count();
-
-        $excludeIds = $relatedJobs
-            ->pluck('id')
-            ->push($job->id)
-            ->all();
-
-        $indiaRelatedJobs = Job::query()
-            ->select(self::RELATED_JOB_COLUMNS)
-            ->where('provider', 'whatjobs')
-            ->where('is_active', 1)
-            ->whereNotIn('id', $excludeIds)
-            ->whereNotNull('slug')
-            ->where('slug', '!=', '')
-            ->whereFullText(
-                ['title', 'company'],
-                $searchTerms
-            )
-            ->orderByDesc('published_at')
-            ->limit($remaining)
-            ->get();
-
-        $relatedJobs = $relatedJobs->concat(
-            $indiaRelatedJobs
+                return $relatedJobs;
+            }
         );
-    }
-}
 
         return view(
             'whatjobs.jobs.show_new',
