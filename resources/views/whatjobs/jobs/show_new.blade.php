@@ -1367,11 +1367,11 @@ MAIN JOB CONTENT
                     </h2>
                     <p class="small text-muted mb-0">
                         @if(!empty($job->company) && !empty($job->location))
-                        Explore more jobs at {{ $job->company }} in {{ $job->location }}
+                        Explore more jobs at {{ $job->company }} in {{ $job->location }} and other locations
                         @elseif(!empty($job->company))
                         Explore more jobs at {{ $job->company }}
                         @elseif(!empty($job->location))
-                        Explore more jobs in {{ $job->location }}
+                        Explore more jobs in {{ $job->location }} and other locations
                         @else
                         Explore more job opportunities
                         @endif
