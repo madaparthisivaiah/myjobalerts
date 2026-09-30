@@ -508,6 +508,7 @@ class JobController extends Controller
                 'whatjobs.jobs.show_new',
                 [
                     'job' => $job,
+                    'relatedJobs' => collect(),
                     'isExpired' => true,
                 ],
                 410
