@@ -1363,10 +1363,18 @@ MAIN JOB CONTENT
 
                 <div class="mb-3">
                     <h2 id="related-jobs-heading" class="h5 fw-bold mb-1">
-                        Related Jobs
+                        More Job Opportunities
                     </h2>
                     <p class="small text-muted mb-0">
-                        Explore similar {{ Str::lower($job->title) }} opportunities
+                        @if(!empty($job->company) && !empty($job->location))
+                        Explore more jobs at {{ $job->company }} in {{ $job->location }}
+                        @elseif(!empty($job->company))
+                        Explore more jobs at {{ $job->company }}
+                        @elseif(!empty($job->location))
+                        Explore more jobs in {{ $job->location }}
+                        @else
+                        Explore more job opportunities
+                        @endif
                     </p>
                 </div>
 

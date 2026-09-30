@@ -521,64 +521,14 @@ class JobController extends Controller
 
                 $relatedJobs = collect();
 
-                // Get one useful word from the job title.
-                $titleWords = preg_split(
-                    '/[^a-zA-Z0-9]+/',
-                    strtolower((string) $job->title),
-                    -1,
-                    PREG_SPLIT_NO_EMPTY
-                );
-
-                $stopWords = [
-                    'a',
-                    'an',
-                    'and',
-                    'at',
-                    'for',
-                    'from',
-                    'in',
-                    'is',
-                    'of',
-                    'on',
-                    'or',
-                    'the',
-                    'to',
-                    'with',
-                    'job',
-                    'jobs',
-                    'senior',
-                    'junior',
-                    'manager',
-                    'management',
-                    'executive',
-                    'lead',
-                    'leader',
-                    'head',
-                    'director',
-                    'assistant',
-                    'associate',
-                    'officer',
-                    'specialist',
-                ];
-
-                $keyword = collect($titleWords)
-                    ->filter(function ($word) use ($stopWords) {
-                        return strlen($word) >= 4
-                            && !in_array($word, $stopWords, true);
-                    })
-                    ->first();
-
-                if (!$keyword) {
-                    return $relatedJobs;
-                }
-
                 /*
                 |--------------------------------------------------------------------------
-                | Same location
+                | Same company
                 |--------------------------------------------------------------------------
                 */
 
-                if (!empty($job->location)) {
+                if (!empty($job->company)) {
+
                     $relatedJobs = Job::query()
                         ->select(self::RELATED_JOB_COLUMNS)
                         ->where('provider', 'whatjobs')
@@ -586,8 +536,7 @@ class JobController extends Controller
                         ->where('id', '!=', $job->id)
                         ->whereNotNull('slug')
                         ->where('slug', '!=', '')
-                        ->where('location', $job->location)
-                        ->where('title', 'like', '%' . $keyword . '%')
+                        ->where('company', $job->company)
                         ->orderByDesc('published_at')
                         ->limit(6)
                         ->get();
@@ -595,11 +544,15 @@ class JobController extends Controller
 
                 /*
                 |--------------------------------------------------------------------------
-                | India fallback
+                | Same location
                 |--------------------------------------------------------------------------
+                |
+                | Only query location if company results are not enough.
+                |
                 */
 
-                if ($relatedJobs->count() < 6) {
+                if ($relatedJobs->count() < 6 && !empty($job->location)) {
+
                     $remaining = 6 - $relatedJobs->count();
 
                     $excludeIds = $relatedJobs
@@ -607,19 +560,19 @@ class JobController extends Controller
                         ->push($job->id)
                         ->all();
 
-                    $indiaRelatedJobs = Job::query()
+                    $locationJobs = Job::query()
                         ->select(self::RELATED_JOB_COLUMNS)
                         ->where('provider', 'whatjobs')
                         ->where('is_active', 1)
                         ->whereNotIn('id', $excludeIds)
                         ->whereNotNull('slug')
                         ->where('slug', '!=', '')
-                        ->where('title', 'like', '%' . $keyword . '%')
+                        ->where('location', $job->location)
                         ->orderByDesc('published_at')
                         ->limit($remaining)
                         ->get();
 
-                    $relatedJobs = $relatedJobs->concat($indiaRelatedJobs);
+                    $relatedJobs = $relatedJobs->concat($locationJobs);
                 }
 
                 return $relatedJobs;
